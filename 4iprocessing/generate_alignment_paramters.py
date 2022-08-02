@@ -494,6 +494,6 @@ if not os.path.exists(pickle_dir):
 pickle_name = barcode+'alignment_pickle.pickle'
 pickle_path = pickle_dir + os.sep + pickle_name
 print('\n\n'+pickle_path+'\n\n')
-dfall_out.to_pickle(os.path.abspath(pickle_path))
-dfout
+dfout.to_pickle(os.path.abspath(pickle_path))
+
 
