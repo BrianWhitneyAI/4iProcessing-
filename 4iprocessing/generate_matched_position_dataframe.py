@@ -68,6 +68,7 @@ for y in yaml_list:
 
             dfsub['barcode'] = data['barcode']
             dfsub['scope'] = data['scope']
+            dfsub['output_path'] = data['output_path']
             dflist.append(dfsub)
             
 dfconfig = pd.concat(dflist)
@@ -216,7 +217,7 @@ for barcode,dfcb in dfconfig.groupby(['barcode']):
 
 
 
-        dfkeep.append(df)
+            dfkeep.append(df)
 
 
 
@@ -500,6 +501,12 @@ for barcode,dfcb in dfconfig.groupby(['barcode']):
     dfkeep.set_index(['key','template_position'],inplace=True)
     print(dfkeep.shape,dfout.shape)
     dfall = dfkeep.copy()
+    dfall_out = pd.merge(dfall.reset_index(),dfconfig.loc[[barcode],['scope','output_path','path']].reset_index(),
+                  left_on=['barcode','key','original_file'],
+                  right_on = ['barcode','iround','path'],
+                 how='left',)
+    print(dfall.shape,dfconfig.shape,dfall_out.shape)
+    dfall_out
     dfkeep
     
     
@@ -534,14 +541,17 @@ for barcode,dfcb in dfconfig.groupby(['barcode']):
 #  'barcode',
 #  ]
 
+
+
     ###################################
     # now split scenes and write out all the czi files as ome.tiffs
     ###################################
 
-    pickle_dir = 'pickles'
+    output_dir = dfall_out['output_path'][0]
+    pickle_dir = output_dir + os.sep + 'pickles'
     if not os.path.exists(pickle_dir):
         os.makedirs(pickle_dir)
     pickle_name = barcode+'_pickle.pickle'
     pickle_path = pickle_dir + os.sep + pickle_name
     print('\n\n'+pickle_path+'\n\n')
-    dfall.to_pickle(os.path.abspath(pickle_path))
+    dfall_out.to_pickle(os.path.abspath(pickle_path))
