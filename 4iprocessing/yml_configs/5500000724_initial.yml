@@ -1,0 +1,87 @@
+Data:
+- iround: 20X_Timelapse
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/20X_Timelapse/5500000724_20X_Timelapse-01.czi
+  ref_channel: AF647
+  scenes_to_toss: ''
+  zchannels: TaRFP,Bright_3,AF647
+- iround: Round 1
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    1/5500000724_Round_1_20X.czi
+  ref_channel: AF647
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 10
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    10/5500000724_20X_Round_10_20220524.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 11
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    11/5500000724_20X_Round_11_20220525.czi
+  ref_channel: AF647
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 2
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    2/5500000724_Round_2_20X.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 3
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    3/5500000724_Round_3_20X.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 4
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    4/5500000724_Round_4_20X.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 6
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    6/5500000724_Round_6_20X_P16_to_P40.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 6
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    6/5500000724_Round_6_20X_P1_to_P16.czi
+  ref_channel: AF405
+  scenes_to_toss: 16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 7
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    7/5500000724_20X_Round_7_20220518.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 8
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    8/5500000724_20X_Round_8_20220520.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+- iround: Round 9
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724/ZSD1/Round
+    9/5500000724_20X_Round_9_20220523.czi
+  ref_channel: AF405
+  scenes_to_toss: ''
+  zchannels: Bright,AF488,TaRFP,AF405,AF647
+barcode: '5500000724'
+output_path: //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports
+scope: ZSD1

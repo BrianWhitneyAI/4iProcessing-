@@ -1,0 +1,49 @@
+srun -p aics_cpu_general --mem 100G --pty bash
+module load anaconda3/5.3.0
+source activate
+conda activate time_tile
+cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD1_MYH10/AD00000223_10X_Timelapse-01.czi' --scene_list [5] --channel_list ["'EGFP'"]
+
+
+
+
+srun -p aics_cpu_general --mem 70G --pty bash
+module load anaconda3/5.3.0
+source activate
+conda activate time_tile
+cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing
+
+
+
+
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD1_MYH10/AD00000223_10X_Timelapse-01.czi' --channel_list ["'EGFP'"]
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD2_TJP1/AD00000224_20X_20220429_N02_001-01.czi' --channel_list ["'EGFP'"]
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD3_CDH1/AD00000225_20X_20220429_N04_001-05.czi' --channel_list ["'EGFP'"]
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220506/ZSD2_MYH10/AD00000226_20X_20220506_N04_001-01.czi' --channel_list ["'EGFP'"]
+
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220513/ZSD1/5500000743_20X_Timelpase-01.czi' --channel_list ["'EGFP'"]
+
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220513/ZSD2/5500000745_20X_timelapse-01.czi' --channel_list ["'EGFP'"]
+python tiled_mip_maker.py --file_path '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220513/ZSD3/5500000744_20X_20220513_N02_001-01.czi' --channel_list ["'EGFP'"]
+
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD1_MYH10/AD00000223_10X_Timelapse-01.czi'
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD2_TJP1/AD00000224_20X_20220429_N02_001-01.czi'
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220429/ZSD3_CDH1/AD00000225_20X_20220429_N04_001-05.czi'
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220506/ZSD2_MYH10/AD00000226_20X_20220506_N04_001-01.czi'
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220513/ZSD1/5500000743_20X_Timelpase-01.czi'
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220513/ZSD2/5500000745_20X_timelapse-01.czi'
+ '//allen/aics/assay-dev/MicroscopyData/Sara/2022/20220513/ZSD3/5500000744_20X_20220513_N02_001-01.czi'
+
+
+python 4i_align_export_from_pickle.py
+
+
+####
+
+/allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports/5500000724-export/5500000724-20x-R09-Scene-20-P20-F7-maxproj_c01_T000_ORG.tif
+POSITION =  P3
+srun: Exceeded job memory limit
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: n81: task 0: Killed
+chris.frick@n232:~$

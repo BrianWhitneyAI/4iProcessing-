@@ -1,0 +1,80 @@
+Data:
+- iround: Round 1
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    1/5500000726_round1_20x.czi
+  ref_channel: AF647
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 10
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    10/5500000726_round_10_20220524_20X.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 11
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    11/5500000726_round_11_20220525_20X.czi
+  ref_channel: AF647
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 2
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    2/5500000726_round2_20x.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 3
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    3/5500000726_round3_20x.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 4
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    4/5500000726_round4_20x.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 6
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    6/20220517_5500000726_round6_20x.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 7
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    7/5500000726_20X_Round_7_20220518.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 8
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    8/5500000726_round_8_20220520_20X.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Round 9
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Round
+    9/5500000726_round_8_20220523_20X.czi
+  ref_channel: DAPI
+  scenes_to_toss: ''
+  zchannels: Bright,EGFP,TaRFP,DAPI,AF647
+- iround: Timelapses
+  item: czi
+  path: //allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726/ZSD2/Timelapses/5500000726_20x_timelapse.czi
+  ref_channel: CMDRP
+  scenes_to_toss: ''
+  zchannels: Bright_2,TaRFP,CMDRP
+barcode: '5500000726'
+output_path: //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports
+scope: ZSD2
