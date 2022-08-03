@@ -238,7 +238,7 @@ for Position in ['P1', 'P3', 'P12']: #go one position by position, since you nee
                     # this is where the alignment is performed
                     print(alignment_offset)
                     align_matrix = get_align_matrix(alignment_offset)
-                    shift_to_center_matrix = shift_to_center(imgstack.shape,final_shape)
+                    shift_to_center_matrix = get_shift_to_center_matrix(imgstack.shape,final_shape)
                     combo = shift_to_center_matrix @ align_matrix
 
                     #aligned image
