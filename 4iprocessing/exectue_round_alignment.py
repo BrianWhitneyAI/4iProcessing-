@@ -127,10 +127,11 @@ from scipy.ndimage import affine_transform
 
 
 
+
 def get_align_matrix(alignment_offset):
     align_matrix = np.eye(4)
     for i in range(len(alignment_offset)):
-        align_matrix[i,3] = alignment_offset[-i]
+        align_matrix[i,3] = alignment_offset[i]*-1
     align_matrix = np.int16(align_matrix)
     return align_matrix
 
