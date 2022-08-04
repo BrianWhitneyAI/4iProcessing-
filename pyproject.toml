@@ -12,5 +12,5 @@ profile = "black"
 [tool.pytest.ini_options]
 addopts = "-v"
 testpaths = [
-    "4iProcessing/tests",
+    "multiplex_immuno_processing/tests",
 ]

@@ -1,8 +1,8 @@
-# 4iProcessing
+# multiplex_immuno_processing
 
-[![Build Status](https://github.com/BrianWhitneyAI/4iprocessing/workflows/Build%20Main/badge.svg)](https://github.com/BrianWhitneyAI/4iprocessing/actions)
-[![Documentation](https://github.com/BrianWhitneyAI/4iprocessing/workflows/Documentation/badge.svg)](https://BrianWhitneyAI.github.io/4iprocessing/)
-[![Code Coverage](https://codecov.io/gh/BrianWhitneyAI/4iprocessing/branch/main/graph/badge.svg)](https://codecov.io/gh/BrianWhitneyAI/4iprocessing)
+[![Build Status](https://github.com/BrianWhitneyAI/multiplex_immuno_processing/workflows/Build%20Main/badge.svg)](https://github.com/BrianWhitneyAI/multiplex_immuno_processing/actions)
+[![Documentation](https://github.com/BrianWhitneyAI/multiplex_immuno_processing/workflows/Documentation/badge.svg)](https://BrianWhitneyAI.github.io/multiplex_immuno_processing/)
+[![Code Coverage](https://codecov.io/gh/BrianWhitneyAI/multiplex_immuno_processing/branch/main/graph/badge.svg)](https://codecov.io/gh/BrianWhitneyAI/multiplex_immuno_processing)
 
 4i Processing contains programatic steps for imaging processing 
 
@@ -14,12 +14,12 @@
 
 ## Installation
 
-**Stable Release:** `pip install 4iprocessing`<br>
-**Development Head:** `pip install git+https://github.com/BrianWhitneyAI/4iprocessing.git`
+**Stable Release:** `pip install multiplex_immuno_processing`<br>
+**Development Head:** `pip install git+https://github.com/BrianWhitneyAI/multiplex_immuno_processing.git`
 
 ## Documentation
 
-For full package documentation please visit [BrianWhitneyAI.github.io/4iprocessing](https://BrianWhitneyAI.github.io/4iprocessing).
+For full package documentation please visit [BrianWhitneyAI.github.io/multiplex_immuno_processing](https://BrianWhitneyAI.github.io/multiplex_immuno_processing).
 
 ## Development
 
@@ -30,7 +30,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for information related to developing the
 1. `make install`
 
     This will setup a virtual environment local to this project and install all of the
-    project's dependencies into it. The virtual env will be located in `4iprocessing/venv`.
+    project's dependencies into it. The virtual env will be located in `multiplex_immuno_processing/venv`.
 
 2. `make test`, `make fmt`, `make lint`, `make type-check`, `make import-sort`
 

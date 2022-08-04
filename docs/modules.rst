@@ -1,7 +1,7 @@
-4iProcessing
+multiplex_immuno_processing
 =====================
 
 .. toctree::
    :maxdepth: 4
 
-   4iProcessing
+   multiplex_immuno_processing

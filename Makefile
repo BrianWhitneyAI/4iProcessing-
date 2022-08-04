@@ -29,23 +29,23 @@ install: venv requirements.txt setup.py
 > $(VENV_BIN)/pre-commit install
 
 lint:
-> $(PYTHON) -m flake8 --count --show-source --statistics 4iProcessing
+> $(PYTHON) -m flake8 --count --show-source --statistics multiplex_immuno_processing
 .PHONY: lint
 
 type-check:
-> $(PYTHON) -m mypy --ignore-missing-imports 4iProcessing
+> $(PYTHON) -m mypy --ignore-missing-imports multiplex_immuno_processing
 .PHONY: type-check
 
 fmt:
-> $(PYTHON) -m black 4iProcessing
+> $(PYTHON) -m black multiplex_immuno_processing
 .PHONY: fmt
 
 import-sort:
-> $(PYTHON) -m isort 4iProcessing
+> $(PYTHON) -m isort multiplex_immuno_processing
 .PHONY: import-sort
 
 test:
-> $(PYTHON) -m pytest 4iProcessing/tests/
+> $(PYTHON) -m pytest multiplex_immuno_processing/tests/
 .PHONY: test
 
 test-exclude-slow:
@@ -57,7 +57,7 @@ clean:  # Clear proj dir of all .gitignored files
 .PHONY: clean
 
 docs:
-> source $(ACTIVATE) && sphinx-apidoc -f -o docs 4iProcessing 4iProcessing/tests
+> source $(ACTIVATE) && sphinx-apidoc -f -o docs multiplex_immuno_processing multiplex_immuno_processing/tests
 > source $(ACTIVATE) && sphinx-build -b html docs docs/build
 .PHONY: docs
 
