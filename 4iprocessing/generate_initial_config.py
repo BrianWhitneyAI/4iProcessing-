@@ -37,6 +37,8 @@ def sort_rounds(rounds):
 
 
 def check_regex_for_changing_ref_channel(round_name):
+    # return True for 20x timelapse and round1, return False otherwise. 
+    # helps deal with differing regex scheming
     if bool(re.search('time',round_name, re.IGNORECASE)):
         return True
     elif bool(re.search('Round', round_name, re.IGNORECASE)):
@@ -48,9 +50,8 @@ def check_regex_for_changing_ref_channel(round_name):
     else:
         return False
 
-
-
 def get_scenes_to_toss(reader):
+    # get scenes to toss as assesed by if reader can get dimensions of that scene
     scenes_to_toss=[]
     for scene in reader.scenes:
         reader.set_scene(scene)
@@ -65,13 +66,13 @@ def get_scenes_to_toss(reader):
 if __name__ == '__main__':
     args= parser.parse_args()
 
-    for bdir in args.input_dirs:
+    for bdir in args.input_dirs: # for each input directory
         barcode = Path(Path(bdir)).name
         print(barcode)
         config ={}
         config['Data']=[]
         scope_list = [x for x in os.listdir(bdir) if 'ZSD' in x]
-        for scope in scope_list:
+        for scope in scope_list: # for each scope
             pdir = bdir + os.sep + scope
             round_list = [x for x in os.listdir(pdir) if bool(re.search('Time|Round [0-9]+',x,re.IGNORECASE))&(Path(x).stem==Path(x).name)]
             round_list = sort_rounds(round_list)
@@ -122,7 +123,6 @@ if __name__ == '__main__':
                     detailid['ref_channel'] = str(channels[ref_channel])
                     detailid['channels'] = zchannels
                     config['Data'].append(detailid)
-                # yamd['Data'].append(subd)
             config['barcode'] = barcode
             config['scope'] = scope
             
