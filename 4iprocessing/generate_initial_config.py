@@ -5,13 +5,16 @@ import re
 from aicsimageio import AICSImage
 import argparse
 import json
+from ruamel.yaml import YAML
+import ruamel.yaml
+
 
 # run this to make the initial yaml files and then edit those files to make sure nothing is missing.
 # this code only helps make the yaml files...it does not generate a perfect yaml automatically. 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_dirs', type=str, default=["/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000733","/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724", "/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000728", "/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726", "/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000725"], help="input dirs to parse")
-parser.add_argument('--output_path', type=str, required=True, help="final alignment outputs to specify in yaml file")
+parser.add_argument('--output_path', type=str, required=True, help="output dir of yaml file")
 parser.add_argument('--output_yaml_dir', type=str, required=True, help="final alignment outputs to specify in yaml file")
 
 
@@ -69,7 +72,9 @@ if __name__ == '__main__':
     for bdir in args.input_dirs: # for each input directory
         barcode = Path(Path(bdir)).name
         print(barcode)
-        config ={}
+        config = ruamel.yaml.comments.CommentedMap()
+
+        #config ={}
         config['Data']=[]
         scope_list = [x for x in os.listdir(bdir) if 'ZSD' in x]
         for scope in scope_list: # for each scope
@@ -115,7 +120,7 @@ if __name__ == '__main__':
                     zscenes_to_toss=','.join([str(x) for x in scenes_to_toss])
                     zchannels = ','.join(channels)
                     
-                    detailid={}
+                    detailid = ruamel.yaml.comments.CommentedMap()
                     detailid['round'] = round_num
                     detailid['item'] = 'czi'
                     detailid['path'] = fpath
@@ -129,16 +134,16 @@ if __name__ == '__main__':
             # output path defines folder where all images get stored after they get processed
             config['output_path'] = args.output_yaml_dir
         
-        output_dir = os.path.join(args.output_path,'json_configs')
+        output_dir = os.path.join(args.output_path,'new_yaml_output_ruml')
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
             
-        out_path = os.path.join(output_dir, f"{barcode}_initial.json")
+        out_path = os.path.join(output_dir, f"{barcode}_initial.yaml")
         print(out_path)
         #config_out = json.dumps(config, indent=4, sort_keys=True)
 
-        with open(out_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, ensure_ascii=False, indent=4)
+        with open(out_path, 'w') as outfile:
+            ruamel.yaml.round_trip_dump(config, stream=outfile)
 
 
-    
+
