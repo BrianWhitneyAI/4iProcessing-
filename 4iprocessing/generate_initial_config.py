@@ -13,9 +13,9 @@ import ruamel.yaml
 # this code only helps make the yaml files...it does not generate a perfect yaml automatically. 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input_dirs', type=str, default=["/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000733","/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724", "/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000728", "/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726", "/allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000725"], help="input dirs to parse")
+parser.add_argument('--input_dirs', type=list, required=True, help="input dirs to parse")
 parser.add_argument('--output_path', type=str, required=True, help="output dir of yaml file")
-parser.add_argument('--output_yaml_dir', type=str, required=True, help="final alignment outputs to specify in yaml file")
+parser.add_argument('--output_yaml_dir', type=str, required=True, help="final alignment output path to specify in yaml file")
 
 
 
@@ -84,10 +84,10 @@ if __name__ == '__main__':
             print("round list is {}".format(round_list))
             for round_num in round_list:
                 ppath = os.path.join(pdir, round_num)
-                czi_list = [x for x in os.listdir(ppath) if ('.czi' in x)&bool(re.search('20x',x,re.IGNORECASE))]
+                Image_list = [x for x in os.listdir(ppath) if ('.czi' or '.tiff' in x)&bool(re.search('20x',x,re.IGNORECASE))]
 
-                for czi_name in czi_list:
-                    fpath = os.path.join(ppath,czi_name)
+                for img_name in Image_list:
+                    fpath = os.path.join(ppath,img_name)
                     fpathr = fpath.replace(os.sep,'/')
                     fpath2 ='"'+fpathr+'"'
                     fpath2 = fpathr
@@ -104,7 +104,7 @@ if __name__ == '__main__':
                         ref_channel=-1
                         print("ref channel is {}".format(ref_channel))
 
-                    # use the parent czi file for metadata
+                    # use the parent image file for metadata
                     # find the channel names for the image file
                     reader = AICSImage(fpath)
                     channels = reader.channel_names
@@ -122,7 +122,13 @@ if __name__ == '__main__':
                     
                     detailid = ruamel.yaml.comments.CommentedMap()
                     detailid['round'] = round_num
-                    detailid['item'] = 'czi'
+
+                    if img_name.endswith(".czi"):
+                        detailid['item'] = 'czi'
+                    else:
+                         detailid['item'] = 'tiff'
+
+                    
                     detailid['path'] = fpath
                     detailid['scenes_to_toss'] = zscenes_to_toss
                     detailid['ref_channel'] = str(channels[ref_channel])
