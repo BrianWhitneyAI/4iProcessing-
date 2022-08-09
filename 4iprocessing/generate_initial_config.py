@@ -68,8 +68,6 @@ def get_scenes_to_toss(reader):
 
 if __name__ == '__main__':
     args= parser.parse_args()
-    print(args.input_dirs)
-    print(type(args.input_dirs))
 
     for bdir in args.input_dirs: # for each input directory
         barcode = Path(Path(bdir)).name
