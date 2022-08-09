@@ -13,7 +13,7 @@ import ruamel.yaml
 # this code only helps make the yaml files...it does not generate a perfect yaml automatically. 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input_dirs', type=list, required=True, help="input dirs to parse")
+parser.add_argument('--input_dirs', nargs='+', default=[], help="input dirs to parse")
 parser.add_argument('--output_path', type=str, required=True, help="output dir of yaml file")
 parser.add_argument('--output_yaml_dir', type=str, required=True, help="final alignment output path to specify in yaml file")
 
@@ -24,17 +24,17 @@ def sort_rounds(rounds):
     Orginal_numbered_list = []
     for i in range(len(rounds)):
         Orginal_numbered_list.append(int(re.search(r'\d+', rounds[i]).group())) 
-    print(f"original list is {Orginal_numbered_list}")
+    #print(f"original list is {Orginal_numbered_list}")
     sorted_list = sorted(Orginal_numbered_list)
     #print(f"sorted list is {sorted_list}")
     final_sorted_list=[]
     for num in set(sorted_list):
         #index = Orginal_numbered_list.index(num)
         indexs=[i for i,val in enumerate(Orginal_numbered_list) if val==num]
-        print(f"for num {num}, indexs is {indexs}")
+        #print(f"for num {num}, indexs is {indexs}")
         for k in range(len(indexs)):
             idx = indexs[k]
-            print(idx)
+            #print(idx)
             final_sorted_list.append(rounds[idx])
     return final_sorted_list
 
@@ -68,6 +68,8 @@ def get_scenes_to_toss(reader):
 
 if __name__ == '__main__':
     args= parser.parse_args()
+    print(args.input_dirs)
+    print(type(args.input_dirs))
 
     for bdir in args.input_dirs: # for each input directory
         barcode = Path(Path(bdir)).name
@@ -84,7 +86,7 @@ if __name__ == '__main__':
             print("round list is {}".format(round_list))
             for round_num in round_list:
                 ppath = os.path.join(pdir, round_num)
-                Image_list = [x for x in os.listdir(ppath) if ('.czi' or '.tiff' in x)&bool(re.search('20x',x,re.IGNORECASE))]
+                Image_list = [x for x in os.listdir(ppath) if (('.czi' in x) or ('.tiff' in x))& bool(re.search('20x',x,re.IGNORECASE))]
 
                 for img_name in Image_list:
                     fpath = os.path.join(ppath,img_name)
@@ -100,9 +102,9 @@ if __name__ == '__main__':
                     # if the image is a timelapse or round01 then choose the reference channel to be the last channel in the image set , =-1.
                     if bool(re.search('time|1(?![0-9])',round_num, re.IGNORECASE)) and round_num!="Round 11": 
                         #print('TODO: make sure this doesnt capture round 11')
-                        print("round num is {}".format(round_num))
+                        #print("round num is {}".format(round_num))
                         ref_channel=-1
-                        print("ref channel is {}".format(ref_channel))
+                        #print("ref channel is {}".format(ref_channel))
 
                     # use the parent image file for metadata
                     # find the channel names for the image file
@@ -145,7 +147,7 @@ if __name__ == '__main__':
             os.makedirs(output_dir)
             
         out_path = os.path.join(output_dir, f"{barcode}_initial.yaml")
-        print(out_path)
+        #print(out_path)
         #config_out = json.dumps(config, indent=4, sort_keys=True)
 
         with open(out_path, 'w') as outfile:
