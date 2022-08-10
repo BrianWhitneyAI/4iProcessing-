@@ -197,7 +197,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
                 print("not there...update your yaml")
 
         # get position info from all files in the file list
-        dfmeta_list = []
+        dfmeta_round_list = []
         if len(file_list) > 0:
             
             #each round may have more than one czi file assoicated with it. so iterate through each file
@@ -249,27 +249,16 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     # dfall[['X','X_original','X_adjusted','PlateReferencePoint','PlateAnchorPoint']]
 
     if ploton:
-        plot_position_rectangles(dfall, fs=18, figsize=(10, 10))
+        plot_position_rectangles(dfmeta, fs=18, figsize=(10, 10))
 
-    
-    #collect all the scenes that are user-specified for removal from the dataset into a list (specified in yaml file)
-    scenes_to_toss_list = [
-        int(x) for x in dfcbr["scenes_to_toss"].tolist() if x.isnumeric()
-    ]
-    
 
     ###################################
-    # now remove the scenes specified in the dictionary above (or config file int he future)
+    # now remove the scenes specified in the yaml config above
     ###################################
     original_file_AND_scenes_to_toss_list = []
     # for key,value in mag_dict.items():
     for iround, dfcbr in dfcb.groupby(["iround"]):
-        # for key,value in mag_dict.items():
-        #     display(value)
-
-        # print(barcode,iround)
-
-        # scenes_to_toss_list = value['scenes_to_toss']
+        
         scenes_to_toss_list = [
             eval("[" + x + "]") for x in dfcbr["scenes_to_toss"].tolist()
         ]
@@ -282,18 +271,18 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
             )
 
     # print(original_file_AND_scenes_to_toss_list)
-    dfall.reset_index(inplace=True)
-    dfall.set_index(
+    dfmeta.reset_index(inplace=True)
+    dfmeta.set_index(
         ["original_file", "Scene"],
         inplace=True,
     )
-    dfall.drop(
+    dfmeta.drop(
         labels=original_file_AND_scenes_to_toss_list, inplace=True, errors="ignore"
     )
 
     # ploton=True
     if ploton:
-        plot_position_rectangles(dfall)
+        plot_position_rectangles(dfmeta)
 
     ###################################
     # find and record overlapping FOVs with magX and magX (self overlaps to be removed)
@@ -303,7 +292,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         "find and record overlapping FOVs with magX and magX (self overlaps to be removed)"
     )
     print("TODO: rename mag as key")
-    for mag, df in dfall.groupby("key"):
+    for mag, df in dfmeta.groupby("key"):
 
         print(mag)
         dfl = []
@@ -353,16 +342,16 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
 
     positions_to_remove_list
 
-    dfall.reset_index(inplace=True)
-    dfall.set_index(["key", "Position"], inplace=True)
-    dfall.drop(labels=positions_to_remove_list, inplace=True, errors="ignore")
+    dfmeta.reset_index(inplace=True)
+    dfmeta.set_index(["key", "Position"], inplace=True)
+    dfmeta.drop(labels=positions_to_remove_list, inplace=True, errors="ignore")
 
     # ploton=True
     if ploton:
-        plot_position_rectangles(dfall)
+        plot_position_rectangles(dfmeta)
 
     # define the list to start with timelapse
-    ukeys = dfall.reset_index()["key"].unique()
+    ukeys = dfmeta.reset_index()["key"].unique()
     keylist = [x for x in ukeys if "Time" in x] + [x for x in ukeys if "Time" not in x]
     print(keylist)
 
@@ -370,8 +359,8 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     dflall = []
 
     for ki in range(0, len(keylist)):
-        dfall.reset_index(inplace=True)
-        dfall.set_index(["key"], inplace=True)
+        dfmeta.reset_index(inplace=True)
+        dfmeta.set_index(["key"], inplace=True)
         pdslice = pd.IndexSlice[
             keylist[0]
         ]  # should be first round or time lapse...defined up above
@@ -382,12 +371,12 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
             print(print("template key = ", keylist[0]))
             print("Error")  # TODO: Change this to real error handling
 
-        dftemp = dfall.loc[
+        dftemp = dfmeta.loc[
             pdslice, :
         ]  # template set to which other sets are matched to.
 
         pdslice = pd.IndexSlice[keylist[ki]]
-        dfmove = dfall.loc[pdslice, :]  # set to be matched/"moved" to template
+        dfmove = dfmeta.loc[pdslice, :]  # set to be matched/"moved" to template
 
         print(ki, pdslice)
 
@@ -434,9 +423,9 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
                 ]
             )
         keepset = list(set(keeplist))
-        dfall.reset_index(inplace=True)
-        dfall.set_index(["key", "Position"], inplace=True)
-        dfkeep = dfall.loc[keepset]
+        dfmeta.reset_index(inplace=True)
+        dfmeta.set_index(["key", "Position"], inplace=True)
+        dfkeep = dfmeta.loc[keepset]
 
         # merge the overlapping position info with the template dataframe
         # (remember that the first round of matching is the template with itself)
@@ -477,16 +466,16 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     )  # rename this column to template position so it is clear what it is
     dfkeep.set_index(["key", "template_position"], inplace=True)
     print(dfkeep.shape, dfout.shape)
-    dfall = dfkeep.copy()
-    dfall_out = pd.merge(
-        dfall.reset_index(),
+    dfmeta = dfkeep.copy()
+    dfmeta_out = pd.merge(
+        dfmeta.reset_index(),
         dfconfig.loc[[barcode], ["scope", "output_path", "path"]].reset_index(),
         left_on=["barcode", "key", "original_file"],
         right_on=["barcode", "iround", "path"],
         how="left",
     )
-    print(dfall.shape, dfconfig.shape, dfall_out.shape)
-    dfall_out
+    print(dfmeta.shape, dfconfig.shape, dfmeta_out.shape)
+    dfmeta_out
     dfkeep
 
     # important columns
@@ -521,11 +510,11 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     #  ]
 
     # now split scenes and write out all the czi files as ome.tiffs
-    output_dir = dfall_out["output_path"][0]
+    output_dir = dfmeta_out["output_path"][0]
     pickle_dir = output_dir + os.sep + "pickles"
     if not os.path.exists(pickle_dir):
         os.makedirs(pickle_dir)
     pickle_name = barcode + "_pickle.pickle"
     pickle_path = pickle_dir + os.sep + pickle_name
     print("\n\n" + pickle_path + "\n\n")
-    dfall_out.to_pickle(os.path.abspath(pickle_path))
+    dfmeta_out.to_pickle(os.path.abspath(pickle_path))
