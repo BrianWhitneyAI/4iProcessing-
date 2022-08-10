@@ -152,34 +152,37 @@ def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
 print("done")
 
 
-# Open the file and load the file
+# load the yaml config files and populate a dataframe with config info
 yaml_dir = "yml_configs"
 yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
-dflist = []
+dfconfiglist = []
 for y in yaml_list:
     print(y)
     yml_path = yaml_dir + os.sep + y
     with open(yml_path) as f:
         data = yaml.load(f, Loader=SafeLoader)
         for iround_dict in data["Data"]:
-            dfsub = pd.DataFrame(iround_dict.values(), index=iround_dict.keys()).T
-            dfsub["barcode"] = data["barcode"]
-            dfsub["scope"] = data["scope"]
-            dfsub["output_path"] = data["output_path"]
-            dflist.append(dfsub)
+            dfconfigsub = pd.DataFrame(iround_dict.values(), index=iround_dict.keys()).T
+            dfconfigsub["barcode"] = data["barcode"]
+            dfconfigsub["scope"] = data["scope"]
+            dfconfigsub["output_path"] = data["output_path"]
+            dfconfiglist.append(dfconfigsub)
 
-dfconfig = pd.concat(dflist)
+dfconfig = pd.concat(dfconfiglist)
 dfconfig.set_index(["barcode", "iround"], inplace=True)
 
+
+# now go through all specified CZI files and collect metadata (specifically metadata about position, XYZ coordinates and FOV size)
+# barcode corresponds to a given plate
+# iround corresponds to a given round of imaging of that plate
 for barcode, dfcb in dfconfig.groupby(["barcode"]):
-    dfkeep = []
+    dfmeta_barcode_list = []
     for iround, dfcbr in dfcb.groupby(["iround"]):
-        # for key,value in mag_dict.items():
-        #     display(value)
 
         print(barcode, iround)
 
-        # determine if flist is filepaths or fms fileids
+        # determine if flist is list of filepaths or fms fileids
+        # and if it is fms ID then find the filepath
         file_list = []
         original_file_list = []
         list_of_files = dfcbr.path.tolist()
@@ -194,24 +197,26 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
                 print("not there...update your yaml")
 
         # get position info from all files in the file list
-        dfl = []
+        dfmeta_list = []
         if len(file_list) > 0:
-            for file, filename in zip(original_file_list, file_list):
+            
+            #each round may have more than one czi file assoicated with it. so iterate through each file
+            for original_file, filename in zip(original_file_list, file_list):
                 print(file, filename)
-                dfsub = zen_position_helper.get_position_info_from_czi(filename)
-                dfsub["align_channel"] = dfcbr["ref_channel"][0]
-                dfsub["barcode"] = barcode
-                dfsub["key"] = iround
-                dfl.append(dfsub)
+                dfmeta_sub = zen_position_helper.get_position_info_from_czi(filename)
+                dfmeta_sub["align_channel"] = dfcbr["ref_channel"][0]
+                dfmeta_sub["barcode"] = barcode
+                dfmeta_sub["key"] = iround
+                dfmeta_sub['original_file'] = original_file #this records the original item from the yaml
+                dfmeta_round_list.append(dfmeta_sub)
 
-            df = pd.concat(dfl, keys=original_file_list, names=["original_file"])
+            dfmeta_round = pd.concat(dfmeta_round_list) #this has all metadata for given round
 
-            dfkeep.append(df)
+            dfmeta_barcode_list.append(dfmeta_round)
 
-    # magkeylist = list(mag_dict.keys())
-    # dfall = pd.concat(dfkeep,keys=magkeylist,names=['key']).reset_index()
-    dfall = pd.concat(dfkeep).reset_index()
-    dfall.set_index(["key"], inplace=True)
+    
+    dfmeta = pd.concat(dfmeta_barcode_list).reset_index() #this has all metadata for all rounds of image data for one given barcode
+    dfmeta.set_index(["key"], inplace=True)
 
     # important columns are:
     # ['original_file',
@@ -246,50 +251,16 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     if ploton:
         plot_position_rectangles(dfall, fs=18, figsize=(10, 10))
 
-    # dfall.reset_index().set_index(['Position']).loc['P16']
-
-    # dfall[['original_file',
-    #   'file',
-    #  'parent_file',
-    #  'shape',
-    #  'ImagePixelDistances',
-    #  'totalmagnification',
-    #  'channel_dict',
-    #  'pixelSizes',
-    #  'imgsize_um',
-    #  'PlateAnchorPoint',
-    #  'PlateReferencePoint',
-    #  'X',
-    #  'Y',
-    #  'Z',
-    #  'IsUsedForAcquisition',
-    #  'Position',
-    #  'Position_num',
-    #  'Scene',
-    #  'Well_id',
-    #  'X_original',
-    #  'X_adjusted',
-    #  'Y_original',
-    #  'Y_adjusted',
-    #  'align_channel',
-    #  'barcode',]]
-
-    if ploton:
-        plot_position_rectangles(dfall, fs=18, figsize=(10, 10))
-
+    
+    #collect all the scenes that are user-specified for removal from the dataset into a list (specified in yaml file)
     scenes_to_toss_list = [
         int(x) for x in dfcbr["scenes_to_toss"].tolist() if x.isnumeric()
     ]
-    scenes_to_toss_list
+    
 
     ###################################
     # now remove the scenes specified in the dictionary above (or config file int he future)
     ###################################
-    print("TODO: remove every first scene from these 4i data")
-    print(
-        "now remove the scenes specified in the dictionary above (or config file int he future)"
-    )
-
     original_file_AND_scenes_to_toss_list = []
     # for key,value in mag_dict.items():
     for iround, dfcbr in dfcb.groupby(["iround"]):
