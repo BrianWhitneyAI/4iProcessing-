@@ -1,17 +1,10 @@
-from itertools import product
-import os
 from pathlib import Path
-import random
-import re
-import string
 import xml.etree.ElementTree as ET
 
 from aicsimageio import AICSImage
 import lxml.etree as etree
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.spatial.distance as scidist
 
 
 def compute_adjusted_xy(df, overwrite=True):
@@ -29,9 +22,6 @@ def compute_adjusted_xy(df, overwrite=True):
     else:
         print("already adjsuted")
     return df
-
-
-
 
 
 def get_position_info_from_czi(filename):
@@ -58,17 +48,17 @@ def get_position_info_from_czi(filename):
         ]
     """
 
-    feats = {} #define a dictionary for recording the extracted metadata
-    
-    #record the filename
+    feats = {}  # define a dictionary for recording the extracted metadata
+
+    # record the filename
     feats["file"] = filename
     feats["parent_file"] = filename
 
     # find the image dimensions of the image
-    #number of scenes
+    # number of scenes
     number_of_scenes_acquired = eval(meta.find(".//SizeS").text)
-    
-    #number of z slices per image
+
+    # number of z slices per image
     SizeZ = eval(meta.find(".//SizeZ").text)
 
     # get camera dimensions
@@ -78,18 +68,18 @@ def get_position_info_from_czi(filename):
     # number of pixels in each dimension for a given scene (size in X,Y,Z)
     feats["imgsize_pixels"] = tuple(
         (frame_size_pixels[-2], frame_size_pixels[-1], SizeZ)
-    )  
+    )
 
     # find key imaging parameters
     ImagePixelDistancesList = meta.findall(".//ParameterCollection/ImagePixelDistances")
 
     for ip in ImagePixelDistancesList[0:1]:  # only choose the first camera
         feats["ImagePixelDistances"] = tuple(eval(ip.text))
-        
+
         feats["totalmagnification"] = eval(
             ip.getparent().find("./TotalMagnification").text
         )
-        
+
         feats["CameraPixelAccuracy"] = eval(
             ip.getparent().find("./CameraPixelAccuracy").text
         )
@@ -135,7 +125,8 @@ def get_position_info_from_czi(filename):
 
     dfmetalist = []
     for regions in [meta.find(".//SingleTileRegions")]:
-        # some weird czis have duplicates in SingleTileRegions....so you need to drop those by not doing find all
+        # some weird czis have duplicates in SingleTileRegions....
+        # so you need to drop those by not doing find all
         for region in regions.findall("SingleTileRegion"):
 
             attrib = region.attrib

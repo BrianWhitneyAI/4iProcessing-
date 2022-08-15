@@ -19,7 +19,7 @@ for bdir in bdirlist:
     barcode = Path(Path(bdir)).name
 
     print(barcode)
-    yamd: Dict = {} #this looks weird
+    yamd: Dict = {}  # this looks weird
     yamd["Data"] = []
     scope_list = [x for x in os.listdir(bdir) if "ZSD" in x]
     for scope in scope_list:
@@ -119,9 +119,9 @@ for bdir in bdirlist:
             "output_path"
         ] = "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 
-
-    #error!!!!! os.curdir will export to wherever the user is currenlty running python. Not ideal
-    ### I want this to export the yml configs in the same directory as this code that is running ....not the users current working direcotyr
+    # error!!!!! os.curdir will export to wherever the user is currenlty running python. Not ideal
+    # I want this to export the yml configs in the same directory as this code that is running ....
+    # not the users current working direcotyr
 
     yaml_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep + "yml_configs"
     if not os.path.exists(yaml_dir):

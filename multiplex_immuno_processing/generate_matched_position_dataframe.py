@@ -1,8 +1,6 @@
 from collections import namedtuple
-import importlib
 import os
 from pathlib import Path
-import re
 
 import cycle
 import matplotlib.pyplot as plt
@@ -52,7 +50,6 @@ TODO: decide if we want any contact sheet-style outputs from this code that help
     IDEA: create max projection tiled output that looks to see if the same FOV was
           indeed imaged for all "putative" matched positions.
 """
-
 
 
 def create_rectangle(xyz, imgsize_um):
@@ -171,7 +168,8 @@ dfconfig = pd.concat(dfconfiglist)
 dfconfig.set_index(["barcode", "iround"], inplace=True)
 
 
-# now go through all specified CZI files and collect metadata (specifically metadata about position, XYZ coordinates and FOV size)
+# now go through all specified CZI files and collect metadata
+# (specifically metadata about position, XYZ coordinates and FOV size)
 # barcode corresponds to a given plate
 # iround corresponds to a given round of imaging of that plate
 for barcode, dfcb in dfconfig.groupby(["barcode"]):
@@ -198,23 +196,28 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         # get position info from all files in the file list
         dfmeta_round_list = []
         if len(file_list) > 0:
-            
-            #each round may have more than one czi file assoicated with it. so iterate through each file
+
+            # each round may have more than one czi file assoicated with it. so iterate through each file
             for original_file, filename in zip(original_file_list, file_list):
                 print(file, filename)
                 dfmeta_sub = zen_position_helper.get_position_info_from_czi(filename)
                 dfmeta_sub["align_channel"] = dfcbr["ref_channel"][0]
                 dfmeta_sub["barcode"] = barcode
                 dfmeta_sub["key"] = iround
-                dfmeta_sub['original_file'] = original_file #this records the original item from the yaml
+                dfmeta_sub[
+                    "original_file"
+                ] = original_file  # this records the original item from the yaml
                 dfmeta_round_list.append(dfmeta_sub)
 
-            dfmeta_round = pd.concat(dfmeta_round_list) #this has all metadata for given round
+            dfmeta_round = pd.concat(
+                dfmeta_round_list
+            )  # this has all metadata for given round
 
             dfmeta_barcode_list.append(dfmeta_round)
 
-    
-    dfmeta = pd.concat(dfmeta_barcode_list) #this has all metadata for all rounds of image data for one given barcode
+    dfmeta = pd.concat(
+        dfmeta_barcode_list
+    )  # this has all metadata for all rounds of image data for one given barcode
 
     # important columns are:
     # ['original_file',
@@ -249,15 +252,12 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     if ploton:
         plot_position_rectangles(dfmeta, fs=18, figsize=(10, 10))
 
-
-    ###################################
     # now remove the scenes specified in the yaml config above
-    ###################################
     original_file_AND_scenes_to_toss_list = []
     # for key,value in mag_dict.items():
     for iround, dfcbr in dfcb.groupby(["iround"]):
-        
-        #convert the string in the yaml file to a list of lists
+
+        # convert the string in the yaml file to a list of lists
         scenes_to_toss_list = [
             eval("[" + x + "]") for x in dfcbr["scenes_to_toss"].tolist()
         ]
@@ -265,7 +265,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         # now iterate through all original files in this round of imaging
         # since each original file can have its own list of scenes to toss
         # within this loop create a list of tuples that will be kept as lables to pass
-        # into a dataframe's drop argument. 
+        # into a dataframe's drop argument.
         original_file_list = dfcbr.path.tolist()
         for oi, original_file in enumerate(original_file_list):
             scenes_to_toss = scenes_to_toss_list[oi]
@@ -291,10 +291,8 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     if ploton:
         plot_position_rectangles(dfmeta)
 
-    ###################################
     # find and record overlapping FOVs (FOVs that overlap within the same round of imaging)
-    # overlapping FOVs will cause bleaching, so it is good to remove these. 
-    ###################################
+    # overlapping FOVs will cause bleaching, so it is good to remove these.
     positions_to_remove_list = []
 
     for key, df in dfmeta.groupby("key"):
@@ -332,14 +330,16 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         if len(dfl) > 1:  # needed to account for if no overlap occurs
             dfoverlap = pd.concat(dfl)
             positions_to_remove = list(
-                set(dfoverlap.move_position.tolist() + dfoverlap.template_position.tolist())
+                set(
+                    dfoverlap.move_position.tolist()
+                    + dfoverlap.template_position.tolist()
+                )
             )
             positions_to_remove_list.extend(
                 [(key, position) for position in positions_to_remove]
             )
 
-
-    #now reindex the dataframe to specify these positions to remove
+    # now reindex the dataframe to specify these positions to remove
     dfmeta.reset_index(inplace=True)
     dfmeta.set_index(["key", "Position"], inplace=True)
     dfmeta.drop(labels=positions_to_remove_list, inplace=True, errors="ignore")
@@ -348,21 +348,17 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     if ploton:
         plot_position_rectangles(dfmeta)
 
-
-
-    ###################################
     # find the same FOV across multiple rounds of imaging by finding FOVs that overlap
-    # from two different rounds. 
-    # this is done by looking at overlap of the FOV coordinates in xyz across rounds. 
-    ###################################
+    # from two different rounds.
+    # this is done by looking at overlap of the FOV coordinates in xyz across rounds.
 
     # define the list to start with Round 1
     ukeys = dfmeta.reset_index()["key"].unique()
-    #create list with timelapse as first (unique should sort the numbering for the other rounds)
+    # create list with timelapse as first (unique should sort the numbering for the other rounds)
     keylist0 = [x for x in ukeys if "Time" in x] + [x for x in ukeys if "Time" not in x]
-    
-    #then set the first entry to be round 1
-    keylist = ['Round 1'] + [x for x in keylist0 if 'Round 1' not in x]
+
+    # then set the first entry to be round 1
+    keylist = ["Round 1"] + [x for x in keylist0 if "Round 1" not in x]
     print(keylist)
 
     keeplist = []
@@ -375,7 +371,6 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         template_slice = pd.IndexSlice[
             keylist[0]
         ]  # should be first round or time lapse...defined up above
-
 
         dftemplate = dfmeta.loc[
             template_slice, :
@@ -406,11 +401,13 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
                     #             print(pos,pos2,overlap)
                     feats["template_position"] = pos
                     feats["template_key"] = keylist[0]
-                    feats["move_position"] = pos2 #move_position_that_matches_template_position
+                    feats[
+                        "move_position"
+                    ] = pos2  # move_position_that_matches_template_position
                     feats["move_key"] = keylist[ki]
                     feats["template_XYZ"] = xyz
                     feats["match_XYZ"] = xyz2
-                    feats[f"xyz_offset_relative_to_template_position"] = (
+                    feats["xyz_offset_relative_to_template_position"] = (
                         xyz2[0:-1] - xyz[0:-1]
                     )  # move coordinates relative to template coordinates
                     feats["overlap"] = overlap
@@ -450,9 +447,8 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     dfout = pd.concat(dflall)
     dfout
 
-    print(
-        "TODO: figure out smart way to keep positions that were imaged too many times\n plan is to keep the first image"
-    )
+    # TODO: figure out smart way to keep positions that were imaged too many times
+    # plan is to keep the first image
 
     dfcount = dfout.reset_index().groupby("template_position").agg("count")
     number_of_rounds = len(dfout.key.unique())
@@ -462,8 +458,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     print("keeping all these positions ", overlapping_poslist)
 
     dfout.set_index(["key", "template_position"], inplace=True)
-    
-    
+
     dfmeta_out = pd.merge(
         dfout.reset_index(),
         dfconfig.loc[[barcode], ["scope", "output_path", "path"]].reset_index(),
@@ -472,8 +467,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         how="left",
     )
     print(dfkeep.shape, dfconfig.shape, dfmeta_out.shape)
-    
-    
+
     # important columns
     # index columns are important :
     # ['key', 'template_position'])
