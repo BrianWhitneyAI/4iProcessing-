@@ -13,13 +13,7 @@ import ruamel.yaml
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_dirs", nargs="+", default=[], help="input dirs to parse")
 parser.add_argument(
-    "--output_path", type=str, required=True, help="output dir of yaml file"
-)
-parser.add_argument(
-    "--output_yaml_dir",
-    type=str,
-    required=True,
-    help="final alignment output path to specify in yaml file",
+    "--output_path", type=str, required=True, help="output dir of all processing steps"
 )
 
 
@@ -165,9 +159,11 @@ if __name__ == "__main__":
             config["scope"] = scope
 
             # output path defines folder where all images get stored after they get processed
-            config["output_path"] = args.output_yaml_dir
+            config["output_path"] = args.output_path
 
-        output_dir = os.path.join(args.output_path, "new_yaml_output_ruml")
+
+        
+        output_dir = os.path.join(args.output_path, "yml_configs")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
