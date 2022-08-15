@@ -233,11 +233,12 @@ def get_shift_to_center_matrix(img_shape, output_shape):
 
 
 # this is where the alignment is performed
-final_shape = np.uint16(
+final_shape = np.uint16(np.asarray(
     [   100,
         1248 + 1248 / 3,
         1848 + 1848 / 3,
     ]
+)
 )
 
 
