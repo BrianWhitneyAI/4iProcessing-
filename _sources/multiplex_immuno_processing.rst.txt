@@ -28,6 +28,14 @@ multiplex\_immuno\_processing.generate\_alignment\_paramters module
    :undoc-members:
    :show-inheritance:
 
+multiplex\_immuno\_processing.generate\_initial\_config module
+--------------------------------------------------------------
+
+.. automodule:: multiplex_immuno_processing.generate_initial_config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 multiplex\_immuno\_processing.generate\_initial\_yaml module
 ------------------------------------------------------------
 
