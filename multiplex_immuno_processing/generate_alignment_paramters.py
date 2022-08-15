@@ -224,7 +224,7 @@ def compute_slice_alignment(
         x for x, y in zip(offsetlist, reslist) if y >= np.nanpercentile(reslist, 95)
     ]
 
-    if verbose is True:
+    if verbose:
         print("res", res)
 
     # now compute the mean offset
