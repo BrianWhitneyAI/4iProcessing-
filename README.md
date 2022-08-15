@@ -75,3 +75,11 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for information related to developing the
    each set of changes to `main` atomic and as a side effect naturally encourages small
    well defined PR's.
 
+
+
+# how to run this code
+
+```
+python .\multiplex_immuno_processing\generate_initial_config.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --input_dirs  "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000733" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000724" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000728" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000726" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000725"
+```
+
