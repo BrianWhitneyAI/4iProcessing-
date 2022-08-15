@@ -88,7 +88,8 @@ for bdir in bdirlist:
                     si = reader.current_scene_index
                     try:
                         dims = reader.dims
-                    except ValueError("Future Error") as e:
+                    # except ValueError("Future Error") as e:
+                    except Exception as e:
                         print(str(e))
                         scenes_to_toss.append(si + 1)
 

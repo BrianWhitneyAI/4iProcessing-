@@ -164,7 +164,8 @@ for Position in [
         try:
             Tn = reader.dims["T"][0]  # choose last time point
             notcorrupt = True
-        except ValueError("This is a Corrupted Scene.") as e:
+        # except ValueError("This is a Corrupted Scene.") as e:
+        except Exception as e:
             print(str(e), position)
             notcorrupt = False
 

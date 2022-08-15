@@ -107,7 +107,8 @@ def get_position_info_from_czi(filename):
         try:
             laser_wavelength = channel.find(".//ExcitationWavelength").text
             laser_intensity = channel.find(".//Intensity").text
-        except ValueError("Some Value Error") as e:
+        # except ValueError("Some Value Error") as e:
+        except Exception as e:
             print(str(e))
             laser_wavelength = "None"
             laser_intensity = "None"

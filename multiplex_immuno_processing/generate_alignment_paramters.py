@@ -412,7 +412,8 @@ for (
         try:
             T = reader.dims["T"][0] - 1  # choose last time point
             notcorrupt = True
-        except ValueError("Something has gone wrong. This is a Corrupted Scene.") as e:
+        # except ValueError("Something has gone wrong. This is a Corrupted Scene.") as e:
+        except Exception as e:
             print(str(e))
             notcorrupt = False
 
