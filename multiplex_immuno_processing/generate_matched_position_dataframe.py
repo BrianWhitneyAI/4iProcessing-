@@ -461,11 +461,11 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     )
     print("keeping all these positions ", overlapping_poslist)
 
-    dfkeep.set_index(["key", "template_position"], inplace=True)
-    print(dfkeep.shape, dfout.shape)
+    dfout.set_index(["key", "template_position"], inplace=True)
+    
     
     dfmeta_out = pd.merge(
-        dfkeep.reset_index(),
+        dfout.reset_index(),
         dfconfig.loc[[barcode], ["scope", "output_path", "path"]].reset_index(),
         left_on=["barcode", "key", "original_file"],
         right_on=["barcode", "iround", "path"],
