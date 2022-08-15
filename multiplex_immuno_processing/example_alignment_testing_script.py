@@ -23,8 +23,8 @@ for yam in yaml_list:
     yml_path = yaml_dir + os.sep + yam
     with open(yml_path) as f:
         data = yaml.load(f, Loader=SafeLoader)
-        for iround_dict in data["Data"]:
-            dfsub = pd.DataFrame(iround_dict.values(), index=iround_dict.keys()).T
+        for round_dict in data["Data"]:
+            dfsub = pd.DataFrame(round_dict.values(), index=round_dict.keys()).T
 
             dfsub["barcode"] = data["barcode"]
             dfsub["scope"] = data["scope"]
@@ -32,7 +32,7 @@ for yam in yaml_list:
             dflist.append(dfsub)
 
 dfconfig = pd.concat(dflist)
-dfconfig.set_index(["barcode", "iround"], inplace=True)
+dfconfig.set_index(["barcode", "round"], inplace=True)
 
 
 mag = "20x"

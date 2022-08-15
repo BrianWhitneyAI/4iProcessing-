@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
                     scenes_to_toss = get_scenes_to_toss(reader)
                     zscenes_to_toss = ",".join([str(x) for x in scenes_to_toss])
-                    zchannels = ",".join(channels)
+                    channels = ",".join(channels)
 
                     detailid = ruamel.yaml.comments.CommentedMap()
                     detailid["round"] = round_num
@@ -153,7 +153,7 @@ if __name__ == "__main__":
                     detailid["path"] = fpath
                     detailid["scenes_to_toss"] = zscenes_to_toss
                     detailid["ref_channel"] = str(channels[ref_channel])
-                    detailid["channels"] = zchannels
+                    detailid["channels"] = channels
                     config["Data"].append(detailid)
             config["barcode"] = barcode
             config["scope"] = scope

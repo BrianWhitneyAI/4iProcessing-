@@ -157,26 +157,26 @@ for y in yaml_list:
     yml_path = yaml_dir + os.sep + y
     with open(yml_path) as f:
         data = yaml.load(f, Loader=SafeLoader)
-        for iround_dict in data["Data"]:
-            dfconfigsub = pd.DataFrame(iround_dict.values(), index=iround_dict.keys()).T
+        for round_dict in data["Data"]:
+            dfconfigsub = pd.DataFrame(round_dict.values(), index=round_dict.keys()).T
             dfconfigsub["barcode"] = data["barcode"]
             dfconfigsub["scope"] = data["scope"]
             dfconfigsub["output_path"] = data["output_path"]
             dfconfiglist.append(dfconfigsub)
 
 dfconfig = pd.concat(dfconfiglist)
-dfconfig.set_index(["barcode", "iround"], inplace=True)
+dfconfig.set_index(["barcode", "round"], inplace=True)
 
 
 # now go through all specified CZI files and collect metadata
 # (specifically metadata about position, XYZ coordinates and FOV size)
 # barcode corresponds to a given plate
-# iround corresponds to a given round of imaging of that plate
+# round corresponds to a given round of imaging of that plate
 for barcode, dfcb in dfconfig.groupby(["barcode"]):
     dfmeta_barcode_list = []
-    for iround, dfcbr in dfcb.groupby(["iround"]):
+    for round, dfcbr in dfcb.groupby(["round"]):
 
-        print(barcode, iround)
+        print(barcode, round)
 
         # determine if flist is list of filepaths or fms fileids
         # and if it is fms ID then find the filepath
@@ -203,7 +203,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
                 dfmeta_sub = zen_position_helper.get_position_info_from_czi(filename)
                 dfmeta_sub["align_channel"] = dfcbr["ref_channel"][0]
                 dfmeta_sub["barcode"] = barcode
-                dfmeta_sub["key"] = iround
+                dfmeta_sub["key"] = round
                 dfmeta_sub[
                     "original_file"
                 ] = original_file  # this records the original item from the yaml
@@ -255,7 +255,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     # now remove the scenes specified in the yaml config above
     original_file_AND_scenes_to_toss_list = []
     # for key,value in mag_dict.items():
-    for iround, dfcbr in dfcb.groupby(["iround"]):
+    for round, dfcbr in dfcb.groupby(["round"]):
 
         # convert the string in the yaml file to a list of lists
         scenes_to_toss_list = [
@@ -463,7 +463,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
         dfout.reset_index(),
         dfconfig.loc[[barcode], ["scope", "output_path", "path"]].reset_index(),
         left_on=["barcode", "key", "original_file"],
-        right_on=["barcode", "iround", "path"],
+        right_on=["barcode", "round", "path"],
         how="left",
     )
     print(dfkeep.shape, dfconfig.shape, dfmeta_out.shape)
