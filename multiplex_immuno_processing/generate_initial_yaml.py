@@ -118,7 +118,11 @@ for bdir in bdirlist:
             "output_path"
         ] = "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 
-    yaml_dir = os.curdir + os.sep + "yml_configs"
+
+    #error!!!!! os.curdir will export to wherever the user is currenlty running python. Not ideal
+    ### I want this to export the yml configs in the same directory as this code that is running ....not the users current working direcotyr
+
+    yaml_dir = os.path.dirname(os.path.realpath(__file__)) + os.sep + "yml_configs"
     if not os.path.exists(yaml_dir):
         os.makedirs(yaml_dir)
 
