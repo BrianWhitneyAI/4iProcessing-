@@ -51,45 +51,45 @@ def get_position_info_from_czi(filename):
             "Id",
             "IsUsedForAcquisition",
             "imgsize_um",
-            "shape",
+            "imgsize_pixels",
             "pixelSizes",
             "CameraPixelAccuracy",
             "parent_file",
         ]
     """
 
-    feats = {}
+    feats = {} #define a dictionary for recording the extracted metadata
+    
+    #record the filename
     feats["file"] = filename
     feats["parent_file"] = filename
-    # find the image dimensions of the image
-    #     number_of_scenes_acquired0 = [y for x,y in zip(reader.dims,reader.size()) if x=='S'][0]
-    number_of_scenes_acquired = eval(meta.find(".//SizeS").text)
-    #     if number_of_scenes_acquired0!=number_of_scenes_acquired:
-    #         print('metadata error! cannot retrieve all scenes acquired!')
 
+    # find the image dimensions of the image
+    #number of scenes
+    number_of_scenes_acquired = eval(meta.find(".//SizeS").text)
+    
+    #number of z slices per image
     SizeZ = eval(meta.find(".//SizeZ").text)
 
     # get camera dimensions
-    regions = list(meta.findall(".//ParameterCollection/ImageFrame"))
-    txtout = regions[0].text
-    frame_size_pixels = eval(txtout)
+    ImageFrameAll = list(meta.findall(".//ParameterCollection/ImageFrame"))
+    frame_size_pixels = eval(ImageFrameAll[0].text)
 
-    # number of pixels in each dimension
-    feats["shape"] = tuple(
+    # number of pixels in each dimension for a given scene (size in X,Y,Z)
+    feats["imgsize_pixels"] = tuple(
         (frame_size_pixels[-2], frame_size_pixels[-1], SizeZ)
-    )  # number of pixels in each dimension
+    )  
 
     # find key imaging parameters
     ImagePixelDistancesList = meta.findall(".//ParameterCollection/ImagePixelDistances")
 
     for ip in ImagePixelDistancesList[0:1]:  # only choose the first camera
         feats["ImagePixelDistances"] = tuple(eval(ip.text))
-        # ET.dump(ip)
-        # print('dumping')
+        
         feats["totalmagnification"] = eval(
             ip.getparent().find("./TotalMagnification").text
         )
-        # ImageFrame = eval(ip.getparent().find("./ImageFrame").text)
+        
         feats["CameraPixelAccuracy"] = eval(
             ip.getparent().find("./CameraPixelAccuracy").text
         )
@@ -118,12 +118,12 @@ def get_position_info_from_czi(filename):
         feats["laser_intensity" + "_" + channel_name] = laser_intensity
     feats["channel_dict"] = str(channel_dict)
 
-    ZStep = meta.find(".//Z/Positions/Interval/Increment")
-    ZStep = eval(ZStep.text)
+    ZStepfind = meta.find(".//Z/Positions/Interval/Increment")
+    ZStep = eval(ZStepfind.text)
     xypxsize = np.asarray(feats["ImagePixelDistances"]) / feats["totalmagnification"]
     feats["pixelSizes"] = (xypxsize[0], xypxsize[1], ZStep)  # units of um
     feats["imgsize_um"] = tuple(
-        [x * y for x, y in zip(feats["pixelSizes"], feats["shape"])]
+        [x * y for x, y in zip(feats["pixelSizes"], feats["imgsize_pixels"])]
     )
     feats["PlateAnchorPoint"] = eval(
         "[" + meta.find(".//Template/AnchorPoint").text + "]"

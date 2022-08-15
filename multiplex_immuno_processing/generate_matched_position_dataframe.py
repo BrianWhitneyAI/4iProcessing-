@@ -53,7 +53,6 @@ TODO: decide if we want any contact sheet-style outputs from this code that help
           indeed imaged for all "putative" matched positions.
 """
 
-importlib.reload(zen_position_helper)  # What is this?
 
 
 def create_rectangle(xyz, imgsize_um):
@@ -222,7 +221,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     # ['original_file',
     #  'file',
     #  'parent_file',
-    #  'shape',
+    #  'imgsize_pixels',
     #  'ImagePixelDistances',
     #  'totalmagnification',
     #  'channel_dict',
@@ -487,7 +486,7 @@ for barcode, dfcb in dfconfig.groupby(["barcode"]):
     #  'Scene',
     #  'file',
     #  'parent_file',
-    #  'shape',
+    #  'imgsize_pixels',
     #  'ImagePixelDistances',
     #  'totalmagnification',
     #  'channel_dict',
