@@ -6,7 +6,7 @@
 import os
 import sys
 
-import 4iProcessing
+import multiplex_immuno_processing
 
 # -- Path setup --------------------------------------------------------------
 
@@ -17,11 +17,11 @@ sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
-project = "4iProcessing"
+project = "multiplex_immuno_processing"
 copyright = "2021, AICS"
 author = "AICS"
-version = 4iProcessing.__version__
-release = 4iProcessing.__version__
+version = multiplex_immuno_processing.__version__
+release = multiplex_immuno_processing.__version__
 
 
 # -- General configuration ---------------------------------------------------

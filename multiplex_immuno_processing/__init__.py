@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Top-level package for 4iProcessing."""
+"""Top-level package for multiplex_immuno_processing."""
 
 __author__ = "AICS "
 __email__ = "brian.whitney@alleninstitute.org"
@@ -11,6 +11,3 @@ __version__ = "0.0.0"
 
 def get_module_version():
     return __version__
-
-
-from .example import Example  # noqa: F401

@@ -47,18 +47,18 @@ setup(
     extras_require=extra_requirements,
     entry_points={
         "console_scripts": [
-            "my_example=4iprocessing.bin.my_example:main"
+            "my_example=multiplex_immuno_processing.bin.my_example:main"
         ],
     },
     license="Allen Institute Software License",
     long_description=readme(),
     long_description_content_type="text/markdown",
     include_package_data=True,
-    keywords="4iprocessing",
-    name="4iprocessing",
+    keywords="multiplex_immuno_processing",
+    name="multiplex_immuno_processing",
     packages=find_packages(exclude=["tests", "*.tests", "*.tests.*"]),
     python_requires=">=3.9",  # This is driven by aicsimageio constraints
-    url="https://github.com/BrianWhitneyAI/4iprocessing",
+    url="https://github.com/BrianWhitneyAI/multiplex_immuno_processing",
     # Do not edit this string manually, always use bumpversion
     # Details in CONTRIBUTING.rst
     version="0.0.0",
