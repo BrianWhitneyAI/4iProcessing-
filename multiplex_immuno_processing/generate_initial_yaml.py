@@ -1,13 +1,14 @@
 import os
 from pathlib import Path
 import re
+from typing import Dict
 
 from aicsimageio import AICSImage
 import yaml
 
 # This will likely not work in its current format of r""
 bdirlist = [
-    r"\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000733 (Control wells)",
+    r"\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000733",
     r"\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000724",
     r"\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000728",
     r"\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000726",
@@ -18,7 +19,7 @@ for bdir in bdirlist:
     barcode = Path(Path(bdir)).name
 
     print(barcode)
-    yamd = {}
+    yamd: Dict = {} #this looks weird
     yamd["Data"] = []
     scope_list = [x for x in os.listdir(bdir) if "ZSD" in x]
     for scope in scope_list:

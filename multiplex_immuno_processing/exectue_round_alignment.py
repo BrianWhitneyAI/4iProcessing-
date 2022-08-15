@@ -103,8 +103,6 @@ dfalign.set_index(["key", "Position"], inplace=True)
 dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
 
-keeplist = []
-
 template_position_list = dfall.reset_index()["template_position"].unique()
 keylist = dfall.reset_index()["key"].unique()
 # for Position in ['P2']:
@@ -121,7 +119,6 @@ for Position in [
 
     testing_keylist = [x for x in keylist if "Time" not in x]
     print(testing_keylist)
-    imglist = []
     for ki, key in enumerate(testing_keylist):
         # for ki,key in enumerate(keylist):
         print(key)
@@ -133,12 +130,13 @@ for Position in [
         alignment_offset = dfalign.loc[
             pd.IndexSlice[key, Position], "alignment_offsets_xyz"
         ]
-        final_shape = np.uint16(
+        final_shape = np.uint16(np.asarray(
             [
                 100,
                 1248 + 1248 / 3,
                 1848 + 1848 / 3,
             ]
+        )
         )
 
         reader = AICSImage(parent_file)
@@ -146,7 +144,10 @@ for Position in [
         scene = dfsub["Scene"][0]
 
         # 3 get variables for file name
-        round_num0 = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE).group(0)
+        # round_num0 = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE).group(0)
+        search_out =re.search("time|Round [0-9]+", parent_file, re.IGNORECASE)
+        assert search_out is not None #necessary for passing mypy type errors
+        round_num0 = search_out.group(0)
 
         round_num = round_num0.replace("Time", "0").replace("Round ", "").zfill(2)
 
