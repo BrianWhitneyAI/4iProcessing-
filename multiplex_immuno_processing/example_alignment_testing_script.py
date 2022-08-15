@@ -18,9 +18,9 @@ yaml_dir = "yml_configs"
 yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
 yaml_list = [x for x in yaml_list if barcode in x]
 dflist = []
-for y in yaml_list:
-    print(y)
-    yml_path = yaml_dir + os.sep + y
+for yam in yaml_list:
+    print(yam)
+    yml_path = yaml_dir + os.sep + yam
     with open(yml_path) as f:
         data = yaml.load(f, Loader=SafeLoader)
         for iround_dict in data["Data"]:
@@ -234,8 +234,7 @@ def get_shift_to_center_matrix(img_shape, output_shape):
 
 # this is where the alignment is performed
 final_shape = np.uint16(
-    [
-        100,
+    [   100,
         1248 + 1248 / 3,
         1848 + 1848 / 3,
     ]
