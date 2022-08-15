@@ -20,3 +20,8 @@ repos:
         language: system
         types: [python]
 
+      - id: type-check
+        name: type-check
+        entry: make type-check
+        language: system
+        types: [python]
