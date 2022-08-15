@@ -6,6 +6,7 @@ import re
 from aicsimageio import AICSImage
 import ruamel.yaml
 
+# test 
 # run this to make the initial yaml files and then edit those files to make sure nothing is missing.
 # this code only helps make the yaml files...it does not generate a perfect yaml automatically.
 
