@@ -180,56 +180,22 @@ if __name__ == "__main__":
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
 
-    # now go through all specified CZI files and collect metadata
+    # now open the metadata pickle
     # (specifically metadata about position, XYZ coordinates and FOV size)
     # barcode corresponds to a given plate
     # round corresponds to a given round of imaging of that plate
     for barcode, dfcb in dfconfig.groupby(["barcode"]):
-        dfmeta_barcode_list = []
-        for round, dfcbr in dfcb.groupby(["round"]):
+                
+        
+        output_dir = dfconfig["output_path"][0]
+        metadata_pickle_dir = output_dir + os.sep + "pickles"
+        metadata_pickle_name = barcode + "metadata_pickle.pickle"
+        metadata_pickle_path = metadata_pickle_dir + os.sep + metadata_pickle_name
+       
+        
+        dfmeta = pd.read_pickle(metadata_pickle_path)
 
-            print(barcode, round)
-
-            # determine if flist is list of filepaths or fms fileids
-            # and if it is fms ID then find the filepath
-            file_list = []
-            original_file_list = []
-            list_of_files = dfcbr.path.tolist()
-            for file in list_of_files:
-                original_file_list.append(file)
-                if os.path.exists(file):
-                    file_list.append(file)
-                else:  # try to find FMS id
-                    # file = fms.get_file_by_id(file)
-                    # file_list.append('/'+file.path)
-                    # print(file,'-->',file.path)
-                    print("not there...update your yaml")
-
-            # get position info from all files in the file list
-            dfmeta_round_list = []
-            if len(file_list) > 0:
-
-                # each round may have more than one czi file assoicated with it. so iterate through each file
-                for original_file, filename in zip(original_file_list, file_list):
-                    print(file, filename)
-                    dfmeta_sub = zen_position_helper.get_position_info_from_czi(filename)
-                    dfmeta_sub["align_channel"] = dfcbr["ref_channel"][0]
-                    dfmeta_sub["barcode"] = barcode
-                    dfmeta_sub["key"] = round
-                    dfmeta_sub[
-                        "original_file"
-                    ] = original_file  # this records the original item from the yaml
-                    dfmeta_round_list.append(dfmeta_sub)
-
-                dfmeta_round = pd.concat(
-                    dfmeta_round_list
-                )  # this has all metadata for given round
-
-                dfmeta_barcode_list.append(dfmeta_round)
-
-        dfmeta = pd.concat(
-            dfmeta_barcode_list
-        )  # this has all metadata for all rounds of image data for one given barcode
+        # this has all metadata for all rounds of image data for one given barcode
 
         # important columns are:
         # ['original_file',
