@@ -14,14 +14,21 @@ import tifffile
 
 
 
-
-
+def get_align_matrix(alignment_offset):
+    align_matrix = np.eye(4)
+    for i in range(len(alignment_offset)):
+        align_matrix[i, 3] = alignment_offset[i] * -1
+    align_matrix = np.int16(align_matrix)
+    return align_matrix
 
 
 def os_swap(x):
     out = '/'+('/'.join(x.split('\\'))).replace('//','/')
     return out
 
+def pad_target_image(target_img, z_offset, y_offset, x_offset):
+    padded_target_img = np.pad(target_img, ((z_offset,z_offset), (y_offset, y_offset), (x_offset, x_offset)) ,  mode='constant')
+    return padded_target_img
 
 
 
@@ -121,67 +128,44 @@ for roundname in roundlist:
 target_img = imglist[0]
 source_img = imglist[1]
 
-print(np.shape(target_img))
-print(np.shape(source_img))
+#target_img_padded = np.pad(target_img, ((0, 0), (50, 50), (50, 50)), mode='constant')
 
-print("padding")
+source_img_cropped = source_img[:, 150:np.shape(source_img)[1]-150, 150:np.shape(source_img)[1]-150] # cropping b/c source img needs to be entirely contained in target in order for alignment to work
 
-target_img_padded = np.pad(target_img, ((0, 0), (50, 50), (50, 50)), mode='constant')
-
-source_img_FOV = source_img[:, 150:np.shape(source_img)[1]-150, 150:np.shape(source_img)[1]-150]
-
-source_img_padded = np.pad(source_img_FOV, ((0, 0), (50, 50), (50, 50)), mode='constant')
-
-print(f"target img padded is of shape {np.shape(target_img_padded)}")
-print(f"source img padded is of shape {np.shape(source_img_padded)}")
-
-# # precropping
-# target_img_FOV = target_img[:, 100:np.shape(target_img)[1]-100, 100:np.shape(target_img)[1]-100]
-# source_img_FOV = source_img[:, 150:np.shape(source_img)[1]-150, 150:np.shape(source_img)[1]-150]
-
-# target_img_z = target_img[10,:,:]
-# source_img_z = source_img[10,:,:]
-
-tifffile.imwrite(os.path.join(output_example_dir, "target_img_FOV.tiff"), target_img_padded)
-tifffile.imwrite(os.path.join(output_example_dir, "source_img_FOV.tiff"), source_img_padded)
+tifffile.imwrite(os.path.join(output_example_dir, "target_img_FOV.tiff"), target_img)
+tifffile.imwrite(os.path.join(output_example_dir, "source_img_FOV.tiff"), source_img)
 
 # Registration
+source_aligned, target_aligned, composite, final_z_offset, final_y_offset, final_x_offset = registration_utils.perform_alignment(source_img_cropped, target_img, smaller_fov_modality="source",  source_alignment_channel=0, target_alignment_channel=0, source_output_channel=[0], target_output_channel=[0], scale_factor_xy=1, scale_factor_z=1, prealign_z=True, denoise_z=True)
 
-source_aligned, target_aligned, composite = registration_utils.perform_alignment(source_img_padded, target_img_padded, smaller_fov_modality="source", scale_factor_xy=1, scale_factor_z=1, source_alignment_channel=0, target_alignment_channel=0, source_output_channel=[0], target_output_channel=[0], prealign_z=True, denoise_z=True)
+# 
 
-print(f"source is {np.shape(source_aligned)}")
-print(f"target img is of shape is {np.shape(target_aligned)}")
-tifffile.imwrite("target_img_round_1_aligned.tiff", target_aligned)
-tifffile.imwrite("source_img_round_2_aligned.tiff", source_aligned)
+# final_z_offset = 7
+# final_y_offset = 202
+# final_x_offset = 110
+#print(f"source is {np.shape(source_aligned)}")
+#print(f"target img is of shape is {np.shape(target_aligned)}")
+# This part is just for visualization purposes
+#tifffile.imwrite("target_img_round_1_aligned.tiff", target_aligned)
+#tifffile.imwrite("source_img_round_2_aligned.tiff", source_aligned)
+
+
+z_pad_offset, y_pad_offset, x_pad_offset = 10, 100, 100
+
+target_img_padded = pad_target_image(target_img, z_pad_offset, y_pad_offset, x_pad_offset)
+
+
+alignment_offset = [final_z_offset+z_pad_offset, final_y_offset+y_pad_offset, final_x_offset+x_pad_offset]
+
+
+align_matrix = get_align_matrix(alignment_offset)
+
+
+print(align_matrix)
 
 
 
-#tifffile.imwrite("composite.tiff", composite)
-# composite = np.transpose(composite, axes=(3, 0, 1, 2))
 
-# composite = np.transpose(composite, axes=(3, 0, 1, 2))
-# with writers.OmeTiffWriter(
-#     "composite.tiff",
-#     overwrite_file=True,
-# ) as writer:
-#     writer.save(composite, dimension_order="CZYX")
 
-# composite = np.transpose(composite, axes=(3, 0, 1, 2))
 
-# writers.OmeTiffWriter.save(composite,  "composite.tiff", dim_order = 'CZYX')
 
-# def perform_alignment(
-#     source: np.ndarray,
-#     target: np.ndarray,
-#     smaller_fov_modality: str,
-#     scale_factor_xy: float,
-#     scale_factor_z: float,
-#     source_alignment_channel: int,
-#     target_alignment_channel: int,
-#     source_output_channel: list,
-#     target_output_channel: list,
-#     prealign_z: bool,
-#     denoise_z: bool,
-#     use_refinement: bool,
-#     save_composite: bool,
-# ):

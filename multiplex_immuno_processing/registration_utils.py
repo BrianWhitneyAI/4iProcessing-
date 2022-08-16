@@ -55,6 +55,7 @@ def rescale_image(image: np.ndarray, scale_factor_xy: float, scale_factor_z: flo
             preserve_range=True,
         ).astype(np.uint16)
 
+
 def perform_alignment(
     source: np.ndarray,
     target: np.ndarray,
@@ -242,7 +243,7 @@ def perform_alignment(
     print(f"align offset in y is {fixed_2dAlign_offset_y}")
     print(f"align offset in x is {fixed_2dAlign_offset_x}")
 
-    fixed, moving = finalize_alignment(
+    fixed, moving, final_z_offset, final_y_offset, final_x_offset = finalize_alignment(
         fixed,
         moving,
         moving_scaled.shape,
@@ -282,7 +283,7 @@ def perform_alignment(
         moving_chan = moving_out[channel]
         fixed_chan = fixed_out[channel]
 
-        fixed_temp, moving_temp = finalize_alignment(
+        fixed_temp, moving_temp, moving_z_offset, moving_y_offset, moving_x_offset = finalize_alignment(
             fixed_chan,
             moving_chan,
             moving_scaled.shape,
@@ -375,8 +376,7 @@ def perform_alignment(
         composite = None
         print("No composite image created")
 
-    return source_aligned, target_aligned, composite
-
+    return source_aligned, target_aligned, composite, final_z_offset, final_y_offset, final_x_offset
 
 def align_xy(fixed: np.ndarray, moving: np.ndarray):
     """Perform alignment of the images in 2d.
@@ -696,8 +696,7 @@ def finalize_alignment(
         ]
         moving_final = moving_orig[moving_z_bot:moving_zz_top, :, :]
 
-
-    return fixed_final, moving_final
+    return fixed_final, moving_final, fixed_z_offset, fixed_y_offset, fixed_x_offset
 
 def final_refinement(
     lr: np.ndarray,
