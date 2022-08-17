@@ -488,10 +488,10 @@ if __name__ == "__main__":
         # unmatch_list = align_helper.return_aligned_img_list_new(img_list,np.asarray(offset_list)*0)
 
         dfimg["alignment_offsets_xyz"] = alignment_offsets_xyz_list
-        dfimg["Position"] = [Position] * dfimg.shape[0]
-        dfimg[["Position", "align_channel", "alignment_offsets_xyz"]]
+        dfimg["template_position"] = [Position] * dfimg.shape[0]
+        dfimg[["template_position", "align_channel", "alignment_offsets_xyz"]]
 
-        dfkeeplist.append(dfimg[["Position", "align_channel", "alignment_offsets_xyz"]])
+        dfkeeplist.append(dfimg[["template_position", "align_channel", "alignment_offsets_xyz"]])
 
     # now load up the full images (including the full timelapse)
 

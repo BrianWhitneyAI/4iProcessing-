@@ -122,7 +122,7 @@ if __name__ == "__main__":
     align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
     dfalign = pd.read_pickle(align_pickle_path)
     dfalign.reset_index(inplace=True)
-    dfalign.set_index(["key", "Position"], inplace=True)
+    dfalign.set_index(["key", "template_position"], inplace=True)
 
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
