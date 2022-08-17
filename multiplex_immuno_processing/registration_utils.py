@@ -17,6 +17,7 @@ import yaml
 from pathlib import Path
 from aicsimageio import AICSImage
 from aicsimageio import AICSImage, writers
+from scipy.ndimage import affine_transform
 
 
 print("imports loaded")
@@ -54,7 +55,6 @@ def rescale_image(image: np.ndarray, scale_factor_xy: float, scale_factor_z: flo
             ),
             preserve_range=True,
         ).astype(np.uint16)
-
 
 def perform_alignment(
     source: np.ndarray,
@@ -219,6 +219,8 @@ def perform_alignment(
         print(f"z offset: {fixed_addition_offset_z}")
         print(f"additional x offset: {fixed_addition_offset_x}")
         print(f"additional y offset: {fixed_addition_offset_y}")
+
+
     else:
         print("z-alignment failed")
         return None, None, None
@@ -456,7 +458,7 @@ def align_xy(fixed: np.ndarray, moving: np.ndarray):
             tf.EuclideanTransform,
             min_samples=3,
             residual_threshold=2,
-            max_trials=200,
+            max_trials=600,
         )
 
 
@@ -911,3 +913,28 @@ def final_refinement(
     return lr_crops, hr_crops
 
 
+def get_align_matrix(alignment_offset):
+    align_matrix = np.eye(4)
+    for i in range(len(alignment_offset)):
+        align_matrix[i, 3] = alignment_offset[i] * -1
+    align_matrix = np.int16(align_matrix)
+    return align_matrix
+
+
+def get_shift_to_center_matrix(img_shape, output_shape):
+    # output_shape > img_shape should be true for all dimensions
+    # and the difference divided by two needs to be a whole integer value
+
+    shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
+    print(f"shape_diff is {shape_diff}")
+    print(f"first component is {np.asarray(output_shape)}")
+    print(f"second component is {np.asarray(img_shape)}")
+
+    shift = shape_diff / 2
+    print(f"shift is {shift}")
+
+    shift_matrix = np.eye(4)
+    for i in range(len(shift)):
+        shift_matrix[i, 3] = shift[i]
+    shift_matrix = np.int16(shift_matrix)
+    return shift_matrix
