@@ -127,6 +127,14 @@ if __name__ == "__main__":
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
+    # # merge both dataframes so that you only try to align the positions that can be aligned. 
+    # dfall = pd.merge(dfalign,dfall,
+    #                 on = ['key','template_position'],
+    #                 suffixes = ('_align',''),
+    #                 how='left',
+    #                 )
+
+                  
 
     template_position_list = dfall["template_position"].unique()
     keylist = dfall["key"].unique()
