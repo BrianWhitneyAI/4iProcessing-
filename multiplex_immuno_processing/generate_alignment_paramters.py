@@ -489,9 +489,23 @@ if __name__ == "__main__":
 
         dfimg["alignment_offsets_xyz"] = alignment_offsets_xyz_list
         dfimg["template_position"] = [Position] * dfimg.shape[0]
-        dfimg[["template_position", "align_channel", "alignment_offsets_xyz"]]
+        dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_xyz"]]
+        dfkeeplist.append(dfout_p)
 
-        dfkeeplist.append(dfimg[["template_position", "align_channel", "alignment_offsets_xyz"]])
+        output_dir = dfconfig["output_path"][0]
+        pickle_dir = output_dir + os.sep + "alignment_pickles_each"
+        if not os.path.exists(pickle_dir):
+            os.makedirs(pickle_dir)
+        pickle_name = f"{barcode}-{Position}-alignment_pickle_each.pickle"
+        pickle_path = pickle_dir + os.sep + pickle_name
+        print("\n\n" + pickle_path + "\n\n")
+        dfout_p.to_pickle(os.path.abspath(pickle_path))
+
+
+        out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
+        dfout_p.to_csv(os.path.abspath(out_csv_path))
+
+        
 
     # now load up the full images (including the full timelapse)
 
