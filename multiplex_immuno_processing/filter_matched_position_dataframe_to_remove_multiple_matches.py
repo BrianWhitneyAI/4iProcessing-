@@ -290,7 +290,6 @@ if __name__ == "__main__":
 
             else:
                 search = re.search('[0-9]+',x, re.IGNORECASE)
-                print(x)
                 assert search is not None
                 out = int(search.group(0))
             
