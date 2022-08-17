@@ -438,8 +438,7 @@ if __name__ == "__main__":
             position = Position
             scene = dfsub["Scene"][0]
 
-            print(channels)
-            print(align_channel)
+
             align_channel_index = [
                 xi for xi, x in enumerate(channels) if x == align_channel
             ][0]
