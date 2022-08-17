@@ -115,5 +115,18 @@ python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --outp
 
 ### now compute alignment paramters
 ```
-python .\multiplex_immuno_processing\filter_matched_position_dataframe_to_remove_multiple_matches.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+```
+
+### next execute the alignment
+```
+python .\multiplex_immuno_processing\exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 ```
