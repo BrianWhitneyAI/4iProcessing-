@@ -11,7 +11,7 @@ from scipy.ndimage import affine_transform
 import skimage.io as skio
 import yaml
 from yaml.loader import SafeLoader
-
+from glob import glob
 overwrite = True
 
 
@@ -116,23 +116,38 @@ if __name__ == "__main__":
     dfall = pd.read_pickle(pickle_path)
 
 
+    # output_dir = dfconfig["output_path"][0]
+    # align_pickle_dir = output_dir + os.sep + "alignment_pickles"
+    # align_pickle_name = barcode + "alignment_pickle.pickle"
+    # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
+    # dfalign = pd.read_pickle(align_pickle_path)
+    # dfalign.reset_index(inplace=True)
+    # dfalign.set_index(["key", "template_position"], inplace=True)
+
+
+    
     output_dir = dfconfig["output_path"][0]
-    align_pickle_dir = output_dir + os.sep + "alignment_pickles"
-    align_pickle_name = barcode + "alignment_pickle.pickle"
-    align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
-    dfalign = pd.read_pickle(align_pickle_path)
-    dfalign.reset_index(inplace=True)
-    dfalign.set_index(["key", "template_position"], inplace=True)
+    align_pickle_dir = output_dir + os.sep + "alignment_pickles_each"
+    align_pickle_name_glob = f"{barcode}*alignment_csv_each.csv"
+    print(align_pickle_name_glob)
+    globlist = glob(align_pickle_dir + os.sep + align_pickle_name_glob)
+    dfalign_list=[]
+    for align_pickle_path in globlist:
+        # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
+        df = pd.read_csv(align_pickle_path)
+        dfalign_list.append(df)
+    dfalign = pd.concat(dfalign_list)
+
 
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
-    # # merge both dataframes so that you only try to align the positions that can be aligned. 
-    # dfall = pd.merge(dfalign,dfall,
-    #                 on = ['key','template_position'],
-    #                 suffixes = ('_align',''),
-    #                 how='left',
-    #                 )
+    # merge both dataframes so that you only try to align the positions that can be aligned. 
+    dfall = pd.merge(dfalign,dfall,
+                    on = ['key','template_position'],
+                    suffixes = ('_align',''),
+                    how='left',
+                    )
 
                   
 
