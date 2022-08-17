@@ -291,7 +291,7 @@ if __name__ == "__main__":
 
         # find and record overlapping FOVs (FOVs that overlap within the same round of imaging)
         # overlapping FOVs will cause bleaching, so it is good to remove these.
-        positions_to_remove_list = []
+        # positions_to_remove_list = []
 
         dfoverlaplist =[]
         for key, df in dfmeta.groupby("key"):
@@ -377,7 +377,7 @@ if __name__ == "__main__":
         keylist = ["Round 1"] + [x for x in keylist0 if "Round 1" != x]
         print(keylist)
 
-        keeplist = []
+        # keeplist = []
         dflall = []
 
         dfmeta.reset_index(inplace=True)
