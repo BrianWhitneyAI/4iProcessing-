@@ -110,10 +110,11 @@ if __name__ == "__main__":
 
     output_dir = dfconfig["output_path"][0]
     pickle_dir = output_dir + os.sep + "pickles"
-    pickle_name = barcode + "cleanedup_match_pickle.pickle"
+    pickle_name = barcode + "cleanedup_match_csv.csv"
     pickle_path = pickle_dir + os.sep + pickle_name
     print("\n\n" + pickle_path + "\n\n")
-    dfall = pd.read_pickle(pickle_path)
+    # dfall = pd.read_pickle(pickle_path)
+    dfall = pd.read_csv(pickle_path)
 
 
     # output_dir = dfconfig["output_path"][0]
@@ -177,9 +178,11 @@ if __name__ == "__main__":
             dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
             parent_file = dfsub["parent_file"][0]
 
-            alignment_offset = dfalign.loc[
+            alignment_offset = eval(dfalign.set_index(['key','template_position']).loc[
                 pd.IndexSlice[key, Position], "alignment_offsets_xyz"
-            ]
+            ])
+            print(alignment_offset)
+            print(type(alignment_offset))
             final_shape = np.uint16(np.asarray(
                 [
                     100,
