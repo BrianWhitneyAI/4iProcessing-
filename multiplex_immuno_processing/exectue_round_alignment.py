@@ -134,18 +134,20 @@ if __name__ == "__main__":
 
     print(template_position_list)
 
-    # for Position in template_position_list: #go one position by position, since you need offsets per position
-    for Position in [
-        "P6",
-        "P3",
-        "P12",
-    ]:  # go one position by position, since you need offsets per position
+    for Position in template_position_list: #go one position by position, since you need offsets per position
+    # for Position in [
+    #     "P6",
+    #     "P3",
+    #     "P12",
+    # ]:  # go one position by position, since you need offsets per position
         print("POSITION = ", Position)
-
-        testing_keylist = [x for x in keylist if "Time" not in x]
-        print(testing_keylist)
-        for ki, key in enumerate(testing_keylist):
-            # for ki,key in enumerate(keylist):
+        
+        #need to define the keylist for each position, since some positions may not be imaged every round
+        keylist = dfall.set_index('template_position').loc[Position,'key'].unique()
+        # testing_keylist = [x for x in keylist if "Time" not in x]
+        # print(testing_keylist)
+        # for ki, key in enumerate(testing_keylist):
+        for ki,key in enumerate(keylist):
             print(key)
 
             dfr = dfall.set_index(["template_position", "key"])
