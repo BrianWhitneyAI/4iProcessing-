@@ -136,7 +136,7 @@ if __name__ == "__main__":
 
     # for Position in template_position_list: #go one position by position, since you need offsets per position
     for Position in [
-        "P1",
+        "P6",
         "P3",
         "P12",
     ]:  # go one position by position, since you need offsets per position

@@ -509,3 +509,7 @@ if __name__ == "__main__":
     pickle_path = pickle_dir + os.sep + pickle_name
     print("\n\n" + pickle_path + "\n\n")
     dfout.to_pickle(os.path.abspath(pickle_path))
+
+
+    out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
+    dfout.to_csv(os.path.abspath(out_csv_path))
