@@ -411,7 +411,7 @@ if __name__ == "__main__":
     ) in (
         template_position_list
     ):  # go one position by position, since you need offsets per position
-        # for Position in ['P1', 'P3', 'P12']: #go one position by position, since you need offsets per position
+    # for Position in ['P1', 'P3', 'P12']: #go one position by position, since you need offsets per position
         print("POSITION = ", Position)
         keeplist = []
         for key in keylist:
