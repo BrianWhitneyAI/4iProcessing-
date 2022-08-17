@@ -102,7 +102,18 @@ python .\multiplex_immuno_processing\check_parent_image_metadata_dataframe.py  -
 python .\multiplex_immuno_processing\generate_matched_position_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 ```
 
-### check the round alignment
+
+### and then filter out the positions with multiple matches
+```
+python .\multiplex_immuno_processing\filter_matched_position_dataframe_to_remove_multiple_matches.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+### check the position matching result
 ```
 python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+### now compute alignment paramters
+```
+python .\multiplex_immuno_processing\filter_matched_position_dataframe_to_remove_multiple_matches.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 ```

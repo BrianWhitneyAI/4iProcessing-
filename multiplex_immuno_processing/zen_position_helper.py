@@ -6,6 +6,13 @@ import lxml.etree as etree
 import numpy as np
 import pandas as pd
 
+    
+from datetime import datetime
+from dateutil import parser
+from datetime import timedelta
+
+from aicspylibczi import CziFile
+
 
 def compute_adjusted_xy(df, overwrite=True):
     if "X_original" not in df.columns.tolist():
@@ -166,5 +173,42 @@ def get_position_info_from_czi(filename):
     dfsub = dfsub[dfsub["Scene"].astype(int) <= number_of_scenes_acquired]
     dfsub["fname"] = dfsub["file"].apply(lambda x: Path(x).stem)
     dfsub = compute_adjusted_xy(dfsub)
+
+
+    
+    czi = CziFile(filename)
+    
+    scenes_dims =  czi.get_dims_shape()[0]['S'] #only take the first block since that is the usable block
+    
+    
+    dflist=[]
+    for scene in range(number_of_scenes_acquired):
+        try:
+            submeta = czi.read_subblock_metadata(S=scene,T=0,Z=0,C=0)
+
+            for i in range(len(submeta)):
+                metablock = submeta[i][1]
+                dims = submeta[i][0]
+                outlxml = etree.fromstring(metablock)
+                a_time = outlxml.find('.//AcquisitionTime').text
+                time1 = parser.isoparse(a_time)
+                feats = {}
+                feats['AcquisitionTime'] = time1
+                feats.update(dims)
+                dfacq = pd.DataFrame(feats.values(),index=feats.keys()).T
+                dflist.append(dfacq)
+        except Exception as e:
+            print(str(e))
+            print('didnt catch scene = ', scene)
+
+
+    df = pd.concat(dflist)
+    df['Scene'] = df['S']+1
+    df
+
+    dfsub = pd.merge(dfsub,df,
+                    left_on='Scene',
+                    right_on='Scene',
+                    suffixes=('','_new'))
 
     return dfsub

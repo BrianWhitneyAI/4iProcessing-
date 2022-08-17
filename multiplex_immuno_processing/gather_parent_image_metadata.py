@@ -152,3 +152,6 @@ if __name__ == "__main__":
 
         out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
         dfmeta.to_csv(os.path.abspath(out_csv_path))
+
+        # this is the key information (along with the info in df config)
+        # df[['barcode','key','Position','Scene','fname','AcquisitionTime']]

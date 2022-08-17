@@ -157,9 +157,6 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
 
-
-
-
     # load the yaml config files and populate a dataframe with config info
     yaml_dir = os.path.join(args.output_path,"yml_configs")
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
@@ -177,9 +174,13 @@ if __name__ == "__main__":
                 dfconfiglist.append(dfconfigsub)
 
     dfconfig = pd.concat(dfconfiglist)
+
+    # dfconfig = dfconfig[dfconfig['barcode']=='5500000725'] #for testing
+
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
 
+    
     # now open the metadata pickle
     # (specifically metadata about position, XYZ coordinates and FOV size)
     # barcode corresponds to a given plate
@@ -195,6 +196,10 @@ if __name__ == "__main__":
         
         dfmeta = pd.read_pickle(metadata_pickle_path)
 
+        PositionUniqueList = [f"{str(x)}-{y}-{str(Path(z).name)}" for x,y,z in zip(dfmeta['Position'].tolist(),dfmeta['key'].tolist(),dfmeta['parent_file'].tolist())]
+        dfmeta['PositionUnique'] = PositionUniqueList
+        dfmetaog = dfmeta.copy()
+        
         # this has all metadata for all rounds of image data for one given barcode
 
         # important columns are:
@@ -252,6 +257,11 @@ if __name__ == "__main__":
                     [(original_file, scene) for scene in scenes_to_toss]
                 )
 
+        
+
+        #########################################################
+        # now flag all scenes that should be tossed
+        
         # set the index to match the collected information in the list of tuples above
         # should be "original_file" and "Scene"
         dfmeta.reset_index(inplace=True)
@@ -259,34 +269,45 @@ if __name__ == "__main__":
             ["original_file", "Scene"],
             inplace=True,
         )
+        
+        dfmeta['flag-scene_to_toss'] = [False] * dfmeta.shape[0]
+        for original_file_AND_scenes_to_toss in original_file_AND_scenes_to_toss_list:
+            try:
+                dfmeta.loc[pd.IndexSlice[original_file_AND_scenes_to_toss],'flag-scene_to_toss']=True
+            except: #this excepts because some scenes are not present????
+                print('why', original_file_AND_scenes_to_toss)
+                pass
+        
+        # the last step is to remove all extra scenes that were added (as scenes many scenes marked for removal wont be present in the metadata and so could be added to the dataframe using the loc method above)
+        dfmeta = dfmeta[dfmeta.isna()['parent_file']==False]
+        dfmeta
+        #########################################################
+        
 
-        # now drop the identified "scenes to toss" by passing in the list of tuples
-        dfmeta.drop(
-            labels=original_file_AND_scenes_to_toss_list, inplace=True, errors="ignore"
-        )
-
-        # ploton=True
-        if ploton:
-            plot_position_rectangles(dfmeta)
+        # # now drop the identified "scenes to toss" by passing in the list of tuples
+        # dfmeta.drop(
+        #     labels=original_file_AND_scenes_to_toss_list, inplace=True, errors="ignore"
+        # )
 
         # find and record overlapping FOVs (FOVs that overlap within the same round of imaging)
         # overlapping FOVs will cause bleaching, so it is good to remove these.
         positions_to_remove_list = []
 
+        dfoverlaplist =[]
         for key, df in dfmeta.groupby("key"):
 
             print(key)
             dfl = []
-            for i, ((pos, pf), dftemp_pos) in enumerate(
-                df.groupby(["Position", "parent_file"])
+            for i, ((pos, pf, pu), dftemp_pos) in enumerate(
+                df.groupby(["Position", "parent_file", "PositionUnique"])
             ):
 
                 xyz = dftemp_pos[["X", "Y", "Z"]].to_numpy()[0]
                 imgsize_um = dftemp_pos["imgsize_um"].to_numpy()[0]
                 template_rectangle = create_rectangle(xyz, imgsize_um)
 
-                for k, ((pos2, pf2), dfmove_pos) in enumerate(
-                    df.groupby(["Position", "parent_file"])
+                for k, ((pos2, pf2, pu2), dfmove_pos) in enumerate(
+                    df.groupby(["Position", "parent_file", "PositionUnique"])
                 ):
                     xyz2 = dfmove_pos[["X", "Y", "Z"]].to_numpy()[0]
                     imgsize_um2 = dfmove_pos["imgsize_um"].to_numpy()[0]
@@ -298,33 +319,50 @@ if __name__ == "__main__":
 
                     # if the positions overlap AND (they don't have the same position name OR
                     # they are from a different parent file) then mark them for removal.
-                    if (overlap > 0) & ((pos != pos2) | (pf != pf2)):
+                    if (overlap > 0) & (pu != pu2):
                         feats = {}
                         #             print(pos,pos2,overlap)
                         feats["template_position"] = pos
                         feats["move_position"] = pos2
+                        feats["template_position_unique"] = pu
+                        feats["move_position_unique"] = pu2
                         feats["overlap"] = overlap
+                        feats["template_parent_file"] = pf
+                        feats["move_parent_file"] = pf2
+                        feats['key'] = key
                         dfl.append(pd.DataFrame(data=feats.values(), index=feats.keys()).T)
-            if len(dfl) > 1:  # needed to account for if no overlap occurs
-                dfoverlap = pd.concat(dfl)
-                positions_to_remove = list(
-                    set(
-                        dfoverlap.move_position.tolist()
-                        + dfoverlap.template_position.tolist()
-                    )
-                )
-                positions_to_remove_list.extend(
-                    [(key, position) for position in positions_to_remove]
-                )
+          
+            if len(dfl) >= 1:  # needed to account for if no overlap occurs
+                dfoverlap_self = pd.concat(dfl)
+                dfoverlaplist.append(dfoverlap_self)
 
-        # now reindex the dataframe to specify these positions to remove
-        dfmeta.reset_index(inplace=True)
-        dfmeta.set_index(["key", "Position"], inplace=True)
-        dfmeta.drop(labels=positions_to_remove_list, inplace=True, errors="ignore")
+                
+        #########################################################
+        # now flag all positions that have same-round overlaps
+        # and record which positions overlap
+        dfmeta['flag-overlaps_with_another_position_in_same_round'] = [False] * dfmeta.shape[0]
+        dfmeta['overlapping_positions_within_same_round'] = ['No overlap'] * dfmeta.shape[0]
+        if len (dfoverlaplist) >= 1: # needed to account for if no overlap occurs
+            dfoverlapall = pd.concat(dfoverlaplist)
+            #now record all the overlapping positions
+            dfmeta.reset_index(inplace=True)
+            dfmeta.set_index(['key','PositionUnique'],inplace=True)
+            for index_item, dfoverlapallg in dfoverlapall.groupby(['key','template_position_unique']):
+                # dfmeta.loc[pd.IndexSlice[index_item],'overlapping_positions_within_same_round'] = str([[str(y) for y in x] for x in dfoverlapallg[['move_position','move_parent_file']].values]) #need to do string operation on list comprehension to get multiple items at single location in dataframe
+                # dfmeta.loc[pd.IndexSlice[index_item],'overlapping_positions_within_same_round'] = str([[str(y) for y in x] for x in dfoverlapallg['move_position_unique'].tolist()]) #need to do string operation on list comprehension to get multiple items at single location in dataframe 
+                dfmeta.loc[pd.IndexSlice[index_item],'overlapping_positions_within_same_round'] = str([str(x) for x in dfoverlapallg['move_position_unique'].tolist()]) #need to do string operation on list comprehension to get multiple items at single location in dataframe 
+                dfmeta.loc[pd.IndexSlice[index_item],'flag-overlaps_with_another_position_in_same_round']=True
 
-        # ploton=True
-        if ploton:
-            plot_position_rectangles(dfmeta)
+
+        print(dfmeta[dfmeta['flag-overlaps_with_another_position_in_same_round']==True]['overlapping_positions_within_same_round'])
+        #########################################################
+        # dfmeta.drop(labels=positions_to_remove_list, inplace=True, errors="ignore")
+        print('dfmeta.shape',dfmeta.shape)
+        
+
+        # # ploton=True
+        # if ploton:
+        #     plot_position_rectangles(dfmeta)
 
         # find the same FOV across multiple rounds of imaging by finding FOVs that overlap
         # from two different rounds.
@@ -336,12 +374,27 @@ if __name__ == "__main__":
         keylist0 = [x for x in ukeys if "Time" in x] + [x for x in ukeys if "Time" not in x]
 
         # then set the first entry to be round 1
-        keylist = ["Round 1"] + [x for x in keylist0 if "Round 1" not in x]
+        keylist = ["Round 1"] + [x for x in keylist0 if "Round 1" != x]
         print(keylist)
 
         keeplist = []
         dflall = []
 
+        dfmeta.reset_index(inplace=True)
+        dfmeta.set_index(['key','PositionUnique'],inplace=True)
+
+        ########################################################################################################################
+        # # extra junk to use for testing
+        # dfmeta.loc[('20X_Timelapse', 'P1-5500000725_20X_Timelapse-01.czi'),'X'] = 1
+        # dfmeta.loc[('20X_Timelapse', 'P4-5500000725_20X_Timelapse-01.czi'),['X','Y','Z']] = dfmeta.loc[('20X_Timelapse', 'P3-5500000725_20X_Timelapse-01.czi'),['X','Y','Z']].values
+        # display(dfmeta.loc[pd.IndexSlice['20X_Timelapse',['P1-5500000725_20X_Timelapse-01.czi',
+        #                                                   'P2-5500000725_20X_Timelapse-01.czi',
+        #                                                   'P3-5500000725_20X_Timelapse-01.czi',
+        #                                                   'P4-5500000725_20X_Timelapse-01.czi',]],:])
+        ########################################################################################################################
+        
+        
+        # dye
         print("template round is = ", keylist[0])
         for ki in range(0, len(keylist)):
             dfmeta.reset_index(inplace=True)
@@ -363,25 +416,27 @@ if __name__ == "__main__":
             print("find and record overlapping FOVs")
 
             dfl = []
-            for i, (pos, dftemplate_pos) in enumerate(dftemplate.groupby("Position")):
+            for i, ((pos,pu), dftemplate_pos) in enumerate(dftemplate.groupby(["Position",'PositionUnique'])):
                 xyz = dftemplate_pos[["X", "Y", "Z"]].to_numpy()[0]
                 imgsize_um = dftemplate_pos["imgsize_um"].to_numpy()[0]
                 template_rectangle = create_rectangle(xyz, imgsize_um)
 
-                for k, (pos2, dfmove_pos) in enumerate(dfmove.groupby("Position")):
+                for k, ((pos2,pu2), dfmove_pos) in enumerate(dfmove.groupby(["Position",'PositionUnique'])):
                     xyz2 = dfmove_pos[["X", "Y", "Z"]].to_numpy()[0]
                     imgsize_um2 = dfmove_pos["imgsize_um"].to_numpy()[0]
                     move_rectangle = create_rectangle(xyz2, imgsize_um2)
 
                     overlap = intersection_area(template_rectangle, move_rectangle)
-                    if overlap > 0:
+                    if overlap > 0.2: #require more than 20% overlap
                         feats = {}
                         #             print(pos,pos2,overlap)
                         feats["template_position"] = pos
+                        feats["template_position_unique"] = pu
                         feats["template_key"] = keylist[0]
                         feats[
                             "move_position"
                         ] = pos2  # move_position_that_matches_template_position
+                        feats['move_position_unique'] = pu2
                         feats["move_key"] = keylist[ki]
                         feats["template_XYZ"] = xyz
                         feats["match_XYZ"] = xyz2
@@ -392,33 +447,41 @@ if __name__ == "__main__":
                         dfl.append(pd.DataFrame(data=feats.values(), index=feats.keys()).T)
             dfoverlap = pd.concat(dfl)
             dfoverlap
+            print("dfoverlap.shape",dfoverlap.shape)
+            # if no overlap is present for a template position, fill the template_position name as NOMATCH
+            # and flag that template_position for that round as having no match with reference
+            dfoverlap.set_index(['move_position_unique'],inplace=True)
+            dfoverlap['flag-lacks_a_match_with_reference'] = [False]*dfoverlap.shape[0]
+            
+            # iterate through all the positions in dfmove and ask if that position has a match to dftemplate
+            for i, ((move_position_unique, move_position), dfmove_pos) in enumerate(dfmove.groupby(["PositionUnique","Position"])):
+                if move_position_unique not in dfoverlap.index.values: #if the move position was not identified as having a match (i.e. move_position_unique not in index of dfoverlap)
+                
+                    print("move_position_unique=",move_position_unique)
+                    dfoverlap.loc[move_position_unique,'template_position_unique'] = 'NOMATCH'
+                    dfoverlap.loc[move_position_unique,'template_position'] = 'NOMATCH'
+                    dfoverlap.loc[move_position_unique,'move_position'] = move_position
+                    dfoverlap.loc[move_position_unique,'flag-lacks_a_match_with_reference'] = True
+                    print(dfoverlap.loc[move_position_unique,:])
+            dfoverlap.reset_index(inplace=True)
+        
+            # print(dfoverlap)
 
-            # only keep positions that overlap
-            # pull a subset of dfmeta by passing in the positions that overlap for the tempalte and  move rounds
-            for temp_move in ["template", "move"]:
-                keeplist.extend(
-                    [
-                        tuple(x)
-                        for x in dfoverlap[
-                            [temp_move + "_key", temp_move + "_position"]
-                        ].to_numpy()
-                    ]
-                )
-            keepset = list(set(keeplist))
-            dfmeta.reset_index(inplace=True)
-            dfmeta.set_index(["key", "Position"], inplace=True)
-            dfkeep = dfmeta.loc[keepset]
-
+          
             # merge the overlapping position info with the "move" dataframe
             # (remember that the first round of matching is the template with itself)
-            dfsub = dfkeep.loc[pd.IndexSlice[[keylist[ki]], :]]
+            # dfsub = dfkeep.loc[pd.IndexSlice[[keylist[ki]], :]]
+            dfsub = dfmeta.loc[pd.IndexSlice[[keylist[ki]], :]]
             dfm_move = pd.merge(
                 dfsub.reset_index(),
-                dfoverlap[["template_position", "move_position"]],
-                left_on=["Position"],
-                right_on=["move_position"],
-                suffixes=("", ""),
+                # dfoverlap[["template_position_unique", "move_position_unique", "template_position","move_position","flag-lacks_a_match_with_reference"]],
+                dfoverlap,
+                left_on=["PositionUnique"],
+                right_on=["move_position_unique"],
+                suffixes=("_old", ""),
+                how='left'
             )
+            print("dfsub.shape, dfoverlap.shape, dfm_move.shape",(dfsub.shape, dfoverlap.shape, dfm_move.shape))
 
             dflall.append(dfm_move)
 
@@ -428,23 +491,26 @@ if __name__ == "__main__":
         # TODO: figure out smart way to keep positions that were imaged too many times
         # plan is to keep the first image
 
-        dfcount = dfout.reset_index().groupby("template_position").agg("count")
-        number_of_rounds = len(dfout.key.unique())
-        overlapping_poslist = np.unique(
-            dfcount[dfcount["Position"] >= number_of_rounds].index
-        )
-        print("keeping all these positions ", overlapping_poslist)
+        # dfcount = dfout.reset_index().groupby("template_position").agg("count")
+        # number_of_rounds = len(dfout.key.unique())
+        # overlapping_poslist = np.unique(
+        #     dfcount[dfcount["Position"] >= number_of_rounds].index
+        # )
+        
 
-        dfout.set_index(["key", "template_position"], inplace=True)
+        
 
         dfmeta_out = pd.merge(
-            dfout.reset_index(),
+            dfout,
             dfconfig.loc[[barcode], ["scope", "output_path", "path"]].reset_index(),
             left_on=["barcode", "key", "original_file"],
             right_on=["barcode", "round", "path"],
             how="left",
         )
-        print(dfkeep.shape, dfconfig.shape, dfmeta_out.shape)
+        print(dfout.shape,dfconfig.shape, dfmeta_out.shape, dfmetaog.shape)
+        
+        
+        
 
         # important columns
         # index columns are important :
@@ -482,10 +548,22 @@ if __name__ == "__main__":
         pickle_dir = output_dir + os.sep + "pickles"
         if not os.path.exists(pickle_dir):
             os.makedirs(pickle_dir)
-        pickle_name = barcode + "_pickle.pickle"
+        pickle_name = barcode + "matched_positions_pickle.pickle"
         pickle_path = pickle_dir + os.sep + pickle_name
         print("\n\n" + pickle_path + "\n\n")
         dfmeta_out.to_pickle(os.path.abspath(pickle_path))
 
         out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
         dfmeta_out.to_csv(os.path.abspath(out_csv_path))
+        
+        
+        # find all positions with extra matches
+#         dfg = dfmeta_out.groupby(['template_position_unique','key']).agg('count')
+#         ivs = dfg[dfg['Position']>1].index.values
+#         dfm = dfmeta_out.set_index(['template_position_unique','key'])
+#         flagcols = [x for x in dfm.columns.tolist() if 'flag' in x]
+#         print(dfm.loc[ivs,['move_position','Scene','overlapping_positions_within_same_round']+flagcols])
+
+
+#         # find all positions with no matches
+#         print(dfmeta_out.set_index(['template_position_unique','key','PositionUnique']).loc[['NOMATCH']])

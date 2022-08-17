@@ -66,4 +66,5 @@ if __name__ == "__main__":
     #     for key in keylist:
     #         mplist = df.set_index('key').loc[key]['move_position']
         
-            
+    # this is the most useful info in this dataframe
+    # df[['barcode','key','Position','Scene','fname','AcquisitionTime']]
