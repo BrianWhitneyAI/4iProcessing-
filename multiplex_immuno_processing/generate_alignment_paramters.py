@@ -406,14 +406,18 @@ if __name__ == "__main__":
 
     print(template_position_list)
     dfkeeplist = []
-    for (
-        Position
-    ) in (
-        template_position_list
-    ):  # go one position by position, since you need offsets per position
-    # for Position in ['P1', 'P3', 'P12']: #go one position by position, since you need offsets per position
+    # for (
+    #     Position
+    # ) in (
+    #     template_position_list
+    # ):  # go one position by position, since you need offsets per position
+    for Position in ['P6', 'P3', 'P12']: #go one position by position, since you need offsets per position
         print("POSITION = ", Position)
         keeplist = []
+        
+        #need to define the keylist for each position, since some positions may not be imaged every round
+        keylist = dfall.set_index('template_position').loc[Position,'key'].unique()
+
         for key in keylist:
 
             dfr = dfall.set_index(["template_position", "key"])
