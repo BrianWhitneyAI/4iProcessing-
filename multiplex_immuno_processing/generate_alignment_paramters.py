@@ -1,7 +1,5 @@
 import argparse
 import os
-import re
-import sys
 
 from aicsimageio import AICSImage
 import matplotlib as plt
@@ -34,8 +32,6 @@ overwrite = True
 # print()
 # print(args_dict["barcode"])
 # print()
-
-
 
 
 def find_xyz_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=False):
@@ -319,32 +315,25 @@ def return_aligned_img_list_new(
         return match_list
 
 
-
-
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--output_path", type=str, required=True, help="output dir of all processing steps. This specifies where to find the yml_configs too"
+    "--output_path",
+    type=str,
+    required=True,
+    help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
 parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 
 
-
-
 if __name__ == "__main__":
     args = parser.parse_args()
-
-
-
 
     # Open the file and load the file
     barcode = args.barcode
 
-
-    yaml_dir = os.path.join(args.output_path,"yml_configs")
+    yaml_dir = os.path.join(args.output_path, "yml_configs")
 
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
     yaml_list = [x for x in yaml_list if barcode in x]
@@ -371,9 +360,7 @@ if __name__ == "__main__":
     dfconfig = pd.concat(dflist)
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
-
     mag = "20x"
-
 
     output_dir = dfconfig["output_path"][0]
     pickle_dir = output_dir + os.sep + "pickles"
@@ -383,21 +370,17 @@ if __name__ == "__main__":
     print(os.path.exists(pickle_path))
     # dfall = pd.read_pickle(pickle_path)
 
-
     pickle_name = barcode + "cleanedup_match_csv.csv"
     pickle_path = pickle_dir + os.sep + pickle_name
     print("\n\n" + pickle_path + "\n\n")
     print(os.path.exists(pickle_path))
     dfall = pd.read_csv(pickle_path)
 
-
     def os_swap(x):
         out = "/" + ("/".join(x.split("\\"))).replace("//", "/")
         return out
 
-
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
-
 
     template_position_list = dfall["template_position"].unique()
     # keylist = mag_dict.keys()
@@ -406,14 +389,14 @@ if __name__ == "__main__":
 
     print(template_position_list)
     dfkeeplist = []
-      # go one position by position, since you need offsets per position
+    # go one position by position, since you need offsets per position
     for Position in template_position_list:
-    # for Position in ['P6', 'P3', 'P12']: #go one position by position, since you need offsets per position
+        # for Position in ['P6', 'P3', 'P12']: #go one position by position, since you need offsets per position
         print("POSITION = ", Position)
         keeplist = []
-        
+
         # need to define the keylist for each position, since some positions may not be imaged every round
-        keylist = dfall.set_index('template_position').loc[Position,'key'].unique()
+        keylist = dfall.set_index("template_position").loc[Position, "key"].unique()
 
         for key in keylist:
 
@@ -434,7 +417,6 @@ if __name__ == "__main__":
 
             position = Position
             scene = dfsub["Scene"][0]
-
 
             align_channel_index = [
                 xi for xi, x in enumerate(channels) if x == align_channel
@@ -501,16 +483,12 @@ if __name__ == "__main__":
         print("\n\n" + pickle_path + "\n\n")
         dfout_p.to_pickle(os.path.abspath(pickle_path))
 
-
         # out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
-        csv_name = pickle_name.replace('_pickle','_csv').replace('.pickle','.csv')
-        out_csv_path = pickle_dir + os.sep +  csv_name
+        csv_name = pickle_name.replace("_pickle", "_csv").replace(".pickle", ".csv")
+        out_csv_path = pickle_dir + os.sep + csv_name
         dfout_p.to_csv(os.path.abspath(out_csv_path))
 
-        
-
     # now load up the full images (including the full timelapse)
-
 
     dfout = pd.concat(dfkeeplist)
 
@@ -523,8 +501,7 @@ if __name__ == "__main__":
     print("\n\n" + pickle_path + "\n\n")
     dfout.to_pickle(os.path.abspath(pickle_path))
 
-
     # out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
-    csv_name = pickle_name.replace('_pickle','_csv').replace('.pickle','.csv')
-    out_csv_path = pickle_dir + os.sep +  csv_name
+    csv_name = pickle_name.replace("_pickle", "_csv").replace(".pickle", ".csv")
+    out_csv_path = pickle_dir + os.sep + csv_name
     dfout.to_csv(os.path.abspath(out_csv_path))

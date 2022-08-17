@@ -94,14 +94,14 @@ for bdir in bdirlist:
                         scenes_to_toss.append(si + 1)
 
                 zscenes_to_toss = ",".join([str(x) for x in scenes_to_toss])
-                channels = ",".join(channels)
+                channels_str = ",".join(channels)
 
                 # the names for these yaml entries are weird (i.e. "round") because they get
                 # organized alphabetically and I want them to appear in a desired order.
                 detaild = {
                     "round": round_num,
                     "item": "czi",
-                    "channels": channels,
+                    "channels": channels_str,
                     "path": fpath,
                     "scenes_to_toss": zscenes_to_toss,
                     "ref_channel": str(channels[ref_channel]),

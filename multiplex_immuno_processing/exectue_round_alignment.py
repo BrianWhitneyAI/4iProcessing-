@@ -1,8 +1,8 @@
 import argparse
+from glob import glob
 import os
 from pathlib import Path
 import re
-import sys
 
 from aicsimageio import AICSImage
 import numpy as np
@@ -11,7 +11,7 @@ from scipy.ndimage import affine_transform
 import skimage.io as skio
 import yaml
 from yaml.loader import SafeLoader
-from glob import glob
+
 overwrite = True
 
 
@@ -42,9 +42,6 @@ def os_swap(x):
     return out
 
 
-
-
-
 # print(sys.argv)
 # arg_list = [
 #     (x.replace("--", ""), i)
@@ -63,29 +60,26 @@ def os_swap(x):
 # print()
 
 
-
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--output_path", type=str, required=True, help="output dir of all processing steps. This specifies where to find the yml_configs too"
+    "--output_path",
+    type=str,
+    required=True,
+    help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
 parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 
 
-
-
 if __name__ == "__main__":
     args = parser.parse_args()
-
 
     # Open the file and load the file
     # Open the file and load the file
     barcode = args.barcode
 
-
-    yaml_dir = os.path.join(args.output_path,"yml_configs")
+    yaml_dir = os.path.join(args.output_path, "yml_configs")
 
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
     yaml_list = [x for x in yaml_list if barcode in x]
@@ -105,7 +99,6 @@ if __name__ == "__main__":
     dfconfig = pd.concat(dflist)
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
-
     mag = "20x"
 
     output_dir = dfconfig["output_path"][0]
@@ -116,7 +109,6 @@ if __name__ == "__main__":
     # dfall = pd.read_pickle(pickle_path)
     dfall = pd.read_csv(pickle_path)
 
-
     # output_dir = dfconfig["output_path"][0]
     # align_pickle_dir = output_dir + os.sep + "alignment_pickles"
     # align_pickle_name = barcode + "alignment_pickle.pickle"
@@ -125,32 +117,28 @@ if __name__ == "__main__":
     # dfalign.reset_index(inplace=True)
     # dfalign.set_index(["key", "template_position"], inplace=True)
 
-
-    
     output_dir = dfconfig["output_path"][0]
     align_pickle_dir = output_dir + os.sep + "alignment_pickles_each"
     align_pickle_name_glob = f"{barcode}*alignment_csv_each.csv"
     print(align_pickle_name_glob)
     globlist = glob(align_pickle_dir + os.sep + align_pickle_name_glob)
-    dfalign_list=[]
+    dfalign_list = []
     for align_pickle_path in globlist:
         # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
         df = pd.read_csv(align_pickle_path)
         dfalign_list.append(df)
     dfalign = pd.concat(dfalign_list)
 
-
-
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
-    # merge both dataframes so that you only try to align the positions that can be aligned. 
-    dfall = pd.merge(dfalign,dfall,
-                    on = ['key','template_position'],
-                    suffixes = ('_align',''),
-                    how='left',
-                    )
-
-                  
+    # merge both dataframes so that you only try to align the positions that can be aligned.
+    dfall = pd.merge(
+        dfalign,
+        dfall,
+        on=["key", "template_position"],
+        suffixes=("_align", ""),
+        how="left",
+    )
 
     template_position_list = dfall["template_position"].unique()
     keylist = dfall["key"].unique()
@@ -158,38 +146,45 @@ if __name__ == "__main__":
 
     print(template_position_list)
 
-    for Position in template_position_list: #go one position by position, since you need offsets per position
-    # for Position in [
-    #     "P6",
-    #     "P3",
-    #     "P12",
-    # ]:  # go one position by position, since you need offsets per position
+    for (
+        Position
+    ) in (
+        template_position_list
+    ):  # go one position by position, since you need offsets per position
+        # for Position in [
+        #     "P6",
+        #     "P3",
+        #     "P12",
+        # ]:  # go one position by position, since you need offsets per position
         print("POSITION = ", Position)
-        
-        #need to define the keylist for each position, since some positions may not be imaged every round
-        keylist = dfall.set_index('template_position').loc[Position,'key'].unique()
+
+        # need to define the keylist for each position, since some positions may not be imaged every round
+        keylist = dfall.set_index("template_position").loc[Position, "key"].unique()
         # testing_keylist = [x for x in keylist if "Time" not in x]
         # print(testing_keylist)
         # for ki, key in enumerate(testing_keylist):
-        for ki,key in enumerate(keylist):
+        for ki, key in enumerate(keylist):
             print(key)
 
             dfr = dfall.set_index(["template_position", "key"])
             dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
             parent_file = dfsub["parent_file"][0]
 
-            alignment_offset = eval(dfalign.set_index(['key','template_position']).loc[
-                pd.IndexSlice[key, Position], "alignment_offsets_xyz"
-            ])
-            print(alignment_offset)
-            print(type(alignment_offset))
-            final_shape = np.uint16(np.asarray(
-                [
-                    100,
-                    1248 + 1248 / 3,
-                    1848 + 1848 / 3,
+            alignment_offset = eval(
+                dfalign.set_index(["key", "template_position"]).loc[
+                    pd.IndexSlice[key, Position], "alignment_offsets_xyz"
                 ]
             )
+            print(alignment_offset)
+            print(type(alignment_offset))
+            final_shape = np.uint16(
+                np.asarray(
+                    [
+                        100,
+                        1248 + 1248 / 3,
+                        1848 + 1848 / 3,
+                    ]
+                )
             )
 
             reader = AICSImage(parent_file)
@@ -198,8 +193,8 @@ if __name__ == "__main__":
 
             # 3 get variables for file name
             # round_num0 = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE).group(0)
-            search_out =re.search("time|Round [0-9]+", parent_file, re.IGNORECASE)
-            assert search_out is not None #necessary for passing mypy type errors
+            search_out = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE)
+            assert search_out is not None  # necessary for passing mypy type errors
             round_num0 = search_out.group(0)
 
             round_num = round_num0.replace("Time", "0").replace("Round ", "").zfill(2)
@@ -256,7 +251,9 @@ if __name__ == "__main__":
                         channel = c
                         channel_num = str(ci + 1).zfill(2)
                         tnum = str(T).zfill(3)
-                        savedir = f"{output_dir}{sep}mip_exports{sep}{barcode}-export{sep}"
+                        savedir = (
+                            f"{output_dir}{sep}mip_exports{sep}{barcode}-export{sep}"
+                        )
 
                         if not os.path.exists(savedir):
                             os.makedirs(savedir)
@@ -271,6 +268,8 @@ if __name__ == "__main__":
                         )
 
                         savepath = f"{savedir}{sep}{savename}"
-                        skio.imsave(savepath, np.uint16(cropped_maxz), check_contrast=False)
+                        skio.imsave(
+                            savepath, np.uint16(cropped_maxz), check_contrast=False
+                        )
                         if (T == 0) & (ci == 0):
                             print(os.path.abspath(savepath))

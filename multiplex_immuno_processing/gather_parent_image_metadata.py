@@ -1,11 +1,6 @@
 import argparse
-from collections import namedtuple
 import os
-from pathlib import Path
 
-
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import yaml
 from yaml.loader import SafeLoader
@@ -23,22 +18,20 @@ ploton = False
 """
 
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--output_path", type=str, required=True, help="output dir of all processing steps. This specifies where to find the yml_configs too"
+    "--output_path",
+    type=str,
+    required=True,
+    help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
-
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
-
-
-
     # load the yaml config files and populate a dataframe with config info
-    yaml_dir = os.path.join(args.output_path,"yml_configs")
+    yaml_dir = os.path.join(args.output_path, "yml_configs")
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
     dfconfiglist = []
     for y in yaml_list:
@@ -47,7 +40,9 @@ if __name__ == "__main__":
         with open(yml_path) as f:
             data = yaml.load(f, Loader=SafeLoader)
             for round_dict in data["Data"]:
-                dfconfigsub = pd.DataFrame(round_dict.values(), index=round_dict.keys()).T
+                dfconfigsub = pd.DataFrame(
+                    round_dict.values(), index=round_dict.keys()
+                ).T
                 dfconfigsub["barcode"] = data["barcode"]
                 dfconfigsub["scope"] = data["scope"]
                 dfconfigsub["output_path"] = data["output_path"]
@@ -55,7 +50,6 @@ if __name__ == "__main__":
 
     dfconfig = pd.concat(dfconfiglist)
     dfconfig.set_index(["barcode", "round"], inplace=True)
-
 
     # now go through all specified CZI files and collect metadata
     # (specifically metadata about position, XYZ coordinates and FOV size)
@@ -89,7 +83,9 @@ if __name__ == "__main__":
                 # each round may have more than one czi file assoicated with it. so iterate through each file
                 for original_file, filename in zip(original_file_list, file_list):
                     print(file, filename)
-                    dfmeta_sub = zen_position_helper.get_position_info_from_czi(filename)
+                    dfmeta_sub = zen_position_helper.get_position_info_from_czi(
+                        filename
+                    )
                     dfmeta_sub["align_channel"] = dfcbr["ref_channel"][0]
                     dfmeta_sub["barcode"] = barcode
                     dfmeta_sub["key"] = round
@@ -138,9 +134,6 @@ if __name__ == "__main__":
         # TODO: define why use anchor point in zen_position_helper
         # dfall[['X','X_original','X_adjusted','PlateReferencePoint','PlateAnchorPoint']]
 
-
-        
-        
         output_dir = dfconfig["output_path"][0]
         pickle_dir = output_dir + os.sep + "pickles"
         if not os.path.exists(pickle_dir):
@@ -150,7 +143,7 @@ if __name__ == "__main__":
         print("\n\n" + pickle_path + "\n\n")
         dfmeta.to_pickle(os.path.abspath(pickle_path))
 
-        out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
+        out_csv_path = pickle_path.replace("_pickle", "_csv").replace(".pickle", ".csv")
         dfmeta.to_csv(os.path.abspath(out_csv_path))
 
         # this is the key information (along with the info in df config)

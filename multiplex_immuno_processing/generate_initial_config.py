@@ -6,7 +6,7 @@ import re
 from aicsimageio import AICSImage
 import ruamel.yaml
 
-# test 
+# test
 # run this to make the initial yaml files and then edit those files to make sure nothing is missing.
 # this code only helps make the yaml files...it does not generate a perfect yaml automatically.
 
@@ -161,8 +161,6 @@ if __name__ == "__main__":
             # output path defines folder where all images get stored after they get processed
             config["output_path"] = args.output_path
 
-
-        
         output_dir = os.path.join(args.output_path, "yml_configs")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

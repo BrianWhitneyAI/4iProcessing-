@@ -15,22 +15,20 @@ overwrite = True
 barcode = "5500000724"
 
 
-
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--output_path", type=str, required=True, help="output dir of all processing steps. This specifies where to find the yml_configs too"
+    "--output_path",
+    type=str,
+    required=True,
+    help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
-
-
 
 
 args = parser.parse_args()
 
 
-
-
 # load the yaml config files and populate a dataframe with config info
-yaml_dir = os.path.join(args.output_path,"yml_configs")
+yaml_dir = os.path.join(args.output_path, "yml_configs")
 yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
 yaml_list = [x for x in yaml_list if barcode in x]
 dflist = []
