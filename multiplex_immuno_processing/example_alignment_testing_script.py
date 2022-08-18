@@ -1,3 +1,4 @@
+import argparse
 import os
 
 from aicsimageio import AICSImage
@@ -14,7 +15,20 @@ overwrite = True
 barcode = "5500000724"
 
 
-yaml_dir = "yml_configs"
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--output_path",
+    type=str,
+    required=True,
+    help="output dir of all processing steps. This specifies where to find the yml_configs too",
+)
+
+
+args = parser.parse_args()
+
+
+# load the yaml config files and populate a dataframe with config info
+yaml_dir = os.path.join(args.output_path, "yml_configs")
 yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
 yaml_list = [x for x in yaml_list if barcode in x]
 dflist = []
@@ -23,8 +37,8 @@ for yam in yaml_list:
     yml_path = yaml_dir + os.sep + yam
     with open(yml_path) as f:
         data = yaml.load(f, Loader=SafeLoader)
-        for iround_dict in data["Data"]:
-            dfsub = pd.DataFrame(iround_dict.values(), index=iround_dict.keys()).T
+        for round_dict in data["Data"]:
+            dfsub = pd.DataFrame(round_dict.values(), index=round_dict.keys()).T
 
             dfsub["barcode"] = data["barcode"]
             dfsub["scope"] = data["scope"]
@@ -32,7 +46,7 @@ for yam in yaml_list:
             dflist.append(dfsub)
 
 dfconfig = pd.concat(dflist)
-dfconfig.set_index(["barcode", "iround"], inplace=True)
+dfconfig.set_index(["barcode", "round"], inplace=True)
 
 
 mag = "20x"
@@ -40,7 +54,7 @@ mag = "20x"
 
 output_dir = dfconfig["output_path"][0]
 pickle_dir = output_dir + os.sep + "pickles"
-pickle_name = barcode + "_pickle.pickle"
+pickle_name = barcode + "cleanedup_match_pickle.pickle"
 pickle_path = pickle_dir + os.sep + pickle_name
 print("\n\n" + pickle_path + "\n\n")
 dfall = pd.read_pickle(pickle_path)

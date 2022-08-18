@@ -75,3 +75,58 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for information related to developing the
    each set of changes to `main` atomic and as a side effect naturally encourages small
    well defined PR's.
 
+
+
+# how to run this code
+
+### get initial configs automatically
+```
+python .\multiplex_immuno_processing\generate_initial_config.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --input_dirs  "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000733" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000724" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000728" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000726" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000725"
+```
+
+### manually edit config files to ensure that information is correct
+
+
+### get parent image metadata for images associated with each barcode
+```
+python .\multiplex_immuno_processing\gather_parent_image_metadata.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+### check the parent image metadata to determine which positions are present less or more than once per round of imaging
+```
+python .\multiplex_immuno_processing\check_parent_image_metadata_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+### use config and metadata dataframe to match all positions across rounds of imaging for each barcode
+```
+python .\multiplex_immuno_processing\generate_matched_position_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+
+### and then filter out the positions with multiple matches
+```
+python .\multiplex_immuno_processing\filter_matched_position_dataframe_to_remove_multiple_matches.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+### check the position matching result
+```
+python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
+
+### now compute alignment paramters
+```
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
+
+python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+```
+
+### next execute the alignment
+```
+python .\multiplex_immuno_processing\exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+```
