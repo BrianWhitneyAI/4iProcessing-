@@ -152,7 +152,7 @@ if __name__ == "__main__":
             # round_num0 = search_out.group(0)
 
             # round_num = round_num0.replace("Time", "0").replace("Round ", "").zfill(2)
-            round_num = str(dfr.loc[pd.IndexSlice[Position,key],'round_num']).zfill(2)
+            round_num = str(dfr.loc[pd.IndexSlice[Position,key],'round_number']).zfill(2)
 
             scene_num = str(scene).zfill(2)
             position_num = Position[1::].zfill(2)
