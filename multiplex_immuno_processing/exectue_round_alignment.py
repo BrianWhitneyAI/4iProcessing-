@@ -145,13 +145,14 @@ if __name__ == "__main__":
 
             scene = dfsub["Scene"][0]
 
-            # 3 get variables for file name
-            # round_num0 = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE).group(0)
-            search_out = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE)
-            assert search_out is not None  # necessary for passing mypy type errors
-            round_num0 = search_out.group(0)
+            # # 3 get variables for file name
+            # # round_num0 = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE).group(0)
+            # search_out = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE)
+            # assert search_out is not None  # necessary for passing mypy type errors
+            # round_num0 = search_out.group(0)
 
-            round_num = round_num0.replace("Time", "0").replace("Round ", "").zfill(2)
+            # round_num = round_num0.replace("Time", "0").replace("Round ", "").zfill(2)
+            round_num = str(dfr.loc[pd.IndexSlice[Position,key],'round_num']).zfill(2)
 
             scene_num = str(scene).zfill(2)
             position_num = Position[1::].zfill(2)
@@ -206,7 +207,7 @@ if __name__ == "__main__":
                         channel_num = str(ci + 1).zfill(2)
                         tnum = str(T).zfill(3)
                         savedir = (
-                            f"{output_dir}{sep}mip_exports{sep}{barcode}-export{sep}"
+                            f"{output_dir}{sep}mip_exports{sep}{barcode}{sep}"
                         )
 
                         if not os.path.exists(savedir):
@@ -215,10 +216,9 @@ if __name__ == "__main__":
 
                         file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
 
+                        fovid = f"{barcode}_R{round_num}_P{position_num}"
                         savename = (
-                            f"{barcode}-{mag}-R{round_num}"
-                            f"-Scene-{scene_num}-P{position_num}"
-                            f"-{well}-maxproj_c{channel_num}_T{tnum}_ORG.tif"
+                            f"{fovid}-mip-c{channel_num}_T{tnum}.tif"
                         )
 
                         savepath = f"{savedir}{sep}{savename}"
