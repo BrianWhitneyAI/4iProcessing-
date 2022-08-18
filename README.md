@@ -81,7 +81,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for information related to developing the
 
 ### get initial configs automatically
 ```
-python ./multiplex_immuno_processing/generate_initial_config.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --input_dirs  "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000733" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000724" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000728" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000726" "\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000725"
+python ./multiplex_immuno_processing/generate_initial_config.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --input_dirs  "//allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000733" "//allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000724" "//allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000728" "//allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000726" "//allen/aics/microscopy/Antoine/Analyse EMT/4i Data/5500000725"
 ```
 
 ### manually edit config files to ensure that information is correct
@@ -121,12 +121,20 @@ python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_p
 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
 
-python ./multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
+python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+
 ```
 
 ### next execute the alignment
 ```
 python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 ```
+
+
+### to run on slurm use
+srun -p aics_cpu_general --mem 70G --pty bash #
+module load anaconda3
+source activate frick_multiplex
+cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4iProcessing
