@@ -15,49 +15,13 @@ from yaml.loader import SafeLoader
 overwrite = True
 
 
-def get_align_matrix(alignment_offset):
-    align_matrix = np.eye(4)
-    for i in range(len(alignment_offset)):
-        align_matrix[i, 3] = alignment_offset[i] * -1
-    align_matrix = np.int16(align_matrix)
-    return align_matrix
-
-
-def get_shift_to_center_matrix(img_shape, output_shape):
-    # output_shape > img_shape should be true for all dimensions
-    # and the difference divided by two needs to be a whole integer value
-
-    shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
-    shift = shape_diff / 2
-
-    shift_matrix = np.eye(4)
-    for i in range(len(shift)):
-        shift_matrix[i, 3] = shift[i]
-    shift_matrix = np.int16(shift_matrix)
-    return shift_matrix
-
+import registration_utils
 
 def os_swap(x):
     out = "/" + ("/".join(x.split("\\"))).replace("//", "/")
     return out
 
 
-# print(sys.argv)
-# arg_list = [
-#     (x.replace("--", ""), i)
-#     for i, x in enumerate(list(sys.argv))
-#     if bool(re.search("--", x))
-# ]
-# args_dict = {}
-
-# for keyval in arg_list:
-#     args_dict[keyval[0]] = sys.argv[keyval[1] + 1]
-# print(args_dict)
-# print()
-
-# # args_dict['barcode'] = '5500000724'
-# print(args_dict["barcode"])
-# print()
 
 
 parser = argparse.ArgumentParser()
@@ -109,13 +73,6 @@ if __name__ == "__main__":
     # dfall = pd.read_pickle(pickle_path)
     dfall = pd.read_csv(pickle_path)
 
-    # output_dir = dfconfig["output_path"][0]
-    # align_pickle_dir = output_dir + os.sep + "alignment_pickles"
-    # align_pickle_name = barcode + "alignment_pickle.pickle"
-    # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
-    # dfalign = pd.read_pickle(align_pickle_path)
-    # dfalign.reset_index(inplace=True)
-    # dfalign.set_index(["key", "template_position"], inplace=True)
 
     output_dir = dfconfig["output_path"][0]
     align_pickle_dir = output_dir + os.sep + "alignment_pickles_each"
@@ -147,16 +104,8 @@ if __name__ == "__main__":
     print(template_position_list)
 
     # go one position by position, since you need offsets per position
-    for (
-        Position
-    ) in (
-        template_position_list
-    ):  
-        # for Position in [
-        #     "P6",
-        #     "P3",
-        #     "P12",
-        # ]:  # go one position by position, since you need offsets per position
+    for Position in template_position_list:  
+
         print("POSITION = ", Position)
 
         # need to define the keylist for each position, since some positions may not be imaged every round
@@ -178,12 +127,16 @@ if __name__ == "__main__":
             )
             print(alignment_offset)
             print(type(alignment_offset))
+
+            
+
+            xypad = 200
             final_shape = np.uint16(
                 np.asarray(
                     [
                         100,
-                        1248 + 1248 / 3,
-                        1848 + 1848 / 3,
+                        1248 + xypad*2,
+                        1848 + xypad*2,
                     ]
                 )
             )
@@ -227,8 +180,8 @@ if __name__ == "__main__":
 
                         # this is where the alignment is performed
                         print(alignment_offset)
-                        align_matrix = get_align_matrix(alignment_offset)
-                        shift_to_center_matrix = get_shift_to_center_matrix(
+                        align_matrix = registration_utils.get_align_matrix(alignment_offset)
+                        shift_to_center_matrix = registration_utils.get_shift_to_center_matrix(
                             imgstack.shape, final_shape
                         )
                         combo = shift_to_center_matrix @ align_matrix
