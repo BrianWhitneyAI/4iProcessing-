@@ -127,6 +127,11 @@ python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_p
 
 ```
 
+
+### check alignment parameters results
+python ./multiplex_immuno_processing/check_alignment_parameters_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+
+
 ### next execute the alignment
 ```
 python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
@@ -137,4 +142,4 @@ python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "
 srun -p aics_cpu_general --mem 70G --pty bash #
 module load anaconda3
 source activate frick_multiplex
-cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4iProcessing
+cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4iProcessing-/

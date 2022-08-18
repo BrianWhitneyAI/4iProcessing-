@@ -8,7 +8,7 @@ import pandas as pd
 import yaml
 from yaml.loader import SafeLoader
 import registration_utils
-
+import re
 overwrite = True
 
 # this code computes the alignment parameters to align each scene across the multiple rounds of imaging
@@ -87,10 +87,11 @@ if __name__ == "__main__":
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
 
-    print(template_position_list)
+    
     dfkeeplist = []
     # go one position by position, since you need offsets per position
-    # template_position_list = [x for x in template_position_list if 'P9' == x]
+    template_position_list = [x for x in template_position_list if int(re.search('[0-9]+',x).group(0))>10]
+    print(template_position_list)
     for Position in template_position_list:
         # for Position in ['P6', 'P3', 'P12']: #go one position by position, since you need offsets per position
         print("POSITION = ", Position)
@@ -196,7 +197,7 @@ if __name__ == "__main__":
         dfimg["alignment_offsets_xyz"] = alignment_offsets_xyz_list
         dfimg["template_position"] = [Position] * dfimg.shape[0]
         dfimg["failed"] = failed_list
-        dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_xyz", "failed"]]
+        dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_xyz", "failed"]].copy()
         dfkeeplist.append(dfout_p)
 
         output_dir = dfconfig["output_path"][0]
