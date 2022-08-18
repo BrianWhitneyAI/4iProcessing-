@@ -114,7 +114,7 @@ if __name__ == "__main__":
             # first determine x y z values
             xypad = 200
             for i, xyz in enumerate('zyx'):
-                dfalign[xyz] = [np.abs(eval(x)[i]) for x in dfalign['alignment_offsets_xyz'].tolist()]
+                dfalign[xyz] = [np.abs(eval(x)[i]) for x in dfalign['alignment_offsets_zyx'].tolist()]
             print()
             print('positions that have very large shifts')
             print(dfalign[(dfalign['x']>xypad)|(dfalign['y']>xypad)|(dfalign['z']>20)])

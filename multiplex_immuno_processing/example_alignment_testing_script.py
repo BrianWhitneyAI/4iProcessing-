@@ -641,15 +641,15 @@ img_list = imglist
 
 
 refimg = imglist[0]
-alignment_offsets_xyz_list = find_xyz_offset_relative_to_ref(
+alignment_offsets_zyx_list = find_xyz_offset_relative_to_ref(
     img_list, refimg=refimg, ploton=False, verbose=False
 )
 
 
-print("auto_align ", alignment_offsets_xyz_list)
+print("auto_align ", alignment_offsets_zyx_list)
 aligned_img_list = []
 unaligned_img_list = []
-for alignment_offset, img in zip(alignment_offsets_xyz_list, imglist):
+for alignment_offset, img in zip(alignment_offsets_zyx_list, imglist):
 
     print(alignment_offset)
     align_matrix = get_align_matrix(alignment_offset)

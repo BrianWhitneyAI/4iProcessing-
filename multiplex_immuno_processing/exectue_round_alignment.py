@@ -122,7 +122,7 @@ if __name__ == "__main__":
 
             alignment_offset = eval(
                 dfalign.set_index(["key", "template_position"]).loc[
-                    pd.IndexSlice[key, Position], "alignment_offsets_xyz"
+                    pd.IndexSlice[key, Position], "alignment_offsets_zyx"
                 ]
             )
             print(alignment_offset)

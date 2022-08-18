@@ -156,14 +156,14 @@ if __name__ == "__main__":
 
         reference_round_key = "Round 1"
         refimg = dfimg.loc[reference_round_key, "img"]
-        # alignment_offsets_xyz_list = registration_utils.find_xyz_offset_relative_to_ref(
+        # alignment_offsets_zyx_list = registration_utils.find_xyz_offset_relative_to_ref(
         #     img_list, refimg=refimg, ploton=False, verbose=False
         # )
 
 
         keylist = dfimg.index.values
 
-        alignment_offsets_xyz_list = []
+        alignment_offsets_zyx_list = []
         failed_list = []
         for key in keylist:
             align_channel = dfimg.loc[key, "align_channel"]
@@ -182,7 +182,7 @@ if __name__ == "__main__":
                 meanoffset = [0,0,0]
             
             # record outcomes
-            alignment_offsets_xyz_list.append(meanoffset)
+            alignment_offsets_zyx_list.append(meanoffset)
             failed_list.append(failed)
 
 
@@ -191,13 +191,13 @@ if __name__ == "__main__":
         
 
         # match_list = align_helper.return_aligned_img_list_new(img_list,offset_list)
-        print("alignment_offsets_xyz_list\n", alignment_offsets_xyz_list)
+        print("alignment_offsets_zyx_list\n", alignment_offsets_zyx_list)
         # unmatch_list = align_helper.return_aligned_img_list_new(img_list,np.asarray(offset_list)*0)
 
-        dfimg["alignment_offsets_xyz"] = alignment_offsets_xyz_list
+        dfimg["alignment_offsets_zyx"] = alignment_offsets_zyx_list
         dfimg["template_position"] = [Position] * dfimg.shape[0]
         dfimg["failed"] = failed_list
-        dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_xyz", "failed"]].copy()
+        dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_zyx", "failed"]].copy()
         dfkeeplist.append(dfout_p)
 
         output_dir = dfconfig["output_path"][0]
