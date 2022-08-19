@@ -29,9 +29,9 @@ def get_shift_to_center_matrix(img_shape, output_shape):
     # and the difference divided by two needs to be a whole integer value
 
     shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
-    
+
     shift = shape_diff / 2
-    
+
     shift_matrix = np.eye(4)
     for i in range(len(shift)):
         shift_matrix[i, 3] = shift[i]

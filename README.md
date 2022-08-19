@@ -134,7 +134,7 @@ python ./multiplex_immuno_processing/check_alignment_parameters_dataframe.py  --
 
 ### next execute the alignment
 ```
-python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
 ```
 
 

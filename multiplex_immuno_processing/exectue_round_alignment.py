@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
         # need to define the keylist for each position, since some positions may not be imaged every round
         keylist = dfall.set_index("template_position").loc[Position, "key"].unique()
-        # testing_keylist = [x for x in keylist if "Time" not in x]
+        # keylist = [x for x in keylist if "Time" not in x]
         # print(testing_keylist)
         # for ki, key in enumerate(testing_keylist):
         for ki, key in enumerate(keylist):
@@ -129,12 +129,12 @@ if __name__ == "__main__":
             print(type(alignment_offset))
 
             
-
-            xypad = 200
+            zpad = 20
+            xypad = 300
             final_shape = np.uint16(
                 np.asarray(
                     [
-                        100,
+                        45 + zpad*2,
                         1248 + xypad*2,
                         1848 + xypad*2,
                     ]
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
             scene_num = str(scene).zfill(2)
             position_num = Position[1::].zfill(2)
-            well = parent_file = dfsub["Well_id"][0]
+            well = dfsub["Well_id"][0]
             channels = reader.channel_names
 
             position = Position
@@ -176,32 +176,6 @@ if __name__ == "__main__":
                 for T in range(Tn):
 
                     for ci, c in enumerate(channels):
-                        delayed_chunk = reader.get_image_dask_data("ZYX", T=T, C=ci)
-                        imgstack = delayed_chunk.compute()
-
-                        # this is where the alignment is performed
-                        print(alignment_offset)
-                        align_matrix = registration_utils.get_align_matrix(alignment_offset)
-                        shift_to_center_matrix = registration_utils.get_shift_to_center_matrix(
-                            imgstack.shape, final_shape
-                        )
-                        combo = shift_to_center_matrix @ align_matrix
-
-                        # aligned image
-                        processed_volume = affine_transform(
-                            imgstack,
-                            np.linalg.inv(combo),
-                            output_shape=final_shape,
-                            order=0,  # order = 0 means no interpolation...juust use nearest neighbor
-                        )
-
-                        cropped_maxz = np.max(
-                            processed_volume, axis=0
-                        )  # compute max z projection
-
-                        # now save this image
-                        output_dir = dfconfig["output_path"][0]
-
                         sep = os.sep
                         channel = c
                         channel_num = str(ci + 1).zfill(2)
@@ -210,20 +184,68 @@ if __name__ == "__main__":
                             f"{output_dir}{sep}mip_exports{sep}{barcode}{sep}"
                         )
 
-                        if not os.path.exists(savedir):
-                            os.makedirs(savedir)
-                            print("making", os.path.abspath(savedir))
-
-                        file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
 
                         fovid = f"{barcode}_R{round_num}_P{position_num}"
                         savename = (
                             f"{fovid}-mip-c{channel_num}_T{tnum}.tif"
                         )
+                        savepath = os.path.abspath(f"{savedir}{sep}{savename}")
+                        
 
-                        savepath = f"{savedir}{sep}{savename}"
-                        skio.imsave(
-                            savepath, np.uint16(cropped_maxz), check_contrast=False
-                        )
-                        if (T == 0) & (ci == 0):
-                            print(os.path.abspath(savepath))
+                        if not os.path.exists(savepath):
+
+                            # print(savepath)
+                            # print(os.path.exists(savepath))
+
+                            
+                            # print(fovid)
+                            # print(scene,si,T,ci)
+                            # print(dfsub)
+                            # print(reader.dims)
+                            # print(reader.current_scene)
+                            # print(reader.current_scene_index)
+                            # print(parent_file)
+                            # print(dfsub["parent_file"][0])
+
+                            delayed_chunk = reader.get_image_dask_data("ZYX", T=T, C=ci)
+                            imgstack = delayed_chunk.compute()
+
+                            # this is where the alignment is performed
+                            print(alignment_offset)
+                            align_matrix = registration_utils.get_align_matrix(alignment_offset)
+                            shift_to_center_matrix = registration_utils.get_shift_to_center_matrix(
+                                imgstack.shape, final_shape
+                            )
+                            combo = shift_to_center_matrix @ align_matrix
+
+                            # aligned image
+                            processed_volume = affine_transform(
+                                imgstack,
+                                np.linalg.inv(combo),
+                                output_shape=final_shape,
+                                order=0,  # order = 0 means no interpolation...juust use nearest neighbor
+                            )
+
+                            cropped_maxz = np.max(
+                                processed_volume, axis=0
+                            )  # compute max z projection
+
+                            # now save this image
+                            output_dir = dfconfig["output_path"][0]
+
+                            
+
+                            if not os.path.exists(savedir):
+                                os.makedirs(savedir)
+                                print("making", os.path.abspath(savedir))
+
+                            file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
+
+                            
+                            skio.imsave(
+                                savepath, np.uint16(cropped_maxz), check_contrast=False
+                            )
+                            if (T == 0) & (ci == 0):
+                                print(os.path.abspath(savepath))
+                        else:
+                            print(f"already processed{savename}")
