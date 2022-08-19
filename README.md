@@ -135,11 +135,29 @@ python ./multiplex_immuno_processing/check_alignment_parameters_dataframe.py  --
 ### next execute the alignment
 ```
 python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
+
+
+python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
+
+
+python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
+
+python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
+
+
+python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+
+
 ```
+
+python ./multiplex_immuno_processing/exectue_round_alignment_test.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
 
 
 ### to run on slurm use
 srun -p aics_cpu_general --mem 70G --pty bash #
 module load anaconda3
-source activate frick_multiplex
+source activate frick_multiplex_test
 cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4iProcessing-/
+
+
+
