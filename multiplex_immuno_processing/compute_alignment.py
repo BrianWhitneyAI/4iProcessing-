@@ -15,39 +15,11 @@ import tifffile
 from scipy.ndimage import affine_transform
 
 
-def get_align_matrix(alignment_offset):
-    align_matrix = np.eye(4)
-    for i in range(len(alignment_offset)):
-        align_matrix[i, 3] = alignment_offset[i] * -1
-    align_matrix = np.int16(align_matrix)
-    return align_matrix
-
 
 def os_swap(x):
     out = '/'+('/'.join(x.split('\\'))).replace('//','/')
     return out
 
-def pad_target_image(target_img, z_offset, y_offset, x_offset):
-    padded_target_img = np.pad(target_img, ((z_offset,z_offset), (y_offset, y_offset), (x_offset, x_offset)) ,  mode='constant')
-    return padded_target_img
-
-def get_shift_to_center_matrix(img_shape, output_shape):
-    # output_shape > img_shape should be true for all dimensions
-    # and the difference divided by two needs to be a whole integer value
-
-    shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
-    print(f"shape_diff is {shape_diff}")
-    print(f"first component is {np.asarray(output_shape)}")
-    print(f"second component is {np.asarray(img_shape)}")
-
-    shift = shape_diff / 2
-    print(f"shift is {shift}")
-
-    shift_matrix = np.eye(4)
-    for i in range(len(shift)):
-        shift_matrix[i, 3] = shift[i]
-    shift_matrix = np.int16(shift_matrix)
-    return shift_matrix
 
 barcode = '5500000724'
 yaml_dir = '/allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports/yml_configs'
