@@ -18,9 +18,9 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    filedir = r"\\allen\aics\assay-dev\users\Frick\PythonProjects\Assessment\4i_testing\aligned_4i_exports\pickles"
-
-    globout = glob(filedir + os.sep + "*meta*pickle")
+    dir_name = os.path.join(args.output_path, "pickles")
+    globout = glob(dir_name + os.sep + "*pickle")
+    print(f"flobout is {globout}")
     print(globout)
     for filepath in globout:
         print()
