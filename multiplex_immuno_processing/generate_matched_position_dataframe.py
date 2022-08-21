@@ -3,7 +3,7 @@ from collections import namedtuple
 import os
 from pathlib import Path
 
-import cycle
+#import cycle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -285,11 +285,14 @@ if __name__ == "__main__":
                 print("why", original_file_AND_scenes_to_toss)
                 pass
 
+        print(dfmeta)
+        dfmeta.to_csv("debug_output.csv")
         # the last step is to remove all extra scenes that were added
         # (as scenes many scenes marked for removal wont be present in the
         # metadata and so could be added to the dataframe using the loc method above)
-        dfmeta = dfmeta[dfmeta.isna()["parent_file"] is False]
-        dfmeta
+        # dfmeta = dfmeta[dfmeta.isna()["parent_file"] is False]
+        dfmeta = dfmeta[pd.isna(dfmeta["parent_file"]) == False]
+        #dfmeta
         #########################################################
 
         # # now drop the identified "scenes to toss" by passing in the list of tuples
