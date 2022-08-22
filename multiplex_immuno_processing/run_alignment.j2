@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#SBATCH --job-name=single_position_round_alignment
+#SBATCH --partition aics_cpu_general
+#SBATCH --ntasks-per-node=1
+#SBATCH --spread-job
+#SBATCH --mem 50G
+#SBATCH --output /allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/jinja_output/round_execution_%A_%A.out
+
+id=$SLURM_ARRAY_TASK_ID
+
+srun /allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python  /allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/execute_single_position_alignment.py --dfall_csv_dir {{ dfall_csv_dir }} --barcode {{ barcode }}  --output_path {{ output_path }}  --position {{ position }}
+
+
+
+
+
+
