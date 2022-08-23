@@ -286,7 +286,7 @@ if __name__ == "__main__":
                 pass
 
         print(dfmeta)
-        dfmeta.to_csv("debug_output.csv")
+        #dfmeta.to_csv("debug_output.csv")
         # the last step is to remove all extra scenes that were added
         # (as scenes many scenes marked for removal wont be present in the
         # metadata and so could be added to the dataframe using the loc method above)

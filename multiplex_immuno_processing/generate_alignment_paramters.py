@@ -1,5 +1,6 @@
 import argparse
 import os
+import skimage.exposure as skex
 
 from aicsimageio import AICSImage
 import matplotlib as plt
@@ -47,7 +48,6 @@ def find_xyz_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=Fals
 
 
 def find_xyz_offset(target_img, test_img, ploton=False, verbose=False):
-    import skimage.exposure as skex
 
     test_img_rs = test_img.copy()
     target_img_8 = skex.rescale_intensity(
@@ -227,6 +227,8 @@ def compute_slice_alignment(
         print("res", res)
 
     # now compute the mean offset
+    print(f"offset is {offsetlist}")
+    print(f"offset list is of type {type(offsetlist)}")
     rawmeanoffset = [
         np.nanmean([x[0] for x in offsetlist]),
         np.nanmean([x[1] for x in offsetlist]),
