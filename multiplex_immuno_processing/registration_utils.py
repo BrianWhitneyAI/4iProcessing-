@@ -18,7 +18,7 @@ from pathlib import Path
 from aicsimageio import AICSImage
 from aicsimageio import AICSImage, writers
 from scipy.ndimage import affine_transform
-
+import skimage.exposure as skex
 
 print("imports loaded")
 
@@ -167,8 +167,8 @@ def perform_alignment(
     print(msg)
 
     # perform initial 2d alignment
-    tifffile.imwrite("fixed.tiff", fixed)
-    tifffile.imwrite("moving_scaled_adjust_z.tiff", moving_scaled_adjust_z)
+    #tifffile.imwrite("fixed.tiff", fixed)
+    #tifffile.imwrite("moving_scaled_adjust_z.tiff", moving_scaled_adjust_z)
 
     print("Beginning calculation of rigid offset in x and y")
     fixed_2dAlign_offset_x, fixed_2dAlign_offset_y = align_xy(
@@ -178,6 +178,7 @@ def perform_alignment(
         print("2d alignment successful")
         print(f"x offset: {fixed_2dAlign_offset_x - 5}")
         print(f"y offset: {fixed_2dAlign_offset_y - 5}")
+        return fixed_2dAlign_offset_x - 5, fixed_2dAlign_offset_y - 5
     else:
         return None, None, None
 
@@ -912,7 +913,6 @@ def final_refinement(
 
     return lr_crops, hr_crops
 
-
 def get_align_matrix(alignment_offset):
     align_matrix = np.eye(4)
     for i in range(len(alignment_offset)):
@@ -920,15 +920,23 @@ def get_align_matrix(alignment_offset):
     align_matrix = np.int16(align_matrix)
     return align_matrix
 
+def find_xyz_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=False):
+    offset_list = []
+    for i in range(len(img_list)):
+        test_img = img_list[i]
+        (_, _, meanoffset, _,) = find_xyz_offset(
+            refimg.copy(), test_img.copy(), ploton=ploton, verbose=verbose
+        )
+        offset_list.append(meanoffset)
+
+    return offset_list
 
 def get_shift_to_center_matrix(img_shape, output_shape):
     # output_shape > img_shape should be true for all dimensions
     # and the difference divided by two needs to be a whole integer value
 
     shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
-    print(f"shape_diff is {shape_diff}")
-    print(f"first component is {np.asarray(output_shape)}")
-    print(f"second component is {np.asarray(img_shape)}")
+
 
     shift = shape_diff / 2
     print(f"shift is {shift}")
@@ -939,10 +947,7 @@ def get_shift_to_center_matrix(img_shape, output_shape):
     shift_matrix = np.int16(shift_matrix)
     return shift_matrix
 
-
 def find_xyz_offset(target_img, test_img, ploton=False, verbose=False):
-    import skimage.exposure as skex
-
     test_img_rs = test_img.copy()
     target_img_8 = skex.rescale_intensity(
         target_img.copy(), in_range="image", out_range="uint8"
@@ -1029,7 +1034,6 @@ def find_xyz_offset(target_img, test_img, ploton=False, verbose=False):
 
     cropoffset = []
     return target_img_matched_8, test_img_matched_8, meanoffset, cropoffset
-
 
 def compute_slice_alignment(
     target_slice,
@@ -1127,7 +1131,6 @@ def compute_slice_alignment(
     ]
 
     return offsetlist, rawmeanoffset
-
 
 def return_aligned_img_list_new(
     img_list, offset_list, subpixel=False, verbose=False, return_roi=False
