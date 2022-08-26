@@ -16,25 +16,26 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument(
     "--dfall_csv_dir",
-    default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths/position_csvs/barcode_5500000724_all.csv",
+    required=True,
+    type=str,
     help="csv file",
 )
 
 parser.add_argument(
-    "--barcode", default= "5500000724", type=str, help="specify barcode to analyze"
+    "--barcode", required=True, type=str, help="specify barcode to analyze"
 )
 
 parser.add_argument(
     "--output_path",
     type=str,
-    default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths",
+    required=True,
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
 
 parser.add_argument(
     "--position",
     type=str,
-    default= "P2",
+    required=True,
     help="position"
 )
 
@@ -154,8 +155,8 @@ if __name__ == "__main__":
     print(f"shape of img list is {np.shape(img_list)}")
     print(f"first image in list is of shape {np.shape(img_list[1])}")
 
-    tifffile.imwrite("img_list_0.tiff", img_list[1])
-    tifffile.imwrite("img_list_1.tiff", img_list[2])
+    # tifffile.imwrite("img_list_0.tiff", img_list[1])
+    # tifffile.imwrite("img_list_1.tiff", img_list[2])
 
 
     reference_round_key = "Round 1"
@@ -167,7 +168,7 @@ if __name__ == "__main__":
     print(f"alignment offset xyz is {alignment_offsets_xyz_list}")
 
     #target_img_padded = np.pad(refimg, ((0, 0), (50, 50), (50, 50)), mode='constant')
-    tifffile.imwrite("refimg.tiff", refimg)
+    # tifffile.imwrite("refimg.tiff", refimg)
     alignment_offsets_xyz_list_new_version=[]
 
     for i in range(len(img_list)):
@@ -179,7 +180,7 @@ if __name__ == "__main__":
             #source_img_padded = np.pad(source_img_FOV, ((0, 0), (50, 50), (50, 50)), mode='constant')
             print(f"shape of ref img is {np.shape(refimg)}")
             print(f"shape of source image is {np.shape(source_img_FOV_cropped)}")
-            tifffile.imwrite(f"source_img_FOV_{i}_padded.tiff", source_img_FOV_cropped)
+            # tifffile.imwrite(f"source_img_FOV_{i}_padded.tiff", source_img_FOV_cropped)
 
             #ref_img_cropped = refimg[:,100:np.shape(refimg)[1]-100, 100:np.shape(refimg)[2]-100]
             # the indexing here is z,y,x -- check this
