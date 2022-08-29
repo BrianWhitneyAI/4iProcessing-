@@ -114,19 +114,31 @@ python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --outp
 ```
 
 ### now compute alignment paramters
+
 ```
-python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
+python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate_ORB_method.py --output_path "output path" --barcode "barcode"
+```
 
-python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
+or 
 
-python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
-
-python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
-
-python .\multiplex_immuno_processing\generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+```
+python .\multiplex_immuno_processing\generate_alignment_paramters_tempelate.py --output_path "output path" --barcode "barcode" 
 ```
 
 ### next execute the alignment
+
 ```
-python .\multiplex_immuno_processing\exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
+python .\multiplex_immuno_processing\round_alignment_tempelate_ORB.py --output_path "output path" --barcode "barcode"
+```
+or
+
+```
+python .\multiplex_immuno_processing\round_alignment_tempelate.py --output_path "output path" --barcode "barcode"
+```
+
+
+
+### next evaluate the alignment
+```
+python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir "dir pointing to mip outputs" --output_dir "output directory to save gifs" --barcode "barcode(int)" --frame_rate "frame rate of gif(int)"
 ```
