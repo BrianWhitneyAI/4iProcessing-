@@ -178,7 +178,6 @@ def perform_alignment(
         print("2d alignment successful")
         print(f"x offset: {fixed_2dAlign_offset_x - 5}")
         print(f"y offset: {fixed_2dAlign_offset_y - 5}")
-        return fixed_2dAlign_offset_x - 5, fixed_2dAlign_offset_y - 5
     else:
         return None, None, None
 
@@ -263,6 +262,9 @@ def perform_alignment(
     print("after final filignment function")
     print(f"fixed img is of shape {np.shape(fixed)}")
     print(f"moving img is of shape {np.shape(moving)}")
+
+    return final_x_offset, final_y_offset
+
 
     if use_refinement:
         if fixed.size > moving.size:
