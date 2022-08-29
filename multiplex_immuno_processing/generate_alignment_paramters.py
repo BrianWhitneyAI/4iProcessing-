@@ -492,6 +492,10 @@ if __name__ == "__main__":
 
     # now load up the full images (including the full timelapse)
 
+
+    # This part seems superflous...... this isn't used later on..... and this information is allready contained in the alignment_pickles_each which is saved for each position in the above for loop
+    # TODO: Have chris confirm this
+    
     dfout = pd.concat(dfkeeplist)
 
     output_dir = dfconfig["output_path"][0]

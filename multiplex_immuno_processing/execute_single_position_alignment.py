@@ -20,9 +20,11 @@ parser.add_argument(
     required=True,
     help="csv file",
 )
+
 parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
+
 parser.add_argument(
     "--output_path",
     type=str,

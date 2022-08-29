@@ -116,8 +116,9 @@ if __name__ == "__main__":
     )
     # variables used for each position
     # Position
-    # dfall
+    # dfall  
     # 
+    
     output_csv_path = os.path.join(args.output_path, "position_csvs_generate_align_params")
 
 
