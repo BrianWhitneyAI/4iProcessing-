@@ -3,7 +3,6 @@ from collections import namedtuple
 import os
 from pathlib import Path
 
-import cycle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -99,7 +98,7 @@ def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
             coloriter.extend(colorlist)
     else:
         coloriter=colorlist
-        
+
     color_dict = {
         x: coloriter[xi] for xi, x in enumerate(dfkeep.parent_file.unique())
     }
