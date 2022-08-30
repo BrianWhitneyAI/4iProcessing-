@@ -113,7 +113,8 @@ python .\multiplex_immuno_processing\filter_matched_position_dataframe_to_remove
 python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 ```
 
-### now compute alignment paramters
+### now compute alignment paramters based on which method is prefered
+## Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
 python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate_ORB_method.py --output_path "output path" --barcode "barcode"
@@ -126,6 +127,7 @@ python .\multiplex_immuno_processing\generate_alignment_paramters_tempelate.py -
 ```
 
 ### next execute the alignment
+## Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
 python .\multiplex_immuno_processing\round_alignment_tempelate_ORB.py --output_path "output path" --barcode "barcode"
