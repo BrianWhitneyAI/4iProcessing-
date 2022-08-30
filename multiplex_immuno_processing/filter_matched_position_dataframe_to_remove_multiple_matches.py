@@ -166,8 +166,9 @@ if __name__ == "__main__":
         # remove these duplicates!
         dfmeta = dfmeta[
             dfmeta["flag-overlapping_positions_within_same_round_imaged_second"]
-            is False
-        ]
+            == False
+        ] 
+        #note `is False` will error in the line above. Must be `==False`
         dfmeta.reset_index(inplace=True)
 
         # now check that there are the same number of tps and tpus
@@ -280,8 +281,9 @@ if __name__ == "__main__":
         # now remove those multiple matches
         dfmeta = dfmeta[
             dfmeta["flag-multiple_fovs_matched_to_same_reference_FOV_imaged_second"]
-            is False
+            == False
         ]
+        #note `is False` will error in the line above. Must be `==False`
 
         dfmeta.reset_index(inplace=True)
         grouper = ["key", "template_position", "move_position_unique"]
