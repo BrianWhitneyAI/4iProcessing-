@@ -153,6 +153,11 @@ python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "
 python ./multiplex_immuno_processing/exectue_round_alignment_test.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
 ```
 
+### this code might align the label free data
+```
+python ./multiplex_immuno_processing/exectue_round_alignment_label_free.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
+```
+
 ### to run on slurm use
 ```
 srun -p aics_cpu_general --mem 70G --pty bash #
