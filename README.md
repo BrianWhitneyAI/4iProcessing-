@@ -114,7 +114,7 @@ python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --outp
 ```
 
 ### now compute alignment paramters based on which method is prefered
-## Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
+#### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
 python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate_ORB_method.py --output_path "output path" --barcode "barcode"
@@ -127,7 +127,7 @@ python .\multiplex_immuno_processing\generate_alignment_paramters_tempelate.py -
 ```
 
 ### next execute the alignment
-## Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
+#### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
 python .\multiplex_immuno_processing\round_alignment_tempelate_ORB.py --output_path "output path" --barcode "barcode"
