@@ -295,7 +295,8 @@ if __name__ == "__main__":
         # the last step is to remove all extra scenes that were added
         # (as scenes many scenes marked for removal wont be present in the
         # metadata and so could be added to the dataframe using the loc method above)
-        dfmeta = dfmeta[dfmeta.isna()["parent_file"] is False]
+        dfmeta = dfmeta[dfmeta.isna()["parent_file"] == False]
+        # this doesn't run: dfmeta = dfmeta[dfmeta.isna()["parent_file"] is False]
         dfmeta
         #########################################################
 
