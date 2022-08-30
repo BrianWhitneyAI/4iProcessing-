@@ -92,8 +92,15 @@ def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
     # npt = 1  # number of 20x positions to examine
     colorlist = ["k", "r", "c", "y", "g"]
     coloriter = cycle(colorlist)
+    remainder = np.ceil(len(dfkeep.parent_file.unique())/len(colorlist))
+    if remainder>1:
+        coloriter = []
+        for remainder_int in remainder:
+        coloriter.extend(colorlist)
+    else:
+        coloriter=colorlist
     color_dict = {
-        x: next(coloriter) for xi, x in enumerate(dfkeep.parent_file.unique())
+        x: coloriter[xi] for xi, x in enumerate(dfkeep.parent_file.unique())
     }
     print(color_dict)
     for well, df0 in dfkeep.groupby("Well_id"):
