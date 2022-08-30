@@ -96,9 +96,10 @@ def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
     if remainder>1:
         coloriter = []
         for remainder_int in remainder:
-        coloriter.extend(colorlist)
+            coloriter.extend(colorlist)
     else:
         coloriter=colorlist
+        
     color_dict = {
         x: coloriter[xi] for xi, x in enumerate(dfkeep.parent_file.unique())
     }
