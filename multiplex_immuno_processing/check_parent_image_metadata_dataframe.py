@@ -18,9 +18,12 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    filedir = r"\\allen\aics\assay-dev\users\Frick\PythonProjects\Assessment\4i_testing\aligned_4i_exports\pickles"
+    # load the yaml config files and populate a dataframe with config info
+    pickle_dir = os.path.join(args.output_path, "pickles")
+    
+    dfconfiglist = []
 
-    globout = glob(filedir + os.sep + "*meta*pickle")
+    globout = glob(pickle_dir + os.sep + "*meta*pickle")
     print(globout)
     for filepath in globout:
         print()

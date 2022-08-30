@@ -85,7 +85,7 @@ python ./multiplex_immuno_processing/generate_initial_config.py --output_path "/
 ```
 
 ### manually edit config files to ensure that information is correct
-
+ be sure to check round 1 of 5500000725 to remove this file: `"\\allen\aics\microscopy\Antoine\Analyse EMT\4i Data\5500000725\ZSD2\Round 1\5500000725_20X_first-scene.czi"`
 
 ### get parent image metadata for images associated with each barcode
 ```
