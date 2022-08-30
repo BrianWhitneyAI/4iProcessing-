@@ -9,9 +9,9 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input_dir', type=str, default= "/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths/mip_exports/5500000724-export-test_v2_alignment")
-parser.add_argument('--output_dir', type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths/gifs_for_evaluation")
-parser.add_argument('--barcode', type=int, default=5500000724)
+parser.add_argument('--input_dir', type=str, required=True)
+parser.add_argument('--output_dir', type=str, required=True)
+parser.add_argument('--barcode', type=int, required=True)
 parser.add_argument('--frame_rate', type=int, default=500)
 
 
