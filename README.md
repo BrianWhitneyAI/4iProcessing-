@@ -119,12 +119,18 @@ python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_p
 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
 
+python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725 -p P2
+
 python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
 
+```
+#### note you can process a specific position if you run with the `-p` argument
+```
+python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725 -p 
 ```
 
 

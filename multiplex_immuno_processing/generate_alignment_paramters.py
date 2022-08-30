@@ -31,6 +31,15 @@ parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 
+parser.add_argument(
+    "-p",
+    "--position_list",
+    nargs='*',
+    type=str,
+    required=False,
+    help="specify positions to process. E.g. -p P1 P2"
+)
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -82,7 +91,7 @@ if __name__ == "__main__":
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
-    template_position_list = dfall["template_position"].unique()
+    
     # keylist = mag_dict.keys()
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
@@ -90,7 +99,13 @@ if __name__ == "__main__":
     
     dfkeeplist = []
     # go one position by position, since you need offsets per position
-    template_position_list = [x for x in template_position_list if int(re.search('[0-9]+',x).group(0))>10]
+    if args.position_list is not None:
+        template_position_list = [x for x in np.sort(dfall["template_position"].unique()) if x in args.position_list]
+        print('choosing subset of positions = ', args.position_list)
+    else:
+        template_position_list = np.sort(dfall["template_position"].unique())
+
+    
     print(template_position_list)
     for Position in template_position_list:
         # for Position in ['P6', 'P3', 'P12']: #go one position by position, since you need offsets per position
