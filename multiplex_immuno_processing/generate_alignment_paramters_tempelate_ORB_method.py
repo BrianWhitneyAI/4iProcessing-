@@ -22,19 +22,6 @@ overwrite = True
 # all positions should be aligned to round 1 (that will be the reference round)
 # this will enable all the processing to be run in stages later on as new data is acquire
 
-# print(sys.argv)
-# arg_list = [
-#     (x.replace("--", ""), i)
-#     for i, x in enumerate(list(sys.argv))
-#     if bool(re.search("--", x))
-# ]
-# args_dict = {}
-# for keyval in arg_list:
-#     args_dict[keyval[0]] = sys.argv[keyval[1] + 1]
-# print(args_dict)
-# print()
-# print(args_dict["barcode"])
-# print()
 
 def os_swap(x):
     out = "/" + ("/".join(x.split("\\"))).replace("//", "/")

@@ -9,7 +9,7 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input_dir', type=str, default= "/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths/mip_exports/5500000724-export_v3_alignment")
+parser.add_argument('--input_dir', type=str, default= "/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths/mip_exports/5500000724-export-test_v2_alignment")
 parser.add_argument('--output_dir', type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/output_paths/gifs_for_evaluation")
 parser.add_argument('--barcode', type=int, default=5500000724)
 parser.add_argument('--frame_rate', type=int, default=500)
@@ -22,6 +22,7 @@ def normalization(img):
 
 def generate_gif_for_evaluation(input_dir, filenames, frame_rate, output_dir, position, barcode):
     imglist=[]
+    filenames.sort()
     print("filenames are of size {}".format(len(filenames)))
     for i in range(len(filenames)):
         print("R"+str(i+1).zfill(2))
@@ -53,7 +54,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     filenames = [f for f in os.listdir(args.input_dir) if "_c04_" in f and f.endswith(".tif")] # channel 4 is the nuclei channel
     output_gif_eval_dir = os.path.join(args.output_dir, f"{args.barcode}_evaluation")
-
     if not os.path.exists(output_gif_eval_dir):
         os.mkdir(output_gif_eval_dir)
 

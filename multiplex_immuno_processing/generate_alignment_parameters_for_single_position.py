@@ -19,22 +19,24 @@ parser.add_argument(
     required=True,
     help="csv file",
 )
+
 parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
+
 parser.add_argument(
     "--output_path",
     type=str,
     required=True,
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
+
 parser.add_argument(
     "--position",
     type=str,
     required=True,
     help="position"
 )
-
 
 
 if __name__ == "__main__":
