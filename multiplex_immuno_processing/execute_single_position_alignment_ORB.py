@@ -167,9 +167,8 @@ if __name__ == "__main__":
                     channel = c
                     channel_num = str(ci + 1).zfill(2)
                     tnum = str(T).zfill(3)
-                    savedir = (
-                        f"{output_dir}{sep}mip_exports{sep}{barcode}-export{sep}"
-                    )
+
+                    savedir = os.path.join(args.output_path, 'mip_exports', f"{barcode}-export")
 
                     if not os.path.exists(savedir):
                         os.makedirs(savedir)
@@ -177,13 +176,13 @@ if __name__ == "__main__":
 
                     file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
 
+                    fovid = f"{barcode}_R{round_num}_P{position_num}"
                     savename = (
-                        f"{barcode}-{mag}-R{round_num}"
-                        f"-Scene-{scene_num}-P{position_num}"
-                        f"-{well}-maxproj_c{channel_num}_T{tnum}_ORG.tif"
+                        f"{fovid}-mip-c{channel_num}_T{tnum}.tif"
                     )
 
-                    savepath = f"{savedir}{sep}{savename}"
+
+                    savepath = os.path.join(savedir, savename)
                     skio.imsave(
                         savepath, np.uint16(cropped_maxz), check_contrast=False
                     )
