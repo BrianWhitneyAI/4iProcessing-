@@ -124,11 +124,25 @@ if __name__ == "__main__":
 
 
 
+        # need to define the keylist for each position, since some positions may not be imaged every round
+        keylist = dfall.set_index("template_position").loc[Position, "key"].unique()
+        # keylist = [x for x in keylist if "Time" not in x]
+        # print(testing_keylist)
+        # for ki, key in enumerate(testing_keylist):
+        key = '20x_Timelapse' 
+        if key not in keylist:
+            key = 'Round 1'
+            print('no timelapse present: choosing round 1 instead')
+
+    
+        print(key)
+
+
 
         # first thing that needs to be found is the reference image (i.e. timelapse image) details
         alignment_offset = eval(
                 dfalign.set_index(["key", "template_position"]).loc[
-                    pd.IndexSlice['20X_Timelapse', Position], "alignment_offsets_zyx"
+                    pd.IndexSlice[key, Position], "alignment_offsets_zyx"
                 ]
             )
         print(alignment_offset)
@@ -192,18 +206,7 @@ if __name__ == "__main__":
             
 
 
-        # need to define the keylist for each position, since some positions may not be imaged every round
-        keylist = dfall.set_index("template_position").loc[Position, "key"].unique()
-        # keylist = [x for x in keylist if "Time" not in x]
-        # print(testing_keylist)
-        # for ki, key in enumerate(testing_keylist):
-        key = '20x_Timelapse' 
-        if key not in keylist:
-            key = 'Round 1'
-            print('no timelapse present: choosing round 1 instead')
 
-    
-        print(key)
 
         dfr = dfall.set_index(["template_position", "key"])
         dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
