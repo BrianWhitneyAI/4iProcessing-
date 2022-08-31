@@ -52,20 +52,19 @@ def generate_gif_for_evaluation(input_dir, filenames, frame_rate, output_dir, po
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    filenames = [f for f in os.listdir(args.input_dir) if "_c04_" in f and f.endswith(".tif")] # channel 4 is the nuclei channel
+    filenames = [f for f in os.listdir(args.input_dir) if "-c04_" in f and f.endswith(".tif")] # channel 4 is the nuclei channel
     output_gif_eval_dir = os.path.join(args.output_dir, f"{args.barcode}_evaluation")
     if not os.path.exists(output_gif_eval_dir):
         os.mkdir(output_gif_eval_dir)
 
     #print(filenames[0])
-    re.findall('-P{}', filenames[0])
     gif_image_shape = (int(2464/4), int(1664/4))
     # for each position in this, load up the image and generate a seperate gif
     for i in range(40): # 40 total positions contained-- usually TODO: regex scheming to find the max position 
-        expression_re = "-P" + str(i).zfill(2) + "-"
+        expression_re = "_P" + str(i).zfill(2) + "-"
         #print(expression_re)
         filenames_for_position = [f for f in filenames if expression_re in f]
-        #print(len(filenames_for_position))
+        print(len(filenames_for_position))
         if len(filenames_for_position) !=0:
             generate_gif_for_evaluation(args.input_dir, filenames_for_position, args.frame_rate, output_gif_eval_dir, i, args.barcode)
             #print(filenames_for_position)
