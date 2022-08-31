@@ -133,7 +133,7 @@ if __name__ == "__main__":
         'cwd': os.getcwd()
         }
         print(render_dict_slurm)
-        template_slurm = j2env.get_template('run_generate_alignment_params_orb_method_final.j2')
+        template_slurm = j2env.get_template('run_generate_alignment_params.j2')
         this_script = template_slurm.render(render_dict_slurm)
         script_path = os.path.join(args.output_path, "jinja_out", f"barcode_{barcode}_position_{template_position_list[i]}_alignment_param.script")  # noqa E501
         with open(script_path, 'w') as f:
