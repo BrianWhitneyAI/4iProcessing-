@@ -1,18 +1,27 @@
 import argparse
-from glob import glob
 import os
-from pathlib import Path
-import re
-import registration_utils
+import skimage.exposure as skex
 from aicsimageio import AICSImage
+import matplotlib as plt
 import numpy as np
 import pandas as pd
-from scipy.ndimage import affine_transform
-import skimage.io as skio
 import yaml
 from yaml.loader import SafeLoader
+import registration_utils
 import jinja2
 import subprocess
+
+overwrite = True
+
+# this code computes the alignment parameters to align each scene across the multiple rounds of imaging
+# should take a barcode as an argument,
+# then this code reads that dataframe pickle for that given barcode
+# then it uses the dataframe to determine the reference channel to be used for each of the rounds for alignment
+# then it loads all the reference channel images for each round
+# then it runs the an alignment algorithm to align all of the rounds
+# all positions should be aligned to round 1 (that will be the reference round)
+# this will enable all the processing to be run in stages later on as new data is acquire
+
 
 def os_swap(x):
     out = "/" + ("/".join(x.split("\\"))).replace("//", "/")
@@ -29,18 +38,16 @@ parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 
+parser.add_argument("--method", choices=['cross_cor', 'ORB', 'both'])
 
 if __name__ == "__main__":
     args = parser.parse_args()
-
-    # Open the file and load the file
-    # Open the file and load the file
     cwd = os.getcwd()
-    template_dir = f'{cwd}'
-    j2env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dir)
-    )
 
+    template_dir = f'{cwd}'
+
+
+    # Open the file and load the file
     barcode = args.barcode
 
     yaml_dir = os.path.join(args.output_path, "yml_configs")
@@ -54,7 +61,9 @@ if __name__ == "__main__":
         with open(yml_path) as f:
             data = yaml.load(f, Loader=SafeLoader)
             for round_dict in data["Data"]:
+
                 dfsub = pd.DataFrame(round_dict.values(), index=round_dict.keys()).T
+
                 dfsub["barcode"] = data["barcode"]
                 dfsub["scope"] = data["scope"]
                 dfsub["output_path"] = data["output_path"]
@@ -67,79 +76,70 @@ if __name__ == "__main__":
 
     output_dir = dfconfig["output_path"][0]
     pickle_dir = output_dir + os.sep + "pickles"
+    pickle_name = barcode + "cleanedup_match_pickle.pickle"
+    pickle_path = pickle_dir + os.sep + pickle_name
+    print("\n\n" + pickle_path + "\n\n")
+    print(os.path.exists(pickle_path))
+    # dfall = pd.read_pickle(pickle_path)
+
     pickle_name = barcode + "cleanedup_match_csv.csv"
     pickle_path = pickle_dir + os.sep + pickle_name
     print("\n\n" + pickle_path + "\n\n")
-    # dfall = pd.read_pickle(pickle_path)
+    print(os.path.exists(pickle_path))
     dfall = pd.read_csv(pickle_path)
-
-    # output_dir = dfconfig["output_path"][0]
-    # align_pickle_dir = output_dir + os.sep + "alignment_pickles"
-    # align_pickle_name = barcode + "alignment_pickle.pickle"
-    # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
-    # dfalign = pd.read_pickle(align_pickle_path)
-    # dfalign.reset_index(inplace=True)
-    # dfalign.set_index(["key", "template_position"], inplace=True)
-
-    output_dir = dfconfig["output_path"][0]
-    align_pickle_dir = output_dir + os.sep + "alignment_pickles_each_ORB_method"
-    align_pickle_name_glob = f"{barcode}*alignment_csv_each.csv"
-    print(align_pickle_name_glob)
-    globlist = glob(align_pickle_dir + os.sep + align_pickle_name_glob)
-    dfalign_list = []
-    for align_pickle_path in globlist:
-        # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
-        df = pd.read_csv(align_pickle_path)
-        dfalign_list.append(df)
-    dfalign = pd.concat(dfalign_list)
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
-    # merge both dataframes so that you only try to align the positions that can be aligned.
-    dfall = pd.merge(
-        dfalign,
-        dfall,
-        on=["key", "template_position"],
-        suffixes=("_align", ""),
-        how="left",
-    )
-
     template_position_list = dfall["template_position"].unique()
+    # keylist = mag_dict.keys()
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
 
     print(template_position_list)
-    output_csv_path = os.path.join(args.output_path, "position_csvs_ORB")
+    dfkeeplist = []
+
+    j2env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(template_dir)
+    )
+    # variables used for each position
+    # Position
+    # dfall  
+    # 
+    
+    output_csv_path = os.path.join(args.output_path, "position_csvs_generate_align_params")
 
 
     if not os.path.exists(output_csv_path):
         os.mkdir(output_csv_path)
     dfall.to_csv(os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"))
 
+    if not os.path.exists(os.path.join(args.output_path, "jinja_out")):
+        os.mkdir(os.path.join(args.output_path, "jinja_out"))
 
+    if not os.path.exists(os.path.join(args.output_path, "jinja_output")):
+        os.mkdir(os.path.join(args.output_path, "jinja_output"))
+    
+    
     for i in range(len(template_position_list)):
+        
         position = template_position_list[i]
         render_dict_slurm = {
         'dfall_csv_dir': os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"),
         'barcode': barcode,
         'output_path': args.output_path,
         'position': position,
-
+        'method': args.method,
+        'jinja_output': os.path.join(args.output_path, "jinja_output"),
+        'cwd': os.getcwd()
         }
         print(render_dict_slurm)
-
-        template_slurm = j2env.get_template('run_alignment_ORB.j2')
+        template_slurm = j2env.get_template('run_generate_alignment_params_orb_method_final.j2')
         this_script = template_slurm.render(render_dict_slurm)
-        script_path = os.path.join("/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/jinja_out", f"barcode_{barcode}_position_{template_position_list[i]}.script")  # noqa E501
+        script_path = os.path.join(args.output_path, "jinja_out", f"barcode_{barcode}_position_{template_position_list[i]}_alignment_param.script")  # noqa E501
         with open(script_path, 'w') as f:
-            f.writelines(this_script)
-        
+            f.writelines(this_script)        
         submission = "sbatch " + script_path
         print("Submitting command: {}".format(submission))
         process = subprocess.Popen(submission, stdout=subprocess.PIPE, shell=True)  # noqa E501
         (out, err) = process.communicate()
-
-
-
-
 

@@ -28,6 +28,9 @@ parser.add_argument(
 parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
+parser.add_argument(
+    "--method", choices=['cross_cor', 'ORB', 'both'])
+
 
 
 if __name__ == "__main__":
@@ -124,13 +127,17 @@ if __name__ == "__main__":
         'barcode': barcode,
         'output_path': args.output_path,
         'position': position,
-
+        'method': args.method,
+        'jinja_output': os.path.join(args.output_path, "jinja_output"),
+        'cwd': os.getcwd()
         }
+        
+
         print(render_dict_slurm)
 
-        template_slurm = j2env.get_template('run_alignment.j2')
+        template_slurm = j2env.get_template('run_alignment_ORB_final.j2')
         this_script = template_slurm.render(render_dict_slurm)
-        script_path = os.path.join("/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/jinja_out", f"barcode_{barcode}_position_{template_position_list[i]}.script")  # noqa E501
+        script_path = os.path.join(args.output_path, "jinja_out", f"barcode_{barcode}_position_{template_position_list[i]}.script")  # noqa E501
         with open(script_path, 'w') as f:
             f.writelines(this_script)
         
