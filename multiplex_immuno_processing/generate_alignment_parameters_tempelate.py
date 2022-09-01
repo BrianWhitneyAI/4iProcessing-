@@ -40,6 +40,9 @@ parser.add_argument(
 
 parser.add_argument("--method", choices=['cross_cor', 'ORB', 'both'])
 
+parser.add_argument("--position_list", nargs="+", default=[], type=list, help="input dirs to parse")
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
     cwd = os.getcwd()
@@ -90,22 +93,16 @@ if __name__ == "__main__":
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 
-    template_position_list = dfall["template_position"].unique()
     # keylist = mag_dict.keys()
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
 
-    print(template_position_list)
     dfkeeplist = []
 
     j2env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dir)
     )
-    # variables used for each position
-    # Position
-    # dfall  
-    # 
-    
+
     output_csv_path = os.path.join(args.output_path, "position_csvs_generate_align_params")
 
 
@@ -119,6 +116,13 @@ if __name__ == "__main__":
     if not os.path.exists(os.path.join(args.output_path, "jinja_output")):
         os.mkdir(os.path.join(args.output_path, "jinja_output"))
     
+    if not args.position_list:
+        template_position_list = dfall["template_position"].unique()
+    else:
+        template_position_list = []
+        for i in range(len(args.position_list)):
+            template_position_list.append(''.join(args.position_list[i]))
+
     
     for i in range(len(template_position_list)):
         

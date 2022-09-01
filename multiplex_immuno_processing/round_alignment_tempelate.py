@@ -31,6 +31,7 @@ parser.add_argument(
 parser.add_argument(
     "--method", choices=['cross_cor', 'ORB', 'both'])
 
+parser.add_argument("--position_list", nargs="+", default=[], type=list, help="input dirs to parse")
 
 
 if __name__ == "__main__":
@@ -107,11 +108,9 @@ if __name__ == "__main__":
         how="left",
     )
 
-    template_position_list = dfall["template_position"].unique()
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
 
-    print(template_position_list)
     output_csv_path = os.path.join(args.output_path, "position_csvs")
 
 
@@ -119,6 +118,14 @@ if __name__ == "__main__":
         os.mkdir(output_csv_path)
     dfall.to_csv(os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"))
 
+    if not args.position_list:
+        template_position_list = dfall["template_position"].unique()
+    else:
+        template_position_list = []
+        for i in range(len(args.position_list)):
+            template_position_list.append(''.join(args.position_list[i]))
+
+    print(template_position_list)
 
     for i in range(len(template_position_list)):
         position = template_position_list[i]
