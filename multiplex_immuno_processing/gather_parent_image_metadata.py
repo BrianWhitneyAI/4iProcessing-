@@ -38,6 +38,7 @@ if __name__ == "__main__":
         print(y)
         yml_path = yaml_dir + os.sep + y
         with open(yml_path) as f:
+            print(f"yaml path is {f}")
             data = yaml.load(f, Loader=SafeLoader)
             for round_dict in data["Data"]:
                 dfconfigsub = pd.DataFrame(
