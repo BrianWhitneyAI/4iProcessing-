@@ -133,7 +133,6 @@ if __name__ == "__main__":
 
         print(key)
 
-        r"\\allen\aics\microscopy\EMTImmunostainingResults\4iTimelapse_UnalignedLabelFreeImages\UnalignedLabelFreeImages\5500000724-20x-R00-Scene-01-P1-F06-maxproj_c02_T000_ORG_ProbabilitiesUnaligned.tif"
 
         label_free_dir = os_swap(r"\\allen\aics\microscopy\EMTImmunostainingResults\4iTimelapse_UnalignedLabelFreeImages\UnalignedLabelFreeImages")
         
