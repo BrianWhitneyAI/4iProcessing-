@@ -120,8 +120,7 @@ python generate_alignment_parameters_tempelate.py --output_path "output_path" --
 ### next execute the alignment
 #### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
-python generate_alignment_parameters_tempelate.py --output_path "output_path" --barcode "barcode" --method --position_list(optional)
-
+python generate_alignment_parameters_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 
 ### next evaluate the alignment
 ```
