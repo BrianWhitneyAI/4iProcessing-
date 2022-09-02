@@ -43,7 +43,7 @@ parser.add_argument(
 )
 
 parser.add_argument("--method",
-            choices=['cross_cor', 'ORB', 'both'])
+            choices=['cross_cor', 'ORB'])
 
 
 if __name__ == "__main__":
