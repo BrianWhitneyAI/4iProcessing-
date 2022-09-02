@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
     elif args.method=="cross_cor":
         dfimg["alignment_offsets_xyz_cross_corr"] = alignment_offsets_xyz_list
-        dfimg["alignment_offsets_xyz_ORB"] = []
+        dfimg["alignment_offsets_xyz_ORB"] = [np.NaN for f in alignment_offsets_xyz_list]
         
 
 
