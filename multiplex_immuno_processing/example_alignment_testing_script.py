@@ -24,6 +24,10 @@ parser.add_argument(
 )
 
 
+parser.add_argument("--method",
+            choices=['cross_cor', 'ORB'])
+
+
 args = parser.parse_args()
 
 
@@ -348,7 +352,7 @@ plt.savefig(
 )
 
 output_dir = dfconfig["output_path"][0]
-align_csv_dir = output_dir + os.sep + "alignment_csvs"
+align_csv_dir = output_dir + os.sep + "alignment_csvs_" + args.method
 align_csv_name = barcode + "alignment_csv.csv"
 align_csv_path = align_csv_dir + os.sep + align_csv_name
 dfalign = pd.read_csv(align_csv_path)

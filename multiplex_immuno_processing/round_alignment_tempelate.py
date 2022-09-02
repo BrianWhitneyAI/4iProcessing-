@@ -77,16 +77,9 @@ if __name__ == "__main__":
     # dfall = pd.read_csv(csv_path)
     dfall = pd.read_csv(csv_path)
 
-    # output_dir = dfconfig["output_path"][0]
-    # align_csv_dir = output_dir + os.sep + "alignment_csvs"
-    # align_csv_name = barcode + "alignment_csv.csv"
-    # align_csv_path = align_csv_dir + os.sep + align_csv_name
-    # dfalign = pd.read_csv(align_csv_path)
-    # dfalign.reset_index(inplace=True)
-    # dfalign.set_index(["key", "template_position"], inplace=True)
 
     output_dir = dfconfig["output_path"][0]
-    align_csv_dir = output_dir + os.sep + "alignment_csvs_each"
+    align_csv_dir = output_dir + os.sep + "alignment_csvs_each_" + args.method
     align_csv_name_glob = f"{barcode}*alignment_csv_each.csv"
     print(align_csv_name_glob)
     globlist = glob(align_csv_dir + os.sep + align_csv_name_glob)
@@ -111,7 +104,7 @@ if __name__ == "__main__":
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
 
-    output_csv_path = os.path.join(args.output_path, "position_csvs")
+    output_csv_path = os.path.join(args.output_path, "alignment_csvs_each_" + args.method)
 
 
     if not os.path.exists(output_csv_path):

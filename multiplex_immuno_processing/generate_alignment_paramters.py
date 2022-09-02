@@ -258,7 +258,7 @@ if __name__ == "__main__":
 
 
     output_dir = dfconfig["output_path"][0]
-    csv_dir = output_dir + os.sep + "alignment_csvs_each" + args.test_save
+    csv_dir = output_dir + os.sep + "alignment_csvs_each_" + args.method + args.test_save
     if not os.path.exists(csv_dir):
         os.makedirs(csv_dir)
     csv_name = f"{barcode}-{Position}-alignment_csv_each.csv"

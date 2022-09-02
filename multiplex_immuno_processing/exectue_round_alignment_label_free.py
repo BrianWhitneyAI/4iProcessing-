@@ -37,6 +37,11 @@ parser.add_argument(
 )
 
 
+parser.add_argument("--method",
+            choices=['cross_cor', 'ORB']
+)
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
 
@@ -76,7 +81,7 @@ if __name__ == "__main__":
 
 
     output_dir = dfconfig["output_path"][0]
-    align_csv_dir = output_dir + os.sep + "alignment_csvs_each"
+    align_csv_dir = output_dir + os.sep + "alignment_csvs_each_" + args.method
     align_csv_name_glob = f"{barcode}*alignment_csv_each.csv"
     print(align_csv_name_glob)
     globlist = glob(align_csv_dir + os.sep + align_csv_name_glob)

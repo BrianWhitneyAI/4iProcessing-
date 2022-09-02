@@ -38,7 +38,7 @@ parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 
-parser.add_argument("--method", choices=['cross_cor', 'ORB', 'both'])
+parser.add_argument("--method", choices=['cross_cor', 'ORB'])
 
 parser.add_argument("--position_list", nargs="+", default=[], type=list, help="input dirs to parse")
 
@@ -103,12 +103,6 @@ if __name__ == "__main__":
         loader=jinja2.FileSystemLoader(template_dir)
     )
 
-    output_csv_path = os.path.join(args.output_path, "position_csvs_generate_align_params")
-
-
-    if not os.path.exists(output_csv_path):
-        os.mkdir(output_csv_path)
-    dfall.to_csv(os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"))
 
     if not os.path.exists(os.path.join(args.output_path, "jinja_out")):
         os.mkdir(os.path.join(args.output_path, "jinja_out"))
@@ -128,7 +122,6 @@ if __name__ == "__main__":
         
         position = template_position_list[i]
         render_dict_slurm = {
-        'dfall_csv_dir': os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"),
         'barcode': barcode,
         'output_path': args.output_path,
         'position': position,
