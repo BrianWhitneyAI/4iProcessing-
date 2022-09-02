@@ -122,9 +122,8 @@ python generate_alignment_parameters_tempelate.py --output_path "output_path" --
 #### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
-python generate_alignment_parameters_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
+python round_alignment_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 ```
-
 ### next evaluate the alignment
 ```
 python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir "dir pointing to mip outputs" --output_dir "output directory to save gifs" --barcode "barcode(int)" --frame_rate "frame rate of gif(int)"
