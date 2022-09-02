@@ -146,4 +146,3 @@ if __name__ == "__main__":
         print("Submitting command: {}".format(submission))
         process = subprocess.Popen(submission, stdout=subprocess.PIPE, shell=True)  # noqa E501
         (out, err) = process.communicate()
-
