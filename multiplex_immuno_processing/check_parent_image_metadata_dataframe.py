@@ -20,6 +20,7 @@ if __name__ == "__main__":
 
     filedir = r"\\allen\aics\assay-dev\users\Frick\PythonProjects\Assessment\4i_testing\aligned_4i_exports\csvs"
 
+    filedir = args.output_path + os.sep + "csvs"
     globout = glob(filedir + os.sep + "*meta*csv")
     print(globout)
     for filepath in globout:
