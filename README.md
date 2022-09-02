@@ -117,13 +117,20 @@ python ./multiplex_immuno_processing/check_matched_position_dataframe.py  --outp
 
 ```
 python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
+
 ```
+
+### next , check the alignment parameter computation result
+
+python ./multiplex_immuno_processing/check_alignment_parameters_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --method "cross_cor"
+
 ### next execute the alignment
 #### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
 python .\multiplex_immuno_processing\round_alignment_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 ```
+
 ### next evaluate the alignment
 ```
 python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir "dir pointing to mip outputs" --output_dir "output directory to save gifs" --barcode "barcode(int)" --frame_rate "frame rate of gif(int)"
