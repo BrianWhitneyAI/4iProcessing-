@@ -53,11 +53,11 @@ mag = "20x"
 
 
 output_dir = dfconfig["output_path"][0]
-pickle_dir = output_dir + os.sep + "pickles"
-pickle_name = barcode + "cleanedup_match_pickle.pickle"
-pickle_path = pickle_dir + os.sep + pickle_name
-print("\n\n" + pickle_path + "\n\n")
-dfall = pd.read_pickle(pickle_path)
+csv_dir = output_dir + os.sep + "csvs"
+csv_name = barcode + "cleanedup_match_csv.csv"
+csv_path = csv_dir + os.sep + csv_name
+print("\n\n" + csv_path + "\n\n")
+dfall = pd.read_csv(csv_path)
 
 
 def os_swap(x):
@@ -348,10 +348,10 @@ plt.savefig(
 )
 
 output_dir = dfconfig["output_path"][0]
-align_pickle_dir = output_dir + os.sep + "alignment_pickles"
-align_pickle_name = barcode + "alignment_pickle.pickle"
-align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
-dfalign = pd.read_pickle(align_pickle_path)
+align_csv_dir = output_dir + os.sep + "alignment_csvs"
+align_csv_name = barcode + "alignment_csv.csv"
+align_csv_path = align_csv_dir + os.sep + align_csv_name
+dfalign = pd.read_csv(align_csv_path)
 dfalign.reset_index(inplace=True)
 dfalign.set_index(["Position"], inplace=True)
 
@@ -359,11 +359,11 @@ print(dfalign.loc[[position_chosen]])
 
 
 # now try automatic alignment
-def find_xyz_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=False):
+def find_zyx_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=False):
     offset_list = []
     for i in range(len(img_list)):
         test_img = img_list[i]
-        (_, _, meanoffset, _,) = find_xyz_offset(
+        (_, _, meanoffset, _,) = find_zyx_offset(
             refimg.copy(), test_img.copy(), ploton=ploton, verbose=verbose
         )
         offset_list.append(meanoffset)
@@ -371,7 +371,7 @@ def find_xyz_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=Fals
     return offset_list
 
 
-def find_xyz_offset(target_img, test_img, ploton=False, verbose=False):
+def find_zyx_offset(target_img, test_img, ploton=False, verbose=False):
     import skimage.exposure as skex
 
     #     target_img_matched_8, test_img_matched_8, meanoffset, cropoffset
@@ -641,7 +641,7 @@ img_list = imglist
 
 
 refimg = imglist[0]
-alignment_offsets_zyx_list = find_xyz_offset_relative_to_ref(
+alignment_offsets_zyx_list = find_zyx_offset_relative_to_ref(
     img_list, refimg=refimg, ploton=False, verbose=False
 )
 

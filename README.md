@@ -128,3 +128,14 @@ python .\multiplex_immuno_processing\round_alignment_tempelate.py --output_path 
 ```
 python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir "dir pointing to mip outputs" --output_dir "output directory to save gifs" --barcode "barcode(int)" --frame_rate "frame rate of gif(int)"
 ```
+
+
+
+python ./multiplex_immuno_processing/generate_alignment_paramters.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode "5500000724" --method "ORB" --position P2 --test_save test
+
+
+# to run on slurm use
+srun -p aics_cpu_general --mem 70G --pty bash #
+module load anaconda3
+source activate frick_multiplex_test
+cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4iProcessing-/

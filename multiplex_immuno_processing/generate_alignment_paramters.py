@@ -74,13 +74,13 @@ if __name__ == "__main__":
 
     mag = "20x"
     output_dir = dfconfig["output_path"][0]
-    pickle_dir = output_dir + os.sep + "pickles"
-    pickle_name = barcode + "cleanedup_match_pickle.pickle"
-    pickle_path = pickle_dir + os.sep + pickle_name
-    print("\n\n" + pickle_path + "\n\n")
-    print(os.path.exists(pickle_path))
-    print(f"pickle path is {pickle_path}")
-    dfall = pd.read_pickle(pickle_path)
+    csv_dir = output_dir + os.sep + "csvs"
+    csv_name = barcode + "cleanedup_match_csv.csv"
+    csv_path = csv_dir + os.sep + csv_name
+    print("\n\n" + csv_path + "\n\n")
+    print(os.path.exists(csv_path))
+    print(f"csv path is {csv_path}")
+    dfall = pd.read_csv(csv_path)
     #dfkeeplist = []
     print(f"position {Position}")
     keeplist = []
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     refimg = dfimg.loc[reference_round_key, "img"]
     
 
-    alignment_offsets_xyz_list = []
+    alignment_offsets_zyx_list = []
     failed_list = []
     final_version_offsets_zyx_list=[]
     cross_corr_offset_zyx_list =[]
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 
         # try to align with current code
         try:
-            (_, _, meanoffset, _,) = registration_utils.find_xyz_offset(
+            (_, _, meanoffset, _,) = registration_utils.find_zyx_offset(
                 refimg.copy(), imgstack.copy(), ploton=False, verbose=False,
             )
             failed = False
@@ -205,7 +205,7 @@ if __name__ == "__main__":
                 # need to adjust offset for the source_cropping performed above
                 final_y_offset = source_cropping - final_y_offset
                 final_x_offset = source_cropping - final_x_offset
-                
+
                 print("for first img in new_source_img, x_offset is", final_x_offset)
                 print("for first img in new_source_img, y_offset is", final_y_offset)
 
@@ -214,19 +214,19 @@ if __name__ == "__main__":
                 final_y_offset = 0
                 failed=True
             
-            alignment_offsets_xyz_ORB = (final_x_offset, final_y_offset)
+            alignment_offsets_zyx_ORB = (final_x_offset, final_y_offset)
 
             #now this method collects the alignment in Z from the cross correlation method
             final_version_offsets_zyx = [meanoffset[0],
-                                        alignment_offsets_xyz_ORB[0],
-                                        alignment_offsets_xyz_ORB[1],
+                                        alignment_offsets_zyx_ORB[0],
+                                        alignment_offsets_zyx_ORB[1],
                                         ]
 
             method = 'ORB'
             
             
             
-            print(f"final version offset xyz is {final_version_offsets_zyx}")
+            print(f"final version offset zyx is {final_version_offsets_zyx}")
             print("outputing")
 
 
@@ -244,32 +244,28 @@ if __name__ == "__main__":
 
 
 
-    dfimg['alignment_offsets_xyz'] = final_version_offsets_zyx_list
+    dfimg['alignment_offsets_zyx'] = final_version_offsets_zyx_list
     dfimg['method'] = method_list
     dfimg['failed'] = failed_list
-    dfimg['alignment_offsets_xyz_cross_cor'] = cross_corr_offset_zyx_list
+    dfimg['alignment_offsets_zyx_cross_cor'] = cross_corr_offset_zyx_list
             
 
 
     print("dfimg.shape[0] is {}".format(dfimg.shape[0]))
     dfimg["template_position"] = [Position] * dfimg.shape[0] # This is what?
-    dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_xyz", "alignment_offsets_xyz_cross_cor","method"]]
+    dfout_p = dfimg[["template_position", "align_channel", "alignment_offsets_zyx", "alignment_offsets_zyx_cross_cor","method"]]
     #dfkeeplist.append(dfout_p)
 
 
     output_dir = dfconfig["output_path"][0]
-    pickle_dir = output_dir + os.sep + "alignment_pickles_each" + args.test_save
-    if not os.path.exists(pickle_dir):
-        os.makedirs(pickle_dir)
-    pickle_name = f"{barcode}-{Position}-alignment_pickle_each.pickle"
-    pickle_path = pickle_dir + os.sep + pickle_name
-    print("\n\n" + pickle_path + "\n\n")
-    dfout_p.to_pickle(os.path.abspath(pickle_path))
+    csv_dir = output_dir + os.sep + "alignment_csvs_each" + args.test_save
+    if not os.path.exists(csv_dir):
+        os.makedirs(csv_dir)
+    csv_name = f"{barcode}-{Position}-alignment_csv_each.csv"
+    csv_path = csv_dir + os.sep + csv_name
+    print("\n\n" + csv_path + "\n\n")
+    dfout_p.to_csv(os.path.abspath(csv_path))
 
-    # out_csv_path = pickle_path.replace('_pickle','_csv').replace('.pickle','.csv')
-    csv_name = pickle_name.replace("_pickle", "_csv").replace(".pickle", ".csv")
-    out_csv_path = pickle_dir + os.sep + csv_name
-    dfout_p.to_csv(os.path.abspath(out_csv_path))
     print("succesfully computed alignment parameters and saved")
 
 

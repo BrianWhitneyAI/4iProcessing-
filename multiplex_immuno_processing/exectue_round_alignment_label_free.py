@@ -67,23 +67,23 @@ if __name__ == "__main__":
     mag = "20x"
 
     output_dir = dfconfig["output_path"][0]
-    pickle_dir = output_dir + os.sep + "pickles"
-    pickle_name = barcode + "cleanedup_match_csv.csv"
-    pickle_path = pickle_dir + os.sep + pickle_name
-    print("\n\n" + pickle_path + "\n\n")
-    # dfall = pd.read_pickle(pickle_path)
-    dfall = pd.read_csv(pickle_path)
+    csv_dir = output_dir + os.sep + "csvs"
+    csv_name = barcode + "cleanedup_match_csv.csv"
+    csv_path = csv_dir + os.sep + csv_name
+    print("\n\n" + csv_path + "\n\n")
+    # dfall = pd.read_csv(csv_path)
+    dfall = pd.read_csv(csv_path)
 
 
     output_dir = dfconfig["output_path"][0]
-    align_pickle_dir = output_dir + os.sep + "alignment_pickles_each"
-    align_pickle_name_glob = f"{barcode}*alignment_csv_each.csv"
-    print(align_pickle_name_glob)
-    globlist = glob(align_pickle_dir + os.sep + align_pickle_name_glob)
+    align_csv_dir = output_dir + os.sep + "alignment_csvs_each"
+    align_csv_name_glob = f"{barcode}*alignment_csv_each.csv"
+    print(align_csv_name_glob)
+    globlist = glob(align_csv_dir + os.sep + align_csv_name_glob)
     dfalign_list = []
-    for align_pickle_path in globlist:
-        # align_pickle_path = align_pickle_dir + os.sep + align_pickle_name
-        df = pd.read_csv(align_pickle_path)
+    for align_csv_path in globlist:
+        # align_csv_path = align_csv_dir + os.sep + align_csv_name
+        df = pd.read_csv(align_csv_path)
         dfalign_list.append(df)
     dfalign = pd.concat(dfalign_list)
 

@@ -40,7 +40,7 @@ ploton = False
         its assumed to be superfluoes.
 
 6. Then after the matches are generated, assemble into a dataframe and:
-    a. export the csv or pickle that defines the matched positions
+    a. export the csv or csv that defines the matched positions
 
 The idea is that this dataframe contains all of the information needed for calling any other processing step.
 
@@ -180,18 +180,18 @@ if __name__ == "__main__":
 
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
-    # now open the metadata pickle
+    # now open the metadata csv
     # (specifically metadata about position, XYZ coordinates and FOV size)
     # barcode corresponds to a given plate
     # round corresponds to a given round of imaging of that plate
     for barcode, dfcb in dfconfig.groupby(["barcode"]):
 
         output_dir = dfconfig["output_path"][0]
-        metadata_pickle_dir = output_dir + os.sep + "pickles"
-        metadata_pickle_name = barcode + "metadata_pickle.pickle"
-        metadata_pickle_path = metadata_pickle_dir + os.sep + metadata_pickle_name
+        metadata_csv_dir = output_dir + os.sep + "csvs"
+        metadata_csv_name = barcode + "metadata_csv.csv"
+        metadata_csv_path = metadata_csv_dir + os.sep + metadata_csv_name
 
-        dfmeta = pd.read_pickle(metadata_pickle_path)
+        dfmeta = pd.read_csv(metadata_csv_path)
 
         PositionUniqueList = [
             f"{str(x)}-{y}-{str(Path(z).name)}"
@@ -589,16 +589,15 @@ if __name__ == "__main__":
 
         # now split scenes and write out all the czi files as ome.tiffs
         output_dir = dfmeta_out["output_path"][0]
-        pickle_dir = output_dir + os.sep + "pickles"
-        if not os.path.exists(pickle_dir):
-            os.makedirs(pickle_dir)
-        pickle_name = barcode + "matched_positions_pickle.pickle"
-        pickle_path = pickle_dir + os.sep + pickle_name
-        print("\n\n" + pickle_path + "\n\n")
-        dfmeta_out.to_pickle(os.path.abspath(pickle_path))
+        csv_dir = output_dir + os.sep + "csvs"
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir)
+        csv_name = barcode + "matched_positions_csv.csv"
+        csv_path = csv_dir + os.sep + csv_name
+        print("\n\n" + csv_path + "\n\n")
+        dfmeta_out.to_csv(os.path.abspath(csv_path))
 
-        out_csv_path = pickle_path.replace("_pickle", "_csv").replace(".pickle", ".csv")
-        dfmeta_out.to_csv(os.path.abspath(out_csv_path))
+       
 
         # find all positions with extra matches
 #         dfg = dfmeta_out.groupby(['template_position_unique','key']).agg('count')

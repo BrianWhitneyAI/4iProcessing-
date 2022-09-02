@@ -79,9 +79,9 @@ if __name__ == "__main__":
     # print(testing_keylist)
     # for ki, key in enumerate(testing_keylist):
     if args.method=='cross_cor':
-        alignment_method = "alignment_offsets_xyz_cross_corr"
+        alignment_method = "alignment_offsets_zyx_cross_corr"
     else:
-        alignment_method = "alignment_offsets_xyz_ORB"
+        alignment_method = "alignment_offsets_zyx_ORB"
     
     
     count=0

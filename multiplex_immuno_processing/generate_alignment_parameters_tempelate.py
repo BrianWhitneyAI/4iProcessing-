@@ -15,7 +15,7 @@ overwrite = True
 
 # this code computes the alignment parameters to align each scene across the multiple rounds of imaging
 # should take a barcode as an argument,
-# then this code reads that dataframe pickle for that given barcode
+# then this code reads that dataframe csv for that given barcode
 # then it uses the dataframe to determine the reference channel to be used for each of the rounds for alignment
 # then it loads all the reference channel images for each round
 # then it runs the an alignment algorithm to align all of the rounds
@@ -78,18 +78,18 @@ if __name__ == "__main__":
     mag = "20x"
 
     output_dir = dfconfig["output_path"][0]
-    pickle_dir = output_dir + os.sep + "pickles"
-    pickle_name = barcode + "cleanedup_match_pickle.pickle"
-    pickle_path = pickle_dir + os.sep + pickle_name
-    print("\n\n" + pickle_path + "\n\n")
-    print(os.path.exists(pickle_path))
-    # dfall = pd.read_pickle(pickle_path)
+    csv_dir = output_dir + os.sep + "csvs"
+    csv_name = barcode + "cleanedup_match_csv.csv"
+    csv_path = csv_dir + os.sep + csv_name
+    print("\n\n" + csv_path + "\n\n")
+    print(os.path.exists(csv_path))
+    # dfall = pd.read_csv(csv_path)
 
-    pickle_name = barcode + "cleanedup_match_csv.csv"
-    pickle_path = pickle_dir + os.sep + pickle_name
-    print("\n\n" + pickle_path + "\n\n")
-    print(os.path.exists(pickle_path))
-    dfall = pd.read_csv(pickle_path)
+    csv_name = barcode + "cleanedup_match_csv.csv"
+    csv_path = csv_dir + os.sep + csv_name
+    print("\n\n" + csv_path + "\n\n")
+    print(os.path.exists(csv_path))
+    dfall = pd.read_csv(csv_path)
 
     dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
 

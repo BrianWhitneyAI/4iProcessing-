@@ -74,19 +74,19 @@ if __name__ == "__main__":
     # dfconfig = dfconfig[dfconfig['barcode']=='5500000725']
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
-    # now open the metadata pickle
+    # now open the metadata csv
     # (specifically metadata about position, XYZ coordinates and FOV size)
     # barcode corresponds to a given plate
     # round corresponds to a given round of imaging of that plate
     for barcode, dfcb in dfconfig.groupby(["barcode"]):
 
         output_dir = dfconfig["output_path"][0]
-        metadata_pickle_dir = output_dir + os.sep + "pickles"
-        metadata_pickle_name = barcode + "matched_positions_pickle.pickle"
-        metadata_pickle_path = metadata_pickle_dir + os.sep + metadata_pickle_name
+        metadata_csv_dir = output_dir + os.sep + "csvs"
+        metadata_csv_name = barcode + "matched_positions_csv.csv"
+        metadata_csv_path = metadata_csv_dir + os.sep + metadata_csv_name
 
         print(barcode)
-        dfmeta = pd.read_pickle(metadata_pickle_path)
+        dfmeta = pd.read_csv(metadata_csv_path)
 
         #         ################################################
         #         # first remove positions flagged for removal (this does not work)
@@ -165,15 +165,10 @@ if __name__ == "__main__":
 
         # remove these duplicates!
         dfmeta = dfmeta[
-<<<<<<< HEAD
             dfmeta["flag-overlapping_positions_within_same_round_imaged_second"]
             == False
         ] 
         #note `is False` will error in the line above. Must be `==False`
-=======
-            dfmeta["flag-overlapping_positions_within_same_round_imaged_second"]==False
-        ]
->>>>>>> main
         dfmeta.reset_index(inplace=True)
 
         # now check that there are the same number of tps and tpus
@@ -285,14 +280,10 @@ if __name__ == "__main__":
 
         # now remove those multiple matches
         dfmeta = dfmeta[
-<<<<<<< HEAD
             dfmeta["flag-multiple_fovs_matched_to_same_reference_FOV_imaged_second"]
             == False
         ]
         #note `is False` will error in the line above. Must be `==False`
-=======
-            dfmeta["flag-multiple_fovs_matched_to_same_reference_FOV_imaged_second"]==False]
->>>>>>> main
 
         dfmeta.reset_index(inplace=True)
         grouper = ["key", "template_position", "move_position_unique"]
@@ -346,19 +337,16 @@ if __name__ == "__main__":
         dfmeta.sort_values(["round_number", "template_position_zfill"], inplace=True)
 
         ################################################
-        # now save out the pickle and csv
+        # now save out the csv and csv
         ################################################
         output_dir = dfconfig["output_path"][0]
-        pickle_dir = output_dir + os.sep + "pickles"
-        if not os.path.exists(pickle_dir):
-            os.makedirs(pickle_dir)
-        pickle_name = barcode + "cleanedup_match_pickle.pickle"
-        pickle_path = pickle_dir + os.sep + pickle_name
-        print("\n\n" + pickle_path + "\n\n")
-        dfmeta.to_pickle(os.path.abspath(pickle_path))
-
-        out_csv_path = pickle_path.replace("_pickle", "_csv").replace(".pickle", ".csv")
-        dfmeta.to_csv(os.path.abspath(out_csv_path))
+        csv_dir = output_dir + os.sep + "csvs"
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir)
+        csv_name = barcode + "cleanedup_match_csv.csv"
+        csv_path = csv_dir + os.sep + csv_name
+        print("\n\n" + csv_path + "\n\n")
+        dfmeta.to_csv(os.path.abspath(csv_path))
 
         ################################################
 
