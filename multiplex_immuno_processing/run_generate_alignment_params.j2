@@ -5,6 +5,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --spread-job
 #SBATCH --mem 50G
+#SBATCH -w n86, n87, n88
 #SBATCH --output {{ jinja_output }}/generate_alignment_params_%A_%A.out
 
 id=$SLURM_ARRAY_TASK_ID
