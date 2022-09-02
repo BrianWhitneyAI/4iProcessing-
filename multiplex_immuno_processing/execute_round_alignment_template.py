@@ -104,12 +104,6 @@ if __name__ == "__main__":
     keylist = dfall["key"].unique()
     # for Position in ['P2']:
 
-    output_csv_path = os.path.join(args.output_path, "alignment_csvs_each_" + args.method)
-
-
-    if not os.path.exists(output_csv_path):
-        os.mkdir(output_csv_path)
-    dfall.to_csv(os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"))
 
     if not args.position_list:
         template_position_list = dfall["template_position"].unique()
@@ -123,7 +117,6 @@ if __name__ == "__main__":
     for i in range(len(template_position_list)):
         position = template_position_list[i]
         render_dict_slurm = {
-        'dfall_csv_dir': os.path.join(output_csv_path, f"barcode_{barcode}_all.csv"),
         'barcode': barcode,
         'output_path': args.output_path,
         'position': position,

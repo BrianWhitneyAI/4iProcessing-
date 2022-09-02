@@ -14,12 +14,6 @@ from yaml.loader import SafeLoader
 import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--dfall_csv_dir",
-    type=str,
-    required=True,
-    help="csv file",
-)
 
 parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
@@ -41,10 +35,21 @@ parser.add_argument(
 
 parser.add_argument("--method", choices=['cross_cor', 'ORB'])
 
+parser.add_argument(
+    "--test_save",
+    type=str,
+    required=False,
+    help="modify output directory by appending 'test' (default='')",
+    default = '',
+)
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    dfall = pd.read_csv(args.dfall_csv_dir)
+
+
+    
+
+    # dfall = pd.read_csv(args.dfall_csv_dir)
     mag = "20x"
 
     Position = args.position
@@ -71,18 +76,39 @@ if __name__ == "__main__":
         dfconfig.set_index(["barcode", "round"], inplace=True)
 
 
+    output_dir = dfconfig["output_path"][0]
+    align_csv_dir = output_dir + os.sep + "alignment_csvs_each_" + args.method
+    align_csv_name = f"{args.barcode}-{args.position}-alignment_csv_each.csv"
+    align_csv_path = align_csv_dir + os.sep + align_csv_name
+
+
+    dfalign = pd.read_csv(align_csv_path)
+
+
+
+    output_dir = dfconfig["output_path"][0]
+    csv_dir = output_dir + os.sep + "csvs"
+    csv_name = barcode + "cleanedup_match_csv.csv"
+    csv_path = csv_dir + os.sep + csv_name
+    print("\n\n" + csv_path + "\n\n")
+    dfall = pd.read_csv(csv_path)
+
+
+    # dfall["parent_file"] = dfall["parent_file"].apply(lambda x: os_swap(x))
+
+    # merge both dataframes so that you only try to align the positions that can be aligned.
+    dfall = pd.merge(
+        dfalign,
+        dfall,
+        on=["key", "template_position"],
+        suffixes=("_align", ""),
+        how="left",
+    )
+    
 
 
 
     keylist = dfall.set_index("template_position").loc[args.position, "key"].unique()
-        # testing_keylist = [x for x in keylist if "Time" not in x]
-    # print(testing_keylist)
-    # for ki, key in enumerate(testing_keylist):
-    if args.method=='cross_cor':
-        alignment_method = "alignment_offsets_zyx_cross_corr"
-    else:
-        alignment_method = "alignment_offsets_zyx_ORB"
-    
     
     count=0
     for ki, key in enumerate(keylist):
@@ -93,12 +119,11 @@ if __name__ == "__main__":
 
         dfr = dfall.set_index(["template_position", "key"])
         dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
-        parent_file = dfsub["parent_file"][0]
 
 
         alignment_offset = eval(
             dfall.set_index(["key", "template_position"]).loc[
-                pd.IndexSlice[key, Position], alignment_method
+                pd.IndexSlice[key, Position], "alignment_offsets_zyx"
             ]
         )
         print(alignment_offset)
@@ -113,21 +138,19 @@ if __name__ == "__main__":
             )
         )
 
+        parent_file = dfsub["parent_file"][0]
         reader = AICSImage(parent_file)
 
         scene = dfsub["Scene"][0]
 
         # 3 get variables for file name
         # round_num0 = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE).group(0)
-        search_out = re.search("time|Round [0-9]+", parent_file, re.IGNORECASE)
-        assert search_out is not None  # necessary for passing mypy type errors
-        round_num0 = search_out.group(0)
-
-        round_num = round_num0.replace("Time", "0").replace("Round ", "").zfill(2)
+        
+        round_num = str(dfr.loc[pd.IndexSlice[Position,key],'round_number']).zfill(2)
 
         scene_num = str(scene).zfill(2)
         position_num = Position[1::].zfill(2)
-        well = parent_file = dfsub["Well_id"][0]
+        well = dfsub["Well_id"][0]
         channels = reader.channel_names
 
         position = Position
@@ -177,14 +200,13 @@ if __name__ == "__main__":
                     channel = c
                     channel_num = str(ci + 1).zfill(2)
                     tnum = str(T).zfill(3)
-                    savedir = os.path.join(args.output_path, 'mip_exports', f"{barcode}-export")
+                    savedir = os.path.join(args.output_path, 'mip_exports' + args.test_save, f"{barcode}-export")
 
 
                     if not os.path.exists(savedir):
                         os.makedirs(savedir)
                         print("making", os.path.abspath(savedir))
 
-                    file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
 
                     fovid = f"{barcode}_R{round_num}_P{position_num}"
                     savename = (

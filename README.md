@@ -141,6 +141,9 @@ python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode "5500000724" --method "ORB" --position P2 --test_save test
 
 
+python ./multiplex_immuno_processing/execute_round_alignment.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode "5500000724" --method "cross_cor" --position P2 --test_save test
+
+
 # to run on slurm use
 srun -p aics_cpu_general --mem 70G --pty bash #
 module load anaconda3
