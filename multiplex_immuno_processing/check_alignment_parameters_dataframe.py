@@ -94,7 +94,9 @@ if __name__ == "__main__":
         for align_csv_path in globlist:
             # align_csv_path = align_csv_dir + os.sep + align_csv_name
             df = pd.read_csv(align_csv_path)
-            dfalign_list.append(df)
+
+            keepcols = [x for x in df.columns.tolist() if not bool(re.search('unnamed',x,re.IGNORECASE))]
+            dfalign_list.append(df[keepcols])
         if len(dfalign_list)>0:
             dfalign = pd.concat(dfalign_list)
 
