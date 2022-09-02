@@ -114,32 +114,16 @@ python .\multiplex_immuno_processing\check_matched_position_dataframe.py  --outp
 ```
 
 ### now compute alignment paramters based on which method is prefered
-#### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
-python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate_ORB_method.py --output_path "output path" --barcode "barcode"
+python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 ```
-
-or 
-
-```
-python .\multiplex_immuno_processing\generate_alignment_paramters_tempelate.py --output_path "output path" --barcode "barcode" 
-```
-
 ### next execute the alignment
 #### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
 
 ```
-python .\multiplex_immuno_processing\round_alignment_tempelate_ORB.py --output_path "output path" --barcode "barcode"
+python .\multiplex_immuno_processing\round_alignment_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 ```
-or
-
-```
-python .\multiplex_immuno_processing\round_alignment_tempelate.py --output_path "output path" --barcode "barcode"
-```
-
-
-
 ### next evaluate the alignment
 ```
 python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir "dir pointing to mip outputs" --output_dir "output directory to save gifs" --barcode "barcode(int)" --frame_rate "frame rate of gif(int)"
