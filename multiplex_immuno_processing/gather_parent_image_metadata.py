@@ -136,16 +136,15 @@ if __name__ == "__main__":
         # dfall[['X','X_original','X_adjusted','PlateReferencePoint','PlateAnchorPoint']]
 
         output_dir = dfconfig["output_path"][0]
-        pickle_dir = output_dir + os.sep + "pickles"
-        if not os.path.exists(pickle_dir):
-            os.makedirs(pickle_dir)
-        pickle_name = barcode + "metadata_pickle.pickle"
-        pickle_path = pickle_dir + os.sep + pickle_name
-        print("\n\n" + pickle_path + "\n\n")
-        dfmeta.to_pickle(os.path.abspath(pickle_path))
+        csv_dir = output_dir + os.sep + "csvs"
+        if not os.path.exists(csv_dir):
+            os.makedirs(csv_dir)
+        csv_name = barcode + "metadata_csv.csv"
+        csv_path = csv_dir + os.sep + csv_name
+        print("\n\n" + csv_path + "\n\n")
+        dfmeta.to_csv(os.path.abspath(csv_path))
 
-        out_csv_path = pickle_path.replace("_pickle", "_csv").replace(".pickle", ".csv")
-        dfmeta.to_csv(os.path.abspath(out_csv_path))
+        
 
         # this is the key information (along with the info in df config)
         # df[['barcode','key','Position','Scene','fname','AcquisitionTime']]
