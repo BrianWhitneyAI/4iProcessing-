@@ -113,63 +113,18 @@ python ./multiplex_immuno_processing/filter_matched_position_dataframe_to_remove
 python ./multiplex_immuno_processing/check_matched_position_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
 ```
 
-### now compute alignment paramters
-```
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
-
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
-
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725 -p P2
-
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
-
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
-
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+### now compute alignment paramters based on which method is prefered
 
 ```
-#### note you can process a specific position if you run with the `-p` argument
+python .\multiplex_immuno_processing\generate_alignment_parameters_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 ```
-python ./multiplex_immuno_processing/generate_alignment_paramters.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725 -p 
-```
-
-
-### check alignment parameters results
-python ./multiplex_immuno_processing/check_alignment_parameters_dataframe.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports"
-
-
 ### next execute the alignment
+#### Note that the jinja tempelate should also be modified here to specify your own output directory for the logs
+
 ```
-python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
-
-
-python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000725
-
-
-python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000726
-
-python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000728
-
-
-python ./multiplex_immuno_processing/exectue_round_alignment.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000733
+python .\multiplex_immuno_processing\round_alignment_tempelate.py --output_path "output_path" --barcode "barcode" --method "method to use" --position_list(optional)
 ```
-
-### this code tests aicsimageio issues
+### next evaluate the alignment
 ```
-python ./multiplex_immuno_processing/exectue_round_alignment_test.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
+python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir "dir pointing to mip outputs" --output_dir "output directory to save gifs" --barcode "barcode(int)" --frame_rate "frame rate of gif(int)"
 ```
-
-### this code might align the label free data
-```
-python ./multiplex_immuno_processing/exectue_round_alignment_label_free.py  --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode 5500000724
-```
-
-### to run on slurm use
-```
-srun -p aics_cpu_general --mem 70G --pty bash #
-module load anaconda3
-source activate frick_multiplex_test
-cd //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4iProcessing-/
-```
-
-

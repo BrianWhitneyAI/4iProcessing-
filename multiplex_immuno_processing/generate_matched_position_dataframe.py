@@ -91,14 +91,6 @@ def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
     # npt = 1  # number of 20x positions to examine
     colorlist = ["k", "r", "c", "y", "g"]
     coloriter = cycle(colorlist)
-    remainder = np.ceil(len(dfkeep.parent_file.unique())/len(colorlist))
-    if remainder>1:
-        coloriter = []
-        for remainder_int in remainder:
-            coloriter.extend(colorlist)
-    else:
-        coloriter=colorlist
-
     color_dict = {
         x: coloriter[xi] for xi, x in enumerate(dfkeep.parent_file.unique())
     }
@@ -292,12 +284,14 @@ if __name__ == "__main__":
                 print("why", original_file_AND_scenes_to_toss)
                 pass
 
+        print(dfmeta)
+        #dfmeta.to_csv("debug_output.csv")
         # the last step is to remove all extra scenes that were added
         # (as scenes many scenes marked for removal wont be present in the
         # metadata and so could be added to the dataframe using the loc method above)
-        dfmeta = dfmeta[dfmeta.isna()["parent_file"] == False]
-        # this doesn't run: dfmeta = dfmeta[dfmeta.isna()["parent_file"] is False]
-        dfmeta
+        # dfmeta = dfmeta[dfmeta.isna()["parent_file"] is False]
+        dfmeta = dfmeta[pd.isna(dfmeta["parent_file"]) == False]
+        #dfmeta
         #########################################################
 
         # # now drop the identified "scenes to toss" by passing in the list of tuples
