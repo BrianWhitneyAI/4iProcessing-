@@ -38,7 +38,8 @@ parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 
-parser.add_argument("--method", choices=['cross_cor', 'ORB'])
+parser.add_argument("--method",
+            choices=['cross_cor', 'ORB'])
 
 parser.add_argument("--position_list", nargs="+", default=[], type=list, help="input dirs to parse")
 
