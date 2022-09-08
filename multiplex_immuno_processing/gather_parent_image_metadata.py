@@ -38,16 +38,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     yaml_dir = os.path.join(args.output_path, "yml_configs")
-    print(f"listdir is {os.listdir(yaml_dir)}")
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
     dfconfiglist = []
-    print(f"confirmed files are of shape {yaml_list}")
-    print(type(args.barcode))
-    print(args.barcode)
+
     if args.barcode:
         yaml_list = [x for x in yaml_list if x.startswith(args.barcode)]
-        print(f"yaml list is {yaml_list}")
-        print(f"yaml list is of size {len(yaml_list)}")
         assert len(yaml_list) ==1, f"mismatch in files found"
     
 
