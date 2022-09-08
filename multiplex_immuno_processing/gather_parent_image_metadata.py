@@ -6,15 +6,17 @@ import yaml
 from yaml.loader import SafeLoader
 import zen_position_helper
 
-pd.set_option("display.max_columns", None)
-ploton = False
+#pd.set_option("display.max_columns", None)
+#ploton = False
 
-# TODO: parse argument to decide which barcode to run?
+
+
+
 
 """
-0. find the yaml files for each barcode (currently finds all barcodes)
-
-1. retrieve positions/scenes/coordinates from experiment file for acquired positions
+This script loads the yaml config files and populate a dataframe with config info
+1. find the yaml files for each barcode or a single barcode
+2. retrieve positions/scenes/coordinates from experiment file for acquired positions
 """
 
 
@@ -25,15 +27,31 @@ parser.add_argument(
     required=True,
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
-
+parser.add_argument(
+    "--barcode",
+    type=str,
+    required=False,
+    help="optional arg to only run a single barcode if desired"
+)
 
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    # load the yaml config files and populate a dataframe with config info
     yaml_dir = os.path.join(args.output_path, "yml_configs")
+    print(f"listdir is {os.listdir(yaml_dir)}")
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
     dfconfiglist = []
+    print(f"confirmed files are of shape {yaml_list}")
+    print(type(args.barcode))
+    print(args.barcode)
+    if args.barcode:
+        yaml_list = [x for x in yaml_list if x.startswith(args.barcode)]
+        print(f"yaml list is {yaml_list}")
+        print(f"yaml list is of size {len(yaml_list)}")
+        assert len(yaml_list) ==1, f"mismatch in files found"
+    
+
+
     for y in yaml_list:
         print(y)
         yml_path = yaml_dir + os.sep + y
