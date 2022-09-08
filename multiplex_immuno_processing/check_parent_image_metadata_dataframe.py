@@ -18,14 +18,15 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    dir_name = os.path.join(args.output_path, "pickles")
-    globout = glob(dir_name + os.sep + "*pickle")
-    print(f"flobout is {globout}")
+    filedir = r"\\allen\aics\assay-dev\users\Frick\PythonProjects\Assessment\4i_testing\aligned_4i_exports\csvs"
+
+    filedir = args.output_path + os.sep + "csvs"
+    globout = glob(filedir + os.sep + "*meta*csv")
     print(globout)
     for filepath in globout:
         print()
         print(Path(filepath).name)
-        df = pd.read_pickle(filepath)
+        df = pd.read_csv(filepath)
 
         # determine number of positions
         dfgp = df.groupby(["Position"]).agg("count")

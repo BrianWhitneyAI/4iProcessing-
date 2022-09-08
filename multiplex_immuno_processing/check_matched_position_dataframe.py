@@ -23,14 +23,14 @@ if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     args = parser.parse_args()
 
-    filedir = args.output_path + os.sep + "pickles"
+    filedir = args.output_path + os.sep + "csvs"
 
-    globout = glob(filedir + os.sep + "*cleanedup_match_pickle*pickle")
+    globout = glob(filedir + os.sep + "*cleanedup_match_csv*csv")
     print(globout)
     print()
     for filepath in globout:
         print(Path(filepath).name)
-        df = pd.read_pickle(filepath)
+        df = pd.read_csv(filepath)
         dfg = df.groupby("template_position").agg("count")
 
         print("number of positions = ", dfg.shape[0])

@@ -805,11 +805,11 @@ def get_align_matrix(alignment_offset):
     align_matrix = np.int16(align_matrix)
     return align_matrix
 
-def find_xyz_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=False):
+def find_zyx_offset_relative_to_ref(img_list, refimg, ploton=False, verbose=False):
     offset_list = []
     for i in range(len(img_list)):
         test_img = img_list[i]
-        (_, _, meanoffset, _,) = find_xyz_offset(
+        (_, _, meanoffset, _,) = find_zyx_offset(
             refimg.copy(), test_img.copy(), ploton=ploton, verbose=verbose
         )
         offset_list.append(meanoffset)
@@ -832,7 +832,7 @@ def get_shift_to_center_matrix(img_shape, output_shape):
     shift_matrix = np.int16(shift_matrix)
     return shift_matrix
 
-def find_xyz_offset(target_img, test_img, ploton=False, verbose=False):
+def find_zyx_offset(target_img, test_img, ploton=False, verbose=False):
     test_img_rs = test_img.copy()
     target_img_8 = skex.rescale_intensity(
         target_img.copy(), in_range="image", out_range="uint8"
