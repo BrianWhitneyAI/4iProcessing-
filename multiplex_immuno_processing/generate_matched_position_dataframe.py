@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import yaml
 from yaml.loader import SafeLoader
+import ast
 
 pd.set_option("display.max_columns", None)
 ploton = False
@@ -54,8 +55,8 @@ TODO: decide if we want any contact sheet-style outputs from this code that help
 def create_rectangle(xyz, imgsize_um):
     """
     credit: https://stackoverflow.com/questions/27152904/calculate-overlapped-area-between-two-rectangles
-    """
-
+    """ 
+    
     Rectangle = namedtuple("Rectangle", "xmin ymin xmax ymax")
     rect = Rectangle(
         xyz[0] - imgsize_um[1] / 2,
@@ -151,14 +152,23 @@ parser.add_argument(
     required=True,
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
+parser.add_argument(
+    "--barcode",
+    type=str,
+    required=False,
+    help="optional arg to only run a single barcode if desired"
+)
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
-
     # load the yaml config files and populate a dataframe with config info
     yaml_dir = os.path.join(args.output_path, "yml_configs")
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
+
+    if args.barcode:
+        yaml_list = [x for x in yaml_list if x.startswith(args.barcode)]
+        assert len(yaml_list) ==1, f"mismatch in files found"
     dfconfiglist = []
     for y in yaml_list:
         print(y)
@@ -314,6 +324,12 @@ if __name__ == "__main__":
 
                 xyz = dftemp_pos[["X", "Y", "Z"]].to_numpy()[0]
                 imgsize_um = dftemp_pos["imgsize_um"].to_numpy()[0]
+
+                if type(imgsize_um) is str:
+                    imgsize_um= list(ast.literal_eval(imgsize_um))
+
+
+
                 template_rectangle = create_rectangle(xyz, imgsize_um)
 
                 for k, ((pos2, pf2, pu2), dfmove_pos) in enumerate(
@@ -321,6 +337,11 @@ if __name__ == "__main__":
                 ):
                     xyz2 = dfmove_pos[["X", "Y", "Z"]].to_numpy()[0]
                     imgsize_um2 = dfmove_pos["imgsize_um"].to_numpy()[0]
+
+                    if type(imgsize_um2) is str:
+                        imgsize_um2= list(ast.literal_eval(imgsize_um2))
+
+
                     move_rectangle = create_rectangle(xyz2, imgsize_um2)
 
                     overlap = intersection_area(template_rectangle, move_rectangle)
@@ -451,6 +472,10 @@ if __name__ == "__main__":
             ):
                 xyz = dftemplate_pos[["X", "Y", "Z"]].to_numpy()[0]
                 imgsize_um = dftemplate_pos["imgsize_um"].to_numpy()[0]
+
+
+                if type(imgsize_um) is str:
+                    imgsize_um= list(ast.literal_eval(imgsize_um))
                 template_rectangle = create_rectangle(xyz, imgsize_um)
 
                 for k, ((pos2, pu2), dfmove_pos) in enumerate(
@@ -458,6 +483,9 @@ if __name__ == "__main__":
                 ):
                     xyz2 = dfmove_pos[["X", "Y", "Z"]].to_numpy()[0]
                     imgsize_um2 = dfmove_pos["imgsize_um"].to_numpy()[0]
+                    if type(imgsize_um2) is str:
+                        imgsize_um2= list(ast.literal_eval(imgsize_um2))
+                    
                     move_rectangle = create_rectangle(xyz2, imgsize_um2)
 
                     overlap = intersection_area(template_rectangle, move_rectangle)
@@ -536,7 +564,7 @@ if __name__ == "__main__":
             dflall.append(dfm_move)
 
         dfout = pd.concat(dflall)
-        dfout
+        #dfout
 
         # TODO: figure out smart way to keep positions that were imaged too many times
         # plan is to keep the first image
