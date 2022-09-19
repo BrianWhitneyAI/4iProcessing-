@@ -18,7 +18,6 @@ parser.add_argument(
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
 
-
 if __name__ == "__main__":
     warnings.filterwarnings("ignore")
     args = parser.parse_args()

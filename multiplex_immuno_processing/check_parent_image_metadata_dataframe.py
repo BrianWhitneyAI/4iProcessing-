@@ -18,7 +18,6 @@ parser.add_argument(
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    filedir = r"\\allen\aics\assay-dev\users\Frick\PythonProjects\Assessment\4i_testing\aligned_4i_exports\csvs"
 
     filedir = args.output_path + os.sep + "csvs"
     globout = glob(filedir + os.sep + "*meta*csv")

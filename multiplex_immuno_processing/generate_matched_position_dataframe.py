@@ -10,9 +10,6 @@ import yaml
 from yaml.loader import SafeLoader
 import ast
 
-pd.set_option("display.max_columns", None)
-ploton = False
-
 # TODO: parse argument to decide which barcode to run?
 
 """
@@ -246,8 +243,8 @@ if __name__ == "__main__":
         # TODO: define why use anchor point in zen_position_helper
         # dfall[['X','X_original','X_adjusted','PlateReferencePoint','PlateAnchorPoint']]
 
-        if ploton:
-            plot_position_rectangles(dfmeta, fs=18, figsize=(10, 10))
+        # if ploton:
+        #     plot_position_rectangles(dfmeta, fs=18, figsize=(10, 10))
 
         # now remove the scenes specified in the yaml config above
         original_file_AND_scenes_to_toss_list = []
@@ -564,6 +561,10 @@ if __name__ == "__main__":
             dflall.append(dfm_move)
 
         dfout = pd.concat(dflall)
+        count=0
+        print("*************************saving**********")
+        dfout.to_csv(os.path.join(args.output_path, f"output_{count}.csv"))
+        count+=1
         #dfout
 
         # TODO: figure out smart way to keep positions that were imaged too many times
@@ -574,15 +575,57 @@ if __name__ == "__main__":
         # overlapping_poslist = np.unique(
         #     dfcount[dfcount["Position"] >= number_of_rounds].index
         # )
+        #print(dfconfig.columns)
+        #print(f"barcode is {barcode}")
+        #print(f"{type(barcode)}")
+        #print(dfout.columns)
+        #print(dfconfig.loc[[barcode], ["scope", "output_path", "path"]])
+        #print("type for barcode is {}".format({type(dfconfig['barcode'])}))
+        # print("type round in dfout is {}".format({type(dfconfig['round'])}))
+        # print("type round item is {}".format({type(dfconfig['item'])}))
+        # print("type round output_path is {}".format({type(dfconfig['output_path'])}))
+        # print("type round item is {}".format({type(dfconfig['path'])}))
 
-        dfmeta_out = pd.merge(
-            dfout,
-            dfconfig.loc[[barcode], ["scope", "output_path", "path"]].reset_index(),
-            left_on=["barcode", "key", "original_file"],
-            right_on=["barcode", "round", "path"],
-            how="left",
-        )
-        print(dfout.shape, dfconfig.shape, dfmeta_out.shape, dfmetaog.shape)
+        #dfout["barcode"] = dfout["barcode"].astype(str)
+        #print("printing missing output paths")
+        #print(dfconfig["output_path"])
+        #dfconfig["barcode"] = barcode
+
+        dfconfig.reset_index(inplace=True)
+        dfout.reset_index(inplace=True)
+        dfout['barcode'] = dfout['barcode'].astype(int).astype(str)
+
+
+
+        #dfconfig.to_csv("config_output.csv")
+        #dfout.to_csv("dfout.csv")
+        print("datatypes********")
+        print(dfconfig.columns)
+        print(dfout.columns)
+
+
+
+        #print(dfconfig.rows)
+        print(dfconfig["barcode"][0])
+        print(dfout["barcode"][0])
+        #dfconfig[]
+
+        #dfconfig = pd.read_csv("config_output.csv")
+        #dfout = pd.read_csv("dfout.csv")
+        print("*****Afterwards*****")
+
+        print(type(dfconfig["barcode"][0]))
+        print(type(dfout["barcode"][0]))
+
+
+        dfmeta_out = pd.merge(dfout, dfconfig, left_on=["barcode", "key", "original_file"], right_on=["barcode", "round", "path"], how="left")
+
+
+        
+        # figure out how to do this in jupyter..... aligh based barcode and round
+        # most likely issue is barcode needs to be saved different...... compare barcode older csvs vs newer
+
+        #print(dfout.shape, dfconfig.shape, dfmeta_out.shape, dfmetaog.shape)
 
         # important columns
         # index columns are important :
@@ -615,15 +658,20 @@ if __name__ == "__main__":
         #  'barcode',
         #  ]
 
-        # now split scenes and write out all the czi files as ome.tiffs
-        output_dir = dfmeta_out["output_path"][0]
-        csv_dir = output_dir + os.sep + "csvs"
+        # now split scenes and write out all the czi files as ome.tiffsssss
+        #print(dfmeta_out["output_path"])
+        #output_dir = dfmeta_out["output_path"][0]
+        #print(output_dir)
+        #output_dir = ""
+        csv_dir = args.output_path + os.sep + "csvs"
         if not os.path.exists(csv_dir):
             os.makedirs(csv_dir)
         csv_name = barcode + "matched_positions_csv.csv"
         csv_path = csv_dir + os.sep + csv_name
         print("\n\n" + csv_path + "\n\n")
         dfmeta_out.to_csv(os.path.abspath(csv_path))
+
+        
 
        
 

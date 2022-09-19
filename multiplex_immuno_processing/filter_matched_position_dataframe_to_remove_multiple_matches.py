@@ -48,6 +48,13 @@ parser.add_argument(
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
 
+parser.add_argument(
+    "--barcode",
+    type=str,
+    required=False,
+    help="optional arg to only run a single barcode if desired"
+)
+
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -55,7 +62,18 @@ if __name__ == "__main__":
     # load the yaml config files and populate a dataframe with config info
     yaml_dir = os.path.join(args.output_path, "yml_configs")
     yaml_list = [x for x in os.listdir(yaml_dir) if "_confirmed" in x]
+    
+    if args.barcode:
+        yaml_list = [x for x in yaml_list if x.startswith(args.barcode)]
+        assert len(yaml_list) ==1, f"mismatch in files found"
+
+
+    
     dfconfiglist = []
+
+
+
+
     for y in yaml_list:
         print(y)
         yml_path = yaml_dir + os.sep + y
@@ -217,6 +235,10 @@ if __name__ == "__main__":
 
         print("number of matches to discern thru", len(subivs))
 
+        print(f"columns are {dfmeta.columns}")
+        print(f"index is {dfmeta.index.name}")
+
+        dfmeta = dfmeta.drop(['level_0'], axis=1)
         dfmeta.reset_index(inplace=True)
         # prepare to iterate through index values identified above
         dfmeta.set_index(["template_position_unique", "key"], inplace=True)

@@ -10,9 +10,6 @@ import zen_position_helper
 #ploton = False
 
 
-
-
-
 """
 This script loads the yaml config files and populate a dataframe with config info
 1. find the yaml files for each barcode or a single barcode
