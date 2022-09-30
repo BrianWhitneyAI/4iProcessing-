@@ -98,6 +98,8 @@ if __name__ == "__main__":
         # print(key,Path(parent_file).name,Position)
 
         reader = AICSImage(parent_file)
+        print("reader dims are {}".format(reader.dims))
+
 
         channels = reader.channel_names
 

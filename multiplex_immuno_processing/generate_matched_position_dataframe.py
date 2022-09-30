@@ -149,6 +149,7 @@ parser.add_argument(
     required=True,
     help="output dir of all processing steps. This specifies where to find the yml_configs too",
 )
+
 parser.add_argument(
     "--barcode",
     type=str,

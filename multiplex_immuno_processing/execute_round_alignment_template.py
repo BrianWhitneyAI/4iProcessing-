@@ -29,10 +29,17 @@ parser.add_argument(
     "--barcode", type=str, required=True, help="specify barcode to analyze"
 )
 parser.add_argument(
-    "--method", choices=['cross_cor', 'ORB'])
+    "--method", choices=['cross_cor', 'ORB', 'merged'])
 
 parser.add_argument("--position_list", nargs="+", default=[], type=list, help="input dirs to parse")
 
+parser.add_argument(
+    "--test_save",
+    type=str,
+    required=False,
+    help="modify output directory by appending 'test' (default='')",
+    default = '',
+)
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -122,7 +129,8 @@ if __name__ == "__main__":
         'position': position,
         'method': args.method,
         'jinja_output': os.path.join(args.output_path, "jinja_output"),
-        'cwd': os.getcwd()
+        'cwd': os.getcwd(),
+        'test_save': args.test_save
         }
         
 
