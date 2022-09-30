@@ -5,54 +5,68 @@ import re
 import tifffile
 from PIL import Image, ImageDraw
 import argparse
-
+from skimage import exposure
+import skimage.exposure as skex
 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--input_dir', type=str, required=True)
 parser.add_argument('--output_dir', type=str, required=True)
 parser.add_argument('--barcode', type=int, required=True)
-parser.add_argument('--frame_rate', type=int, default=500)
-
+parser.add_argument('--frame_rate', type=int, default=1000)
 
 def normalization(img):
+    #rescaled_img = ((img - img.min()) * (1/(img.max() - img.min()) * 255)).astype('uint8')
+    #img_stack_list_rs = []
+    #for img in img_stack_list:
+    lp = np.nanpercentile(img,1)
+    hp = np.nanpercentile(img,90)
+    img_rs = skex.rescale_intensity(img,in_range=(lp,hp),out_range='uint8').astype('uint8')
+    #img_stack_list_rs.append(img_rs)
+    return img_rs
+
+def min_max_norm(img):
     rescaled_img = ((img - img.min()) * (1/(img.max() - img.min()) * 255)).astype('uint8')
     return rescaled_img
-
 
 def generate_gif_for_evaluation(input_dir, filenames, frame_rate, output_dir, position, barcode):
     imglist=[]
     filenames.sort()
-    print("filenames are of size {}".format(len(filenames)))
+    #print("filenames are of size {}".format(len(filenames)))
+    print(filenames)
     for i in range(len(filenames)):
-        print("R"+str(i+1).zfill(2))
+        #print("R"+str(i+1).zfill(2))
         #TODO: go from round1-round11 in order -- simple regex
         #filename=[f for f in filenames_for_position if "R"+str(i+1).zfill(2) in f]
         #assert len(filename)==1, "regex failed"
         #filename_round = filename[0]
+        img_np = tifffile.imread(os.path.join(input_dir, filenames[i]))
 
-        img_np = tifffile.imread(os.path.join(input_dir,filenames[i]))
-        img_rescaled = normalization(img_np)
+
+        img_rescaled = normalization(img_np)        
+        #img_rescaled = normalization(img_np)
+
+        #img_rescaled = exposure.adjust_log(img_np, 1)
+
         img = Image.fromarray(img_rescaled)
         
         img_resized = img.resize(gif_image_shape)
         img_w_text = ImageDraw.Draw(img_resized)
         # 1664, 2464
-        img_w_text.text((20, 20), os.path.basename(filenames[i]).split("-Scene",1)[0], fill=(255))
-        print(np.shape(img_resized))
+        img_w_text.text((40, 40), os.path.basename(filenames[i]).split("-Scene",1)[0], fill=(255))
+        #print(np.shape(img_resized))
         #img_resized.save("sample.png")
         imglist.append(img_resized.convert('P'))
 
     imglist[0].save(os.path.join(output_dir, f'{barcode}_position_{str(position).zfill(2)}_evaluation.gif'),
                save_all=True, append_images=imglist[1:], optimize=False, duration=frame_rate, loop=0)
-    
-
-
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    filenames = [f for f in os.listdir(args.input_dir) if "-c04_" in f and f.endswith(".tif")] # channel 4 is the nuclei channel
+    filenames = [f for f in os.listdir(args.input_dir) if ("-c04_" in f and ("R01" or "R02" or "R03" or "R04" or "R05" or "R06" or "R07" or "R08" or "R09" or "R10" or "R11" in f))  or ("-c03" in f and "R00" in f and f.endswith("_T029.tif"))] # channel 4 is the nuclei channel
+
+
     output_gif_eval_dir = os.path.join(args.output_dir, f"{args.barcode}_evaluation")
     if not os.path.exists(output_gif_eval_dir):
         os.mkdir(output_gif_eval_dir)
@@ -64,7 +78,13 @@ if __name__ == "__main__":
         expression_re = "_P" + str(i).zfill(2) + "-"
         #print(expression_re)
         filenames_for_position = [f for f in filenames if expression_re in f]
-        print(len(filenames_for_position))
+        print(f"for position {expression_re}")
+
+        #print(filenames_for_position)
+
+        #print(filenames_for_position)
+        #print(len(filenames_for_position))
+        #print(filenames_for_position)
         if len(filenames_for_position) !=0:
             generate_gif_for_evaluation(args.input_dir, filenames_for_position, args.frame_rate, output_gif_eval_dir, i, args.barcode)
             #print(filenames_for_position)
