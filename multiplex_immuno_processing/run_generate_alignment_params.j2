@@ -6,10 +6,10 @@
 #SBATCH --spread-job
 #SBATCH --mem 50G
 #SBATCH --output {{ jinja_output }}/generate_alignment_params_%A_%A.out
-
+#SBATCH --exclude n86
 id=$SLURM_ARRAY_TASK_ID
 
-srun /allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python  {{ cwd }}/generate_alignment_paramters.py --dfall_csv_dir {{ dfall_csv_dir }} --barcode {{ barcode }}  --output_path {{ output_path }}  --position {{ position }} --method {{ method }}
+srun /allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python  {{ cwd }}/generate_alignment_parameters.py --barcode {{ barcode }}  --output_path {{ output_path }}  --position {{ position }} --method {{ method }}
 
 
 
