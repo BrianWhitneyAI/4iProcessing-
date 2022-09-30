@@ -45,7 +45,7 @@ parser.add_argument(
 )
 
 parser.add_argument("--method",
-            choices=['cross_cor', 'ORB']
+            choices=['cross_cor', 'ORB', 'merged']
 )
 
 
@@ -140,14 +140,21 @@ if __name__ == "__main__":
     
         print(key)
 
-
-
         # first thing that needs to be found is the reference image (i.e. timelapse image) details
-        alignment_offset = eval(
-                dfalign.set_index(["key", "template_position"]).loc[
+
+        if args.method == "merged":
+            alignment_offset = eval(
+                dfall.set_index(["key", "template_position"]).loc[
+                    pd.IndexSlice[key, Position], "best_alignment_params"
+                ]
+            )
+        else:
+            alignment_offset = eval(
+                dfall.set_index(["key", "template_position"]).loc[
                     pd.IndexSlice[key, Position], "alignment_offsets_zyx"
                 ]
             )
+
         print(alignment_offset)
 
         
@@ -231,10 +238,10 @@ if __name__ == "__main__":
         position = Position
         si = int(scene) - 1  # scene_index
 
-
+        # mip_exportstest_v3_merged
         sep = os.sep
         globdir = (
-            f"{output_dir}{sep}mip_exports{sep}{barcode}{sep}"
+            f"{output_dir}{sep}mip_exportstest_v3_merged{sep}{barcode}-export{sep}"
         )
 
 
@@ -259,7 +266,7 @@ if __name__ == "__main__":
 
             # now determine where to save the cropped image
             savedir = (
-            f"{output_dir}{sep}mip_exports_tcropped{sep}{barcode}{sep}"
+            f"{output_dir}{sep}mip_exports_tcropped_v3{sep}{barcode}{sep}"
             )
             
             savename = Path(img_path).name

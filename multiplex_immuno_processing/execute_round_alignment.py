@@ -33,7 +33,7 @@ parser.add_argument(
     help="position"
 )
 
-parser.add_argument("--method", choices=['cross_cor', 'ORB'])
+parser.add_argument("--method", choices=['cross_cor', 'ORB', 'merged'])
 
 parser.add_argument(
     "--test_save",
@@ -120,12 +120,19 @@ if __name__ == "__main__":
         dfr = dfall.set_index(["template_position", "key"])
         dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
 
+        if args.method == "merged":
+            alignment_offset = eval(
+                dfall.set_index(["key", "template_position"]).loc[
+                    pd.IndexSlice[key, Position], "best_alignment_params"
+                ]
+            )
 
-        alignment_offset = eval(
-            dfall.set_index(["key", "template_position"]).loc[
-                pd.IndexSlice[key, Position], "alignment_offsets_zyx"
-            ]
-        )
+        else:
+            alignment_offset = eval(
+                dfall.set_index(["key", "template_position"]).loc[
+                    pd.IndexSlice[key, Position], "alignment_offsets_zyx"
+                ]
+            )
         print(alignment_offset)
         print(type(alignment_offset))
         final_shape = np.uint16(

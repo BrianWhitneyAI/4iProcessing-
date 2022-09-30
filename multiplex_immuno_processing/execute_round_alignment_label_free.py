@@ -45,10 +45,8 @@ parser.add_argument(
     help="specify positions to process. E.g. -p P1 P2"
 )
 
-
-parser.add_argument("--method",
-                choices=['cross_cor', 'ORB'])
-
+parser.add_argument(
+    "--method", choices=['cross_cor', 'ORB', 'merged'])
 
 
 if __name__ == "__main__":
@@ -141,11 +139,24 @@ if __name__ == "__main__":
         dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
         parent_file = dfsub["parent_file"][0]
 
-        alignment_offset = eval(
-            dfalign.set_index(["key", "template_position"]).loc[
-                pd.IndexSlice[key, Position], "alignment_offsets_zyx"
-            ]
-        )
+        if args.method == "merged":
+            print("using merged")
+            alignment_offset = eval(
+                dfall.set_index(["key", "template_position"]).loc[
+                    pd.IndexSlice[key, Position], "best_alignment_params"
+                ]
+            )
+
+        else:
+            alignment_offset = eval(
+                dfall.set_index(["key", "template_position"]).loc[
+                    pd.IndexSlice[key, Position], "alignment_offsets_zyx"
+                ]
+            )
+
+
+
+
         print(alignment_offset)
         print(type(alignment_offset))
 
@@ -203,7 +214,7 @@ if __name__ == "__main__":
                 channel_num = str(ci + 1).zfill(2)
                 tnum = str(T).zfill(3)
                 savedir = (
-                    f"{output_dir}{sep}mip_exports{sep}{barcode}{sep}"
+                    f"{output_dir}{sep}mip_exportstest_v3_merged{sep}{barcode}-export{sep}"
                 )
 
 
@@ -215,20 +226,23 @@ if __name__ == "__main__":
                 
 
 
-                glob_label_free_name = f"{barcode}-20x-R{round_num}-Scene-{scene_num}-P{str(int(position_num))}-*-maxproj_c02_T{tnum}_ORG_ProbabilitiesUnaligned.tif"
+                glob_label_free_name = f"{barcode}-20x-R{round_num}-Scene-{scene_num}-P{str(int(position_num))}*-maxproj_c02_T{tnum}_ORG_ProbabilitiesUnaligned.tif"
                 glob_path = label_free_dir + os.sep + glob_label_free_name
                 from glob import glob
+                print("glob path is")
+                print(glob_path)
                 globlist = glob(glob_path)
                 load_path = globlist[0]
+                print(f"load path is {load_path}")
                 if len(globlist)>1:
                     print('multiplematchesfound')
                 print(os.path.abspath(load_path))
-                print(r"\\allen\aics\microscopy\EMTImmunostainingResults\4iTimelapse_UnalignedLabelFreeImages\UnalignedLabelFreeImages\5500000728-20x-R00-Scene-39-P39-C09-maxproj_c02_T016_ORG_ProbabilitiesUnaligned.tif")
+                #print(r"\\allen\aics\microscopy\EMTImmunostainingResults\4iTimelapse_UnalignedLabelFreeImages\UnalignedLabelFreeImages\5500000728-20x-R00-Scene-39-P39-C09-maxproj_c02_T016_ORG_ProbabilitiesUnaligned.tif")
                 # //allen/aics/microscopy/EMTImmunostainingResults/4iTimelapse_UnalignedLabelFreeImages/UnalignedLabelFreeImages/5500000724-20x-R00-Scene-34-P34-F9-maxproj_c02_T000_ORG_ProbabilitiesUnaligned.tif
                 # \\allen\aics\microscopy\EMTImmunostainingResults\4iTimelapse_UnalignedLabelFreeImages\UnalignedLabelFreeImages\5500000728-20x-R00-Scene-39-P39-C09-maxproj_c02_T016_ORG_ProbabilitiesUnaligned.tif
 
                 lreader = AICSImage(load_path)
-                if not os.path.exists(savepath):
+                #if not os.path.exists(savepath):
 
                     # print(savepath)
                     # print(os.path.exists(savepath))
@@ -243,47 +257,47 @@ if __name__ == "__main__":
                     # print(parent_file)
                     # print(dfsub["parent_file"][0])
 
-                    
-                    imgstack = lreader.get_image_data("ZYX")
-                    print(imgstack.shape)
-                    
+                
+                imgstack = lreader.get_image_data("ZYX")
+                print(imgstack.shape)
+                
 
-                    # this is where the alignment is performed
-                    print(alignment_offset)
-                    align_matrix = registration_utils.get_align_matrix(alignment_offset)
-                    shift_to_center_matrix = registration_utils.get_shift_to_center_matrix(
-                        imgstack.shape, final_shape
-                    )
-                    combo = shift_to_center_matrix @ align_matrix
+                # this is where the alignment is performed
+                print(alignment_offset)
+                align_matrix = registration_utils.get_align_matrix(alignment_offset)
+                shift_to_center_matrix = registration_utils.get_shift_to_center_matrix(
+                    imgstack.shape, final_shape
+                )
+                combo = shift_to_center_matrix @ align_matrix
 
-                    # aligned image
-                    processed_volume = affine_transform(
-                        imgstack,
-                        np.linalg.inv(combo),
-                        output_shape=final_shape,
-                        order=0,  # order = 0 means no interpolation...juust use nearest neighbor
-                    )
+                # aligned image
+                processed_volume = affine_transform(
+                    imgstack,
+                    np.linalg.inv(combo),
+                    output_shape=final_shape,
+                    order=0,  # order = 0 means no interpolation...juust use nearest neighbor
+                )
 
-                    cropped_maxz = np.max(
-                        processed_volume, axis=0
-                    )  # compute max z projection
+                cropped_maxz = np.max(
+                    processed_volume, axis=0
+                )  # compute max z projection
 
-                    # now save this image
-                    output_dir = dfconfig["output_path"][0]
+                # now save this image
+                output_dir = dfconfig["output_path"][0]
 
-                    
+                
 
-                    if not os.path.exists(savedir):
-                        os.makedirs(savedir)
-                        print("making", os.path.abspath(savedir))
+                if not os.path.exists(savedir):
+                    os.makedirs(savedir)
+                    print("making", os.path.abspath(savedir))
 
-                    file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
+                file_name_stem = Path(dfsub["parent_file"].iloc[0]).stem
 
-                    
-                    skio.imsave(
-                        savepath, np.uint16(cropped_maxz), check_contrast=False
-                    )
-                    if (T == 0) & (ci == 0):
-                        print(os.path.abspath(savepath))
-                else:
-                    print(f"already processed{savename}")
+                
+                skio.imsave(
+                    savepath, np.uint16(cropped_maxz), check_contrast=False
+                )
+                if (T == 0) & (ci == 0):
+                    print(os.path.abspath(savepath))
+                # else:
+                #     print(f"already processed{savename}")
