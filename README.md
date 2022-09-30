@@ -138,12 +138,11 @@ python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir 
 
 #### To address problems in the alignment that can be solved by using different alignment methods for different rounds:
 
-We can run
-
 python multiplex_immuno_processing/create_merged_aligned_params.py --barcode {} --output_path {} --output_dir_merged {} --position_list_to_use_ORB {} 
 
 This scripts lets us use the ORB alignment for round 1 on certain positions and keep the cross_corr alignment for everything else. This script outputs csv files with the best_alignment_params column that will have which parameters to use
 
+Then we can run round_alignment_tempelate.py again
 
 
 # to run on slurm use
