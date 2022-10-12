@@ -138,13 +138,15 @@ python .\multiplex_immuno_processing\generate_contact_sheet_gif.py  --input_dir 
 
 python ./multiplex_immuno_processing/generate_alignment_paramters.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode "5500000724" --method "ORB" --position P2 --test_save test
 
-
+```
 python ./multiplex_immuno_processing/execute_round_alignment.py --output_path "//allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports" --barcode "5500000724" --method "cross_cor" --position P2 --test_save test
-
+```
 
 #### To address problems in the alignment that can be solved by using different alignment methods for different rounds:
 
+```
 python multiplex_immuno_processing/create_merged_aligned_params.py --barcode {} --output_path {} --output_dir_merged {} --position_list_to_use_ORB {} 
+```
 
 This scripts lets us use the ORB alignment for round 1 on certain positions and keep the cross_corr alignment for everything else. This script outputs csv files with the best_alignment_params column that will have which parameters to use
 
