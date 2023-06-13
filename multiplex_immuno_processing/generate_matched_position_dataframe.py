@@ -10,10 +10,23 @@ import yaml
 from yaml.loader import SafeLoader
 import ast
 
-# TODO: parse argument to decide which barcode to run?
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--output_path",
+    type=str,
+    required=True,
+    help="output dir of all processing steps. This specifies where to find the yml_configs too",
+)
+
+parser.add_argument(
+    "--barcode",
+    type=str,
+    required=False,
+    help="optional arg to only run a single barcode if desired"
+)
 
 """
-0. find the yaml files for each barcode (currently finds all barcodes)
+0. find the yaml files for each barcode
 
 1. retrieve positions/scenes/coordinates from experiment file for acquired positions
 
@@ -142,20 +155,6 @@ def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
         plt.show()
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--output_path",
-    type=str,
-    required=True,
-    help="output dir of all processing steps. This specifies where to find the yml_configs too",
-)
-
-parser.add_argument(
-    "--barcode",
-    type=str,
-    required=False,
-    help="optional arg to only run a single barcode if desired"
-)
 
 
 if __name__ == "__main__":
@@ -184,7 +183,6 @@ if __name__ == "__main__":
 
     dfconfig = pd.concat(dfconfiglist)
 
-    # dfconfig = dfconfig[dfconfig['barcode']=='5500000725'] #for testing
 
     dfconfig.set_index(["barcode", "round"], inplace=True)
 
@@ -249,7 +247,7 @@ if __name__ == "__main__":
 
         # now remove the scenes specified in the yaml config above
         original_file_AND_scenes_to_toss_list = []
-        # for key,value in mag_dict.items():
+
         for round, dfcbr in dfcb.groupby(["round"]):
 
             # convert the string in the yaml file to a list of lists
@@ -443,7 +441,6 @@ if __name__ == "__main__":
         #                                                   'P3-5500000725_20X_Timelapse-01.czi',
         #                                                   'P4-5500000725_20X_Timelapse-01.czi',]],:])
 
-        # dye
         print("template round is = ", keylist[0])
         for ki in range(0, len(keylist)):
             dfmeta.reset_index(inplace=True)

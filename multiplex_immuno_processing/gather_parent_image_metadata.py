@@ -1,6 +1,5 @@
 import argparse
 import os
-
 import pandas as pd
 import yaml
 from yaml.loader import SafeLoader
@@ -69,7 +68,7 @@ if __name__ == "__main__":
     for barcode, dfcb in dfconfig.groupby(["barcode"]):
         dfmeta_barcode_list = []
         for round, dfcbr in dfcb.groupby(["round"]):
-
+             
             print(barcode, round)
 
             # determine if flist is list of filepaths or fms fileids
@@ -77,16 +76,17 @@ if __name__ == "__main__":
             file_list = []
             original_file_list = []
             list_of_files = dfcbr.path.tolist()
+            import pdb
+            pdb.set_trace()
             for file in list_of_files:
                 original_file_list.append(file)
                 if os.path.exists(file):
                     file_list.append(file)
-                else:  # try to find FMS id
+                else:  # try to find FMS id - currently not set up for fms
                     # file = fms.get_file_by_id(file)
                     # file_list.append('/'+file.path)
                     # print(file,'-->',file.path)
-                    print("not there...update your yaml")
-
+                    assert os.path.exists(file), f"czi file not found, update your yaml... cant find {file}"
             # get position info from all files in the file list
             dfmeta_round_list = []
             if len(file_list) > 0:
@@ -141,9 +141,6 @@ if __name__ == "__main__":
         #  'Y_adjusted',
         #  'align_channel',
         #  'barcode',]
-
-        # TODO: define why use anchor point in zen_position_helper
-        # dfall[['X','X_original','X_adjusted','PlateReferencePoint','PlateAnchorPoint']]
 
         output_dir = dfconfig["output_path"][0]
         csv_dir = output_dir + os.sep + "csvs"
