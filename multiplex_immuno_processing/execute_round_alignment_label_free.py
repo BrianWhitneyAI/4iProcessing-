@@ -246,8 +246,7 @@ if __name__ == "__main__":
 
                     # print(savepath)
                     # print(os.path.exists(savepath))
-
-                    
+                   
                     # print(fovid)
                     # print(scene,si,T,ci)
                     # print(dfsub)

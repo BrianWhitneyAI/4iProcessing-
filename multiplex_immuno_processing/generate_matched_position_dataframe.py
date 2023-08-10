@@ -49,6 +49,7 @@ parser.add_argument(
     c. TODO: check on how to handle this. right now if a round had an extra position that didn't match to the timelapse
         (or template round) then that would get tossed without any notification or comment.Data is just gone because
         its assumed to be superfluoes.
+        
 
 6. Then after the matches are generated, assemble into a dataframe and:
     a. export the csv or csv that defines the matched positions
@@ -182,7 +183,6 @@ if __name__ == "__main__":
                 dfconfiglist.append(dfconfigsub)
 
     dfconfig = pd.concat(dfconfiglist)
-
 
     dfconfig.set_index(["barcode", "round"], inplace=True)
 

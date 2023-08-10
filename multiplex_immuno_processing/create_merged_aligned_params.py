@@ -52,7 +52,6 @@ def generate_merged_manifest(input_path, best_method="ORB"):
         df["best_alignment_params"] = best_alignment_params
 
     ### 
-
     return df
 
 
