@@ -10,6 +10,7 @@ import tifffile
 from scipy.ndimage import affine_transform
 import ast
 import re
+
 """
 perform the alignment from the csvs 
 
@@ -157,12 +158,20 @@ class perform_alignment_per_position():
 if __name__ == "__main__":
 
     args=parser.parse_args()
+    
+    with open(args.input_yaml_file) as f:
+        yaml_config = yaml.load(f, Loader=SafeLoader)
 
-    filenames = [f for f in os.listdir(args.input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
+    alignment_parameters_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "alignment_parameters")
+    assert os.path.exists(alignment_parameters_dir), "alignment_parameters_dir doesn't exist"
+
+
+    
+    filenames = [f for f in os.listdir(alignment_parameters_dir) if f.endswith(".csv") and not f.startswith(".")]
 
     for filename in filenames:
-        print(os.path.join(args.input_matched_position_csv_dir, filename))
-        position_aligner = perform_alignment_per_position(os.path.join(args.input_matched_position_csv_dir, filename), args.input_yaml_file, args.round_crop_tempelate)
+        print(os.path.join(alignment_parameters_dir, filename))
+        position_aligner = perform_alignment_per_position(os.path.join(alignment_parameters_dir, filename), args.input_yaml_file, args.round_crop_tempelate)
         position_aligner.perform_alignment()
 
 

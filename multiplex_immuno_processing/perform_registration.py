@@ -20,7 +20,6 @@ def max_project(seg_img_labeled):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_matched_position_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output/3500005820/matched_datasets")
 parser.add_argument("--input_yaml_file", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml")
 
 
@@ -92,11 +91,15 @@ class Position_aligner():
 if __name__ == "__main__":
     args = parser.parse_args()
     
-    # config = yaml.load(args.input_yaml_file, Loader=SafeLoader)
-    filenames = [f for f in os.listdir(args.input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
+    with open(args.input_yaml_file) as f:
+        yaml_config = yaml.load(f, Loader=SafeLoader)
+
+    input_matched_position_csv_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
+    assert os.path.exists(input_matched_position_csv_dir), "input matched position dir doesn't exist"
+    filenames = [f for f in os.listdir(input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
 
     for file in filenames:
-        registration_dataset = Position_aligner(os.path.join(args.input_matched_position_csv_dir, file), args.input_yaml_file)
+        registration_dataset = Position_aligner(os.path.join(input_matched_position_csv_dir, file), args.input_yaml_file)
         registration_dataset.create_aligned_dataset()
 
 
