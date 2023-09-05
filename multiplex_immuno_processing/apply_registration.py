@@ -9,6 +9,7 @@ import registration_utils
 import tifffile
 from scipy.ndimage import affine_transform
 import ast
+import re
 """
 perform the alignment from the csvs 
 
@@ -51,10 +52,10 @@ def get_shift_to_center_matrix(img_shape, output_shape):
     return shift_matrix
 
 
-def load_zstack_mip(filepath, refrence_channel, scene):
+def load_zstack_mip(filepath, refrence_channel, scene, timepoint):
     reader = AICSImage(filepath)
     reader.set_scene(int(scene-1)) # b/c of zero indexing ---- this is not reflected in ZEN GUI
-    img = reader.data[-1, refrence_channel, :, :, :] # getting T, ch, Z, Y, X
+    img = reader.data[timepoint, refrence_channel, :, :, :] # getting T, ch, Z, Y, X
     
     return max_project(img)
 
@@ -76,8 +77,6 @@ class perform_alignment_per_position():
         
         with open(yaml_config) as f:
             self.yaml_config = yaml.load(f, Loader=SafeLoader)
-
-
 
         assert os.path.exists(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]))), "output dir does not exist"
 
@@ -115,80 +114,42 @@ class perform_alignment_per_position():
 
         return cropped_img
 
-    def save_mip(self, image, round, position, channel):
+    def save_mip(self, image, round, position, channel, timepoint):
         # save the mip
+        round_num = re.findall(r'\d+', round)
+        if round_num == []:
+            round_num = 0
+        else:
+            round_num = round_num[0]
         barcode = self.yaml_config["barcode"]
-        name = f"{barcode}_R{round}_P{position}_mip_C{channel}.tiff"
+
+
+        name = f"{barcode}_R{round_num}_P{str(position).zfill(2)}_mip_C{channel}_T{str(timepoint).zfill(2)}.tiff"
         tifffile.imwrite(os.path.join(self.save_aligned_images_dir,name), image)
 
 
-
-
     def perform_alignment(self):
-        # do the alignment
-        # refrence_round_info = self.matched_position_csv.loc[self.matched_position_csv['REFRENCE_ROUND']==True].iloc[0]
-        # ref_mip = max_project(load_zstack_to_align(refrence_round_info["RAW_filepath"], 2, refrence_round_info["Scene"]).astype(np.uint16))
-        
-        # alignment_offset = ast.literal_eval(refrence_round_info["cross_cor_params"])
-        # alignment_offset = [alignment_offset[1], alignment_offset[2]]
-        # print(f"alginment offset is {alignment_offset}")
-        # #tempelate_ref = np.zeros((np.shape(ref_zstack)[0]* 2, np.shape(ref_zstack)[1] + (np.shape(ref_zstack)[1] * 0.33), np.shape(ref_zstack)[2] * 2)).astype(np.uint16)
-
-
-
-        # #tempelate_ref = np.uint16(np.asarray([np.shape(ref_zstack)[0]* 2, np.shape(ref_zstack)[1] + (np.shape(ref_zstack)[1] * 0.33),np.shape(ref_zstack)[2] + (np.shape(ref_zstack)[2] * 0.33),]))
-        # tempelate_ref = np.uint16(np.asarray([np.shape(ref_mip)[0] + (np.shape(ref_mip)[0] * 0.33),np.shape(ref_mip)[1] + (np.shape(ref_mip)[1] * 0.33),]))
-
-
-        # shift_to_center_matrix = get_shift_to_center_matrix(ref_mip.shape, tempelate_ref)
-
-        # align_matrix = get_align_matrix(alignment_offset)
-        # print(f"align matrix is {align_matrix}")
-        # print(f"shift center matrix is {shift_to_center_matrix}")
-        
-        
-        # combo = shift_to_center_matrix @ align_matrix # matrix multiplication
-        # print(f"combo is {combo}")
-        # # aligned image
-
-        # aligned_mip = affine_transform(ref_mip, np.linalg.inv(combo), output_shape=tempelate_ref, order=0)
-
-        # # cropped_maxz = np.max(
-        # #     processed_volume, axis=0
-        # # )  # compute max z projection
-        # import pdb
-        # pdb.set_trace()
-        
-
-        # for each row in csv
-        # Round to crop to first
-        # do alignment for each channel
-        # then crop according to round to crop too
-        # organize by that round first
-
         _, _,_, y_dim_ref, x_dim_ref = get_FOV_shape(self.position_csv.iloc[0]["RAW_filepath"])
         tempelate_ref = self.get_tempelate_ref(y_dim_ref, x_dim_ref)
-
-
-
         # refrence_round_to_crop = self.matched_position_csv.loc[self.matched_position_csv['Round']==self.round_to_crop_tempelate].iloc[0]
         # shape_tempelate_ref = np.shape(max_project(self.load_zstack_to_align(refrence_round_info["RAW_filepath"], 2, refrence_round_info["Scene"])))
-        aligned_positions = []
         for i in range(np.shape(self.position_csv)[0]):
             #for channel in np.shape()
             round_of_intrest = self.position_csv.iloc[i]
             t_dim, ch_dim, z_dim, y_dim, x_dim = get_FOV_shape(round_of_intrest["RAW_filepath"])
             #TODO: align all timepoints
-            for ch in range(ch_dim):
-                mip_to_align = load_zstack_mip(round_of_intrest["RAW_filepath"], ch, round_of_intrest["Scene"])
-                params_to_align_all = ast.literal_eval(round_of_intrest["cross_cor_params"])
-                params_to_align_yx = [params_to_align_all[1], params_to_align_all[2]]
-                aligned_mip = self.registeration_using_alignment_params(mip_to_align, tempelate_ref, params_to_align_yx)
-                if i==0 and ch==0:
-                    crop_dims = self.find_padding_dimensions(aligned_mip)
+            
+            for timepoint in range(t_dim):
+                for ch in range(ch_dim):
+                    mip_to_align = load_zstack_mip(round_of_intrest["RAW_filepath"], ch, round_of_intrest["Scene"], timepoint)
+                    params_to_align_all = ast.literal_eval(round_of_intrest["cross_cor_params"])
+                    params_to_align_yx = [params_to_align_all[1], params_to_align_all[2]]
+                    aligned_mip = self.registeration_using_alignment_params(mip_to_align, tempelate_ref, params_to_align_yx)
+                    if i==0 and ch==0 and timepoint==0:
+                        crop_dims = self.find_padding_dimensions(aligned_mip)
 
-                final_mip = self.crop_according_to_refrence_crop_round(aligned_mip, crop_dims)
-                self.save_mip(final_mip, round_of_intrest["rounds"], round_of_intrest["positions"], ch)
+                    final_mip = self.crop_according_to_refrence_crop_round(aligned_mip, crop_dims)
+                    self.save_mip(final_mip, round_of_intrest["rounds"], round_of_intrest["positions"], ch, timepoint)
 
 
 
