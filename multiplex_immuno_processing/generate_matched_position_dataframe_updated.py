@@ -52,9 +52,8 @@ class czi_reader():
 def get_round_info_from_dict(round_of_intrest, dataset):
     """Returns the information for the round of intrest from a dict that is structured according to our yaml config file"""
     round_info= [dataset['Data'][f] for f in range(len(dataset['Data'])) if dataset['Data'][f]['round'] == round_of_intrest]
-    assert len(round_info)==1, "Multiple rounds with the same name found or none found"
+    
     return round_info[0]
-
 
 def get_available_positions(round_info):
     """loads the czi and ckecks the list of positions available, also will get rid of the positions that are listed as scenes_to_toss in the dictionary"""
@@ -79,30 +78,31 @@ class create_registration_matching_dataset():
         with open(yaml_file) as f:
             self.yaml_config = yaml.load(f, Loader=SafeLoader)
 
-
-
         self.refrence_round = refrence_round
         
-
         assert os.path.exists(self.yaml_config["output_path"]), "output path doesn't exist"
-
-
-
-
 
         if not os.path.exists(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]))):
             os.mkdir(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"])))
 
         self.output_matched_csvs_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]), "matched_datasets")
 
-
         if not os.path.exists(self.output_matched_csvs_dir):
             os.mkdir(self.output_matched_csvs_dir)
 
+    def eliminate_positions_imaged_multiple_times(self, dat):
+        """dat(pd.DataFrame) gets rid of rows that have the same round. Assumes that the round name that you want to keep has an "_" in it
+        e.g. say there is a row for R2 and R2_B6 present. This function keeps R2_B6 and gets rid of R2 for this position 
+        """
+        data = dat.copy()
+        round_infos = list(data['rounds'])
+        multiple_matches = [f for f in round_infos if "_" in f]
 
+        for i in range(len(multiple_matches)):
+            data = data.loc[data['rounds']!=multiple_matches[i].split("_")[0]]
+        return data
 
-
-    def create_dataset_for_position(self, data, ref_round_info, ref_pos, ref_scene):
+    def create_dataset_for_position(self, data, ref_round_info, ref_pos, ref_scene, eliminate_positions_imaged_multiple_times_in_same_round=True):
         """creates a csv for a specific position"""
         all_rounds_list = [data['Data'][f]['round'] for f in range(len(data['Data']))]
         all_rounds_list.remove(self.refrence_round)
@@ -125,7 +125,9 @@ class create_registration_matching_dataset():
             # import pdb
             print(f"looking at round {round}")
             # pdb.set_trace()
+
             round_info_for_round_to_align = get_round_info_from_dict(round, data)
+
             round_positions, round_scenes = get_available_positions(round_info_for_round_to_align)
 
             print(f"round scenes is {round_scenes}")
@@ -144,19 +146,29 @@ class create_registration_matching_dataset():
             RAW_FILEPATH.append(round_info_for_round_to_align['path'])
 
         
-        Position_matched_dataset = pd.DataFrame({'rounds':ROUNDS, 'positions': POSITIONS, 'Scene': SCENES, 'Reference Channel': REF_CHANNELS, 'RAW_filepath': RAW_FILEPATH,'REFRENCE_ROUND': REFRENCE_ROUND})
+        
+        Position_matched_dataset = pd.DataFrame({'rounds': ROUNDS, 'positions': POSITIONS, 'Scene': SCENES, 'Reference Channel': REF_CHANNELS, 'RAW_filepath': RAW_FILEPATH,'REFRENCE_ROUND': REFRENCE_ROUND})
+        
+
+        # Position_matched_dataset.drop_duplicates(subset=["rounds"], keep="last", inplace=True)
+        if eliminate_positions_imaged_multiple_times_in_same_round==True:
+            Position_matched_dataset = self.eliminate_positions_imaged_multiple_times(Position_matched_dataset)
+
         return Position_matched_dataset
     
     def save_matched_dataset(self, Position_matched_dataset, ref_pos):
         Position_matched_dataset.to_csv(os.path.join(self.output_matched_csvs_dir, f'Position_{str(ref_pos).zfill(2)}.csv'))
 
 
-    def create_dataset(self):        
-
+    def create_dataset(self):
 
         ref_round_info = get_round_info_from_dict(self.refrence_round, self.yaml_config)
         ref_positions, ref_scenes = get_available_positions(ref_round_info)
         print(f"refrence posiiton list is {ref_positions}")
+
+
+
+
         for ref_pos, ref_scene in zip(ref_positions, ref_scenes):
             print(ref_pos)
             Position_matched_dataset = self.create_dataset_for_position(self.yaml_config, ref_round_info, ref_pos, ref_scene)
