@@ -20,21 +20,21 @@ def max_project(seg_img_labeled):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_matched_position_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output/matched_datasets")
+parser.add_argument("--input_matched_position_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output/3500005820/matched_datasets")
 parser.add_argument("--input_yaml_file", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml")
 
 
 
 class Position_aligner():
     """Aligns positions by taking each corresponding csv and finding alignment parameters and performing the registration(different function- in registration utils)"""
-    def __init__(self, matched_position_csv_dir, yaml_config, parent_output_dir):
+    def __init__(self, matched_position_csv_dir, yaml_config):
         self.matched_position_csv = pd.read_csv(matched_position_csv_dir)
         self.position = os.path.basename(matched_position_csv_dir)
-        assert os.path.exists(self.yaml_config["output_path"]), "parent output dir doesn't exist"
-
-
+        
         with open(yaml_config) as f:
             self.yaml_config = yaml.load(f, Loader=SafeLoader)
+
+        assert os.path.exists(self.yaml_config["output_path"]), "parent output dir doesn't exist"
         
         assert os.path.exists(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]))), "parent dir doesn't exist"
         self.save_aligned_csv_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]), "alignment_parameters")
@@ -92,12 +92,13 @@ class Position_aligner():
 if __name__ == "__main__":
     args = parser.parse_args()
     
-    config = yaml.load(args.input_yaml_file, Loader=SafeLoader)
+    # config = yaml.load(args.input_yaml_file, Loader=SafeLoader)
     filenames = [f for f in os.listdir(args.input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
 
     for file in filenames:
-        registration_dataset = Position_aligner(os.path.join(args.input_matched_position_csv_dir, file), config)
+        registration_dataset = Position_aligner(os.path.join(args.input_matched_position_csv_dir, file), args.input_yaml_file)
         registration_dataset.create_aligned_dataset()
 
 
-    
+
+
