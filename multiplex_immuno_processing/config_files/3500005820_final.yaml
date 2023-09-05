@@ -1,0 +1,40 @@
+Data:
+- round: R1
+  item: czi
+  path: /allen/aics/microscopy/Data/RnD_Sandbox/20230725_ZSD0_4i/R1/20230731_ZSD0_Round1_3500005820_20X.czi
+  scenes_to_toss: ''
+  ref_channel: AF405
+  channels: Bright,AF488,TaRFP,AF405,AF647
+- round: R2
+  item: czi
+  path: /allen/aics/microscopy/Data/RnD_Sandbox/20230725_ZSD0_4i/R2/20230801_ZSD0_Round2_3500005820_20X.czi
+  scenes_to_toss: ''
+  ref_channel: AF405
+  channels: Bright,AF488,TaRFP,AF405,AF647
+- round: R3
+  item: czi
+  path: /allen/aics/microscopy/Data/RnD_Sandbox/20230725_ZSD0_4i/R3/20230802_ZSD0_Round3_3500005820_20X.czi
+  scenes_to_toss: ''
+  ref_channel: AF405
+  channels: Bright,AF488,TaRFP,AF405,AF647
+- round: R4
+  item: czi
+  path: /allen/aics/microscopy/Data/RnD_Sandbox/20230725_ZSD0_4i/R4/20230807_ZSD0_Round4_3500005820_20X.czi
+  scenes_to_toss: 
+  ref_channel: AF405
+  channels: Bright,AF488,TaRFP,AF405,AF647
+- round: R5
+  item: czi
+  path: /allen/aics/microscopy/Data/RnD_Sandbox/20230725_ZSD0_4i/R5/20230808_ZSD0_Round5_3500005820_20X.czi
+  scenes_to_toss: ''
+  ref_channel: AF405
+  channels: Bright,AF488,TaRFP,AF405,AF647
+- round: Timelapse
+  item: czi
+  path: /allen/aics/microscopy/Data/RnD_Sandbox/20230725_ZSD0_4i/Timelapse/20230725_ZSD0_3500005820_20X_timelapse.czi
+  scenes_to_toss: ''
+  ref_channel: WEGFP
+  channels: Bright,TaRFP,WEGFP
+barcode: 3500005820
+scope: ZSD
+output_path: /allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output

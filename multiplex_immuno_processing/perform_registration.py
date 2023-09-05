@@ -7,6 +7,7 @@ from aicsimageio import AICSImage
 import numpy as np
 import registration_utils
 import tifffile
+
 """
 This step reads in the matched position csv and finds the alignment displacement for each round to the refrence round
 Next, it aligns maxprojects of the images and saves out the registered images and updates the matched position csvs
@@ -20,7 +21,7 @@ def max_project(seg_img_labeled):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_yaml_file", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml")
+parser.add_argument("--input_yaml_file", type=str, required=True, help="yaml config path")
 
 
 

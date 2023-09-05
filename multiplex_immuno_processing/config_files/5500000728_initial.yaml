@@ -77,4 +77,4 @@ Data:
   channels: TaRFP,Bright_3,AF647
 barcode: '5500000728'
 scope: ZSD1
-output_path: //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports
+output_path: /allen/aics/assay-dev/users/Goutham/4iProcessing-/config_files/output_exports

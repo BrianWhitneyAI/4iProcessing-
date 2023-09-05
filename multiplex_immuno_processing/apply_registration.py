@@ -17,8 +17,7 @@ perform the alignment from the csvs
 """
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_matched_position_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output/alignment_parameters")
-parser.add_argument("--input_yaml_file", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml")
+parser.add_argument("--input_yaml_file", type=str, required=True, help="yaml config path")
 parser.add_argument("--round_crop_tempelate", type=str, default="Timelapse")
 
 

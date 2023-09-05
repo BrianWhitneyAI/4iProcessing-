@@ -91,4 +91,4 @@ Data:
   channels: Bright_2,TaRFP,CMDRP
 barcode: '5500000725'
 scope: ZSD2
-output_path: //allen/aics/assay-dev/users/Frick/PythonProjects/Assessment/4i_testing/aligned_4i_exports
+output_path: /allen/aics/assay-dev/users/Goutham/4iProcessing-/config_files/output_exports

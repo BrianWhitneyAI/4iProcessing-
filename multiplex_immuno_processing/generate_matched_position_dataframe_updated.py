@@ -15,9 +15,9 @@ import zen_position_helper
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import re
+
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_yaml", type=str, default= "/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml",required=False, help="output dir of all processing steps. This specifies where to find the yml_configs too")
-#parser.add_argument("--output_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output",required=False, help="optional arg to only run a single barcode if desired")
+parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
 parser.add_argument("--refrence_round", type=str, default="R1", required=False, help="refrence round to algin to")
 
 # For each postiion
@@ -52,7 +52,7 @@ class czi_reader():
 def get_round_info_from_dict(round_of_intrest, dataset):
     """Returns the information for the round of intrest from a dict that is structured according to our yaml config file"""
     round_info= [dataset['Data'][f] for f in range(len(dataset['Data'])) if dataset['Data'][f]['round'] == round_of_intrest]
-    
+    assert len(round_info)==1, "Multiple rounds with the same name found or none found"
     return round_info[0]
 
 def get_available_positions(round_info):
@@ -165,9 +165,6 @@ class create_registration_matching_dataset():
         ref_round_info = get_round_info_from_dict(self.refrence_round, self.yaml_config)
         ref_positions, ref_scenes = get_available_positions(ref_round_info)
         print(f"refrence posiiton list is {ref_positions}")
-
-
-
 
         for ref_pos, ref_scene in zip(ref_positions, ref_scenes):
             print(ref_pos)
