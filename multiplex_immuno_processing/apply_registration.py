@@ -17,7 +17,6 @@ perform the alignment from the csvs
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_matched_position_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output/alignment_parameters")
 parser.add_argument("--input_yaml_file", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml")
-parser.add_argument("--parent_output_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output")
 parser.add_argument("--round_crop_tempelate", type=str, default="Timelapse")
 
 
@@ -67,24 +66,26 @@ def get_FOV_shape(filepath):
 
 
 class perform_alignment_per_position():
-    def __init__(self, alignment_csv_dir, yaml_config, parent_output_dir, round_to_crop_to):
+    def __init__(self, alignment_csv_dir, yaml_config, round_to_crop_to):
         df = pd.read_csv(alignment_csv_dir)
         cond = df["rounds"]==round_to_crop_to
         matching_indices = df[cond].index
         matching_rows = df.loc[matching_indices]
         remaining_rows = df.loc[~cond]
         self.position_csv = pd.concat([matching_rows, remaining_rows]) # makes sure 
-
-
+        
         with open(yaml_config) as f:
             self.yaml_config = yaml.load(f, Loader=SafeLoader)
 
 
+
+        assert os.path.exists(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]))), "output dir does not exist"
+
         self.round_to_crop_tempelate = round_to_crop_to
         self.position = os.path.basename(alignment_csv_dir)
-        assert os.path.exists(parent_output_dir), "parent output dir doesn't exist"
 
-        self.save_aligned_images_dir = os.path.join(parent_output_dir, "aligned_images")
+        self.save_aligned_images_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]),"aligned_images")
+
         if not os.path.exists(self.save_aligned_images_dir):
             os.mkdir(self.save_aligned_images_dir)
         
@@ -200,7 +201,7 @@ if __name__ == "__main__":
 
     for filename in filenames:
         print(os.path.join(args.input_matched_position_csv_dir, filename))
-        position_aligner = perform_alignment_per_position(os.path.join(args.input_matched_position_csv_dir, filename), args.input_yaml_file, args.parent_output_dir, args.round_crop_tempelate)
+        position_aligner = perform_alignment_per_position(os.path.join(args.input_matched_position_csv_dir, filename), args.input_yaml_file, args.round_crop_tempelate)
         position_aligner.perform_alignment()
 
 

@@ -17,7 +17,7 @@ import lxml.etree as etree
 import re
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, default= "/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml",required=False, help="output dir of all processing steps. This specifies where to find the yml_configs too")
-parser.add_argument("--output_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output",required=False, help="optional arg to only run a single barcode if desired")
+#parser.add_argument("--output_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output",required=False, help="optional arg to only run a single barcode if desired")
 parser.add_argument("--refrence_round", type=str, default="R1", required=False, help="refrence round to algin to")
 
 # For each postiion
@@ -74,15 +74,33 @@ def find_matching_position_scene(all_positions_in_round, all_scenes_in_round, re
 
 
 class create_registration_matching_dataset():
-    def __init__(self, yaml_file, refrence_round, output_dir):
-        self.config_dir = yaml.load(yaml_file, Loader=SafeLoader)
+    def __init__(self, yaml_file, refrence_round):
+
+        with open(yaml_file) as f:
+            self.yaml_config = yaml.load(f, Loader=SafeLoader)
+
+
+
         self.refrence_round = refrence_round
         
-        assert os.path.exists(output_dir), "output path doesn't exist"
-        self.output_matched_csvs_dir = os.path.join(output_dir, "matched_datasets")
+
+        assert os.path.exists(self.yaml_config["output_path"]), "output path doesn't exist"
+
+
+
+
+
+        if not os.path.exists(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]))):
+            os.mkdir(os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"])))
+
+        self.output_matched_csvs_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]), "matched_datasets")
+
 
         if not os.path.exists(self.output_matched_csvs_dir):
             os.mkdir(self.output_matched_csvs_dir)
+
+
+
 
     def create_dataset_for_position(self, data, ref_round_info, ref_pos, ref_scene):
         """creates a csv for a specific position"""
@@ -134,21 +152,20 @@ class create_registration_matching_dataset():
 
 
     def create_dataset(self):        
-        with open(self.config_dir) as f:
-            data = yaml.load(f, Loader=SafeLoader)
 
-        ref_round_info = get_round_info_from_dict(self.refrence_round, data)
+
+        ref_round_info = get_round_info_from_dict(self.refrence_round, self.yaml_config)
         ref_positions, ref_scenes = get_available_positions(ref_round_info)
         print(f"refrence posiiton list is {ref_positions}")
         for ref_pos, ref_scene in zip(ref_positions, ref_scenes):
             print(ref_pos)
-            Position_matched_dataset = self.create_dataset_for_position(data, ref_round_info, ref_pos, ref_scene)
+            Position_matched_dataset = self.create_dataset_for_position(self.yaml_config, ref_round_info, ref_pos, ref_scene)
             self.save_matched_dataset(Position_matched_dataset, ref_pos)
 
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    dataset = create_registration_matching_dataset(args.input_yaml, args.refrence_round, args.output_csv_dir)
+    dataset = create_registration_matching_dataset(args.input_yaml, args.refrence_round)
     dataset.create_dataset()
 
 
