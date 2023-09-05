@@ -1,0 +1,100 @@
+import os
+import argparse
+import pandas as pd
+import yaml
+from yaml.loader import SafeLoader
+from aicsimageio import AICSImage
+import numpy as np
+import registration_utils
+import tifffile
+"""
+This step reads in the matched position csv and finds the alignment displacement for each round to the refrence round
+Next, it aligns maxprojects of the images and saves out the registered images and updates the matched position csvs
+with the corresponding displacements for each round. This information is needed is saved out so we can optionally align labelfree predictions if needed
+"""
+
+
+def max_project(seg_img_labeled):
+    xy_seg_maxproj = np.max(seg_img_labeled, axis=0)[np.newaxis, ...][0,:,:]
+    return xy_seg_maxproj
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--input_matched_position_csv_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output/matched_datasets")
+parser.add_argument("--input_yaml_file", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/multiplex_immuno_processing/new_test_outputs/yml_configs/3500005820_4i_modified.yaml")
+parser.add_argument("--parent_output_dir", type=str, default="/allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output")
+
+
+
+class Position_aligner():
+    """Aligns positions by taking each corresponding csv and finding alignment parameters and performing the registration(different function- in registration utils)"""
+    def __init__(self, matched_position_csv_dir, yaml_config, parent_output_dir):
+        self.matched_position_csv = pd.read_csv(matched_position_csv_dir)
+        self.yaml_config = config
+        self.position = os.path.basename(matched_position_csv_dir)
+        assert os.path.exists(parent_output_dir), "parent output dir doesn't exist"
+
+        self.save_aligned_csv_dir = os.path.join(parent_output_dir, "alignment_parameters")
+        if not os.path.exists(self.save_aligned_csv_dir):
+            os.mkdir(self.save_aligned_csv_dir)
+
+    def load_zstack_to_align(self, filepath, refrence_channel, scene):
+        reader = AICSImage(filepath)
+        reader.set_scene(int(scene-1)) # b/c of zero indexing ---- this is not reflected in ZEN GUI
+        try:
+            align_channel_index = [xi for xi, x in enumerate(reader.channel_names) if x == refrence_channel][0]        
+        except:
+            align_channel_index = refrence_channel
+        img = reader.data[-1, align_channel_index, :, :, :] # getting T, ch, Z, Y, X
+        
+        return img
+
+    def save_csv_alignment(self, dat):
+        dat.to_csv(os.path.join(self.save_aligned_csv_dir, self.position))
+
+
+
+    def create_aligned_dataset(self):
+        # Pseudocode
+        # load csv, get each round information for that position and the refrence channel
+        refrence_round_info = self.matched_position_csv.loc[self.matched_position_csv['REFRENCE_ROUND']==True].iloc[0]
+        rounds_to_align = self.matched_position_csv.loc[self.matched_position_csv['REFRENCE_ROUND']==False]
+        ref_zstack = self.load_zstack_to_align(refrence_round_info["RAW_filepath"], 3, refrence_round_info["Scene"])
+
+        print(np.shape(ref_zstack))
+        alignment_parameters_cross_corr = []
+        for i in range(np.shape(self.matched_position_csv)[0]):
+            round_info = self.matched_position_csv.iloc[i]
+
+            if round_info["rounds"] == refrence_round_info["rounds"]:
+                meanoffset = [0, 0, 0]
+                alignment_parameters_cross_corr.append(meanoffset)
+                continue
+            if round_info["rounds"] == "Timelapse":
+                to_align_zstack = self.load_zstack_to_align(round_info["RAW_filepath"], 2, round_info["Scene"])
+            else:
+                to_align_zstack = self.load_zstack_to_align(round_info["RAW_filepath"], 3, round_info["Scene"])
+
+            
+            (_, _, meanoffset, _,) = registration_utils.find_zyx_offset(
+                ref_zstack.copy(), to_align_zstack.copy(), ploton=False, verbose=False,
+            )
+            alignment_parameters_cross_corr.append(meanoffset)
+
+        self.matched_position_csv["cross_cor_params"] = alignment_parameters_cross_corr
+
+        self.save_csv_alignment(self.matched_position_csv)
+
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+    
+    config = yaml.load(args.input_yaml_file, Loader=SafeLoader)
+    filenames = [f for f in os.listdir(args.input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
+
+    for file in filenames:
+        registration_dataset = Position_aligner(os.path.join(args.input_matched_position_csv_dir, file), config, args.parent_output_dir)
+        registration_dataset.create_aligned_dataset()
+
+
+    
