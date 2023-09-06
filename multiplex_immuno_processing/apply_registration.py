@@ -17,7 +17,7 @@ perform the alignment from the csvs
 """
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_yaml_file", type=str, required=True, help="yaml config path")
+parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
 parser.add_argument("--round_crop_tempelate", type=str, default="Timelapse")
 
 
@@ -158,7 +158,7 @@ if __name__ == "__main__":
 
     args=parser.parse_args()
     
-    with open(args.input_yaml_file) as f:
+    with open(args.input_yaml) as f:
         yaml_config = yaml.load(f, Loader=SafeLoader)
 
     alignment_parameters_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "alignment_parameters")
@@ -170,7 +170,7 @@ if __name__ == "__main__":
 
     for filename in filenames:
         print(os.path.join(alignment_parameters_dir, filename))
-        position_aligner = perform_alignment_per_position(os.path.join(alignment_parameters_dir, filename), args.input_yaml_file, args.round_crop_tempelate)
+        position_aligner = perform_alignment_per_position(os.path.join(alignment_parameters_dir, filename), args.input_yaml, args.round_crop_tempelate)
         position_aligner.perform_alignment()
 
 

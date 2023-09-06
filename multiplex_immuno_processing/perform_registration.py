@@ -21,7 +21,7 @@ def max_project(seg_img_labeled):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--input_yaml_file", type=str, required=True, help="yaml config path")
+parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
 
 
 
@@ -92,7 +92,7 @@ class Position_aligner():
 if __name__ == "__main__":
     args = parser.parse_args()
     
-    with open(args.input_yaml_file) as f:
+    with open(args.input_yaml) as f:
         yaml_config = yaml.load(f, Loader=SafeLoader)
 
     input_matched_position_csv_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     filenames = [f for f in os.listdir(input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
 
     for file in filenames:
-        registration_dataset = Position_aligner(os.path.join(input_matched_position_csv_dir, file), args.input_yaml_file)
+        registration_dataset = Position_aligner(os.path.join(input_matched_position_csv_dir, file), args.input_yaml)
         registration_dataset.create_aligned_dataset()
 
 
