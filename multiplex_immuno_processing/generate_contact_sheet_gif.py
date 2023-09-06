@@ -7,13 +7,13 @@ from PIL import Image, ImageDraw
 import argparse
 from skimage import exposure
 import skimage.exposure as skex
-
+from yaml.loader import SafeLoader
+import ruamel.yaml
+import yaml
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--input_dir', type=str, required=True)
-parser.add_argument('--output_dir', type=str, required=True)
-parser.add_argument('--barcode', type=int, required=True)
-parser.add_argument('--frame_rate', type=int, default=1000)
+parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
+parser.add_argument('--frame_rate', type=int, default=500)
 
 def normalization(img):
     #rescaled_img = ((img - img.min()) * (1/(img.max() - img.min()) * 255)).astype('uint8')
@@ -64,28 +64,41 @@ def generate_gif_for_evaluation(input_dir, filenames, frame_rate, output_dir, po
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    filenames = [f for f in os.listdir(args.input_dir) if ("-c04_" in f and ("R01" or "R02" or "R03" or "R04" or "R05" or "R06" or "R07" or "R08" or "R09" or "R10" or "R11" in f))  or ("-c03" in f and "R00" in f and f.endswith("_T029.tif"))] # channel 4 is the nuclei channel
+    with open(args.input_yaml) as f:
+        yaml_config = yaml.load(f, Loader=SafeLoader)    
 
+    output_aligned_images_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "aligned_images")
 
-    output_gif_eval_dir = os.path.join(args.output_dir, f"{args.barcode}_evaluation")
-    if not os.path.exists(output_gif_eval_dir):
-        os.mkdir(output_gif_eval_dir)
+    output_gif_save_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "validation_gifs")
+    if not os.path.exists(output_gif_save_dir):
+        os.mkdir(output_gif_save_dir)
 
-    #print(filenames[0])
-    gif_image_shape = (int(2464/4), int(1664/4))
-    # for each position in this, load up the image and generate a seperate gif
-    for i in range(40): # 40 total positions contained-- usually TODO: regex scheming to find the max position 
-        expression_re = "_P" + str(i).zfill(2) + "-"
-        #print(expression_re)
-        filenames_for_position = [f for f in filenames if expression_re in f]
-        print(f"for position {expression_re}")
+    
+    gif_image_shape = (int(1847/4), int(1247/4))
+    
+    filenames = [f for f in os.listdir(output_aligned_images_dir) if "R0" in f and "C2" in f and "T31" in f]
+    # import pdb
+    # pdb.set_trace()
 
-        #print(filenames_for_position)
+    timelapse_ref_channel = 2
+    round_ref_channel = 3
 
-        #print(filenames_for_position)
-        #print(len(filenames_for_position))
-        #print(filenames_for_position)
-        if len(filenames_for_position) !=0:
-            generate_gif_for_evaluation(args.input_dir, filenames_for_position, args.frame_rate, output_gif_eval_dir, i, args.barcode)
+    
+
+    for i in range(len(filenames)): # 40 total positions contained-- usually TODO: regex scheming to find the max position 
+        filenames_for_position = []
+        # filenames_for_position.append(filenames[i])
+
+        round= filenames[i].split("_R", 1)[1].split("_P", 1)[0]
+        #channel = 
+        position = position = filenames[i].split("_P", 1)[1].split("_mip", 1)[0]
+        # import pdb
+        # pdb.set_trace()
+        filenames_in_rounds_for_position = [x for x in os.listdir(output_aligned_images_dir) if f"P{position}" in x and "C3" in x and f"R{0}" not in x]
+        filenames_in_rounds_for_position.append(filenames[i])
+        
+
+        if len(filenames_in_rounds_for_position) !=0:
+            generate_gif_for_evaluation(output_aligned_images_dir, filenames_in_rounds_for_position, args.frame_rate, output_gif_save_dir, position, yaml_config["barcode"])
             #print(filenames_for_position)
         
