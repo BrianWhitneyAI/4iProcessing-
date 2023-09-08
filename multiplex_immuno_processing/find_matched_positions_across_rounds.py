@@ -11,7 +11,6 @@ from yaml.loader import SafeLoader
 import ast
 from aicsimageio import AICSImage
 import pdb
-import zen_position_helper
 import xml.etree.ElementTree as ET
 import lxml.etree as etree
 import re
@@ -24,29 +23,53 @@ parser.add_argument("--refrence_round", type=str, default="R1", required=False, 
 # have a dataframe with columns: Round, scene, align_channel, Refrence_round(True/False)
 
 
-class czi_reader():
+class czi_metadata_helper():
     # TODO: modify with othere get functions that return other useful metadata... currently set up to only return position/scene number but can change that in the future
     def __init__(self, czi_filepath):
         self.img = AICSImage(czi_filepath)
         metadata_raw = self.img.metadata
-        metastr = ET.tostring(metadata_raw).decode("utf-8")
-        self.metadata = etree.fromstring(metastr)
+        self.metastr = ET.tostring(metadata_raw).decode("utf-8")
+        self.metadata = etree.fromstring(self.metastr)
 
-    def get_position_scene_paired_list(self):
+    def get_well_id_from_scene(self, scene):
+        """From xml element, extract well id"""
+        shape = scene.find(".//Shape")
+        well_id = shape.get("Name")
+        # zero pad the well_id number by two
+        non_numeric_part = ''.join(filter(lambda x: not x.isdigit(), well_id))
+        numeric_part = ''.join(filter(lambda x: x.isdigit(), well_id))
+        well_id_str = non_numeric_part + f"{str(numeric_part).zfill(2)}"
+        return well_id_str
+
+    def debug_save_metadata_as_xml(self):
+        """For debuggging purposes, we save the metadata as xml"""
+        with open("output_xml_debug.xml", "w") as xml_file: 
+            xml_file.write(self.metastr)
+        
+        
+
+
+
+
+    def get_position_scene_wellid_paired_list(self):
         scenes = self.metadata.findall(".//Scenes/Scene")
         print(len(scenes))
         scenes_list = []
         positions_list = []
+        well_ids_list = []
+
         for scene in scenes:
             scene_index = scene.get("Index")
             scene_name = scene.get("Name")
             center_position = scene.find(".//CenterPosition").text
+            well_id = self.get_well_id_from_scene(scene)
             scenes_list.append(int(scene_index)+1)
             positions_list.append(int(re.findall(r'\d+', scene_name)[0]))
-            print(f"Scene Index: {scene_index}")
-            print(f"Scene Name: {scene_name}")
-            print(f"Center Position: {center_position}")
-        return positions_list, scenes_list
+            well_ids_list.append(well_id)
+
+        return positions_list, scenes_list, well_ids_list
+
+
 
 
 def get_round_info_from_dict(round_of_intrest, dataset):
@@ -56,19 +79,20 @@ def get_round_info_from_dict(round_of_intrest, dataset):
     return round_info[0]
 
 def get_available_positions(round_info):
-    """loads the czi and ckecks the list of positions available, also will get rid of the positions that are listed as scenes_to_toss in the dictionary"""
+    """loads the czi and ckecks the list of positions available"""
     #dataframe = zen_position_helper.get_position_info_from_czi(round_info['path'])
-    czi_file = czi_reader(round_info['path'])
-    positions, scenes = czi_file.get_position_scene_paired_list()
-    assert len(positions) == len(scenes)
-    return positions, scenes
+    czi_file = czi_metadata_helper(round_info['path'])
+    positions, scenes, well_ids = czi_file.get_position_scene_wellid_paired_list()
+    assert len(positions) == len(scenes) == len(well_ids)
+    return positions, scenes, well_ids
 
-def find_matching_position_scene(all_positions_in_round, all_scenes_in_round, refrence_postion):
+def find_matching_position_scene(all_positions_in_round, all_scenes_in_round, well_ids_all, refrence_postion):
     """returns the corresponding position, scene pair that matches refrence position in refrence round"""
     position_index = all_positions_in_round.index(refrence_postion)
     matching_scene = all_scenes_in_round[position_index]
+    well_id_match = well_ids_all[position_index]
 
-    return all_positions_in_round[position_index], matching_scene
+    return all_positions_in_round[position_index], matching_scene, well_id_match
 
 
 
@@ -95,14 +119,14 @@ class create_registration_matching_dataset():
         e.g. say there is a row for R2 and R2_B6 present. This function keeps R2_B6 and gets rid of R2 for this position 
         """
         data = dat.copy()
-        round_infos = list(data['rounds'])
+        round_infos = list(data['Round'])
         multiple_matches = [f for f in round_infos if "_" in f]
 
         for i in range(len(multiple_matches)):
-            data = data.loc[data['rounds']!=multiple_matches[i].split("_")[0]]
+            data = data.loc[data['Round']!=multiple_matches[i].split("_")[0]]
         return data
 
-    def create_dataset_for_position(self, data, ref_round_info, ref_pos, ref_scene, eliminate_positions_imaged_multiple_times_in_same_round=True):
+    def create_dataset_for_position(self, data, ref_round_info, ref_pos, ref_scene, ref_well_id, eliminate_positions_imaged_multiple_times_in_same_round=True):
         """creates a csv for a specific position"""
         all_rounds_list = [data['Data'][f]['round'] for f in range(len(data['Data']))]
         all_rounds_list.remove(self.refrence_round)
@@ -113,12 +137,14 @@ class create_registration_matching_dataset():
         REF_CHANNELS = []
         REFRENCE_ROUND=[]
         RAW_FILEPATH = []
+        Well_ids = []
         ROUNDS.append(self.refrence_round)
         POSITIONS.append(ref_pos)
         SCENES.append(ref_scene)
         REFRENCE_ROUND.append(True)
         REF_CHANNELS.append(ref_round_info['ref_channel'])
         RAW_FILEPATH.append(ref_round_info['path'])
+        Well_ids.append(ref_well_id)
         print(f"ref pos is {ref_pos}")
 
         for round in all_rounds_list:
@@ -128,18 +154,18 @@ class create_registration_matching_dataset():
 
             round_info_for_round_to_align = get_round_info_from_dict(round, data)
 
-            round_positions, round_scenes = get_available_positions(round_info_for_round_to_align)
+            round_positions, round_scenes, well_ids_all = get_available_positions(round_info_for_round_to_align)
 
-            print(f"round scenes is {round_scenes}")
-            print(f"ref scenes is {round_positions}")
+
             try:
-                position_to_align, scene_to_align = find_matching_position_scene(round_positions, round_scenes, ref_pos) # This is the corresponding position/scene combination to align to the refrence round
+                position_to_align, scene_to_align, corresponding_well_id = find_matching_position_scene(round_positions, round_scenes, well_ids_all, ref_pos) # This is the corresponding position/scene combination to align to the refrence round
             except:
                 # this is here for cases where the round itself does not have a match
                 continue
 
             ROUNDS.append(round)
             POSITIONS.append(position_to_align)
+            Well_ids.append(corresponding_well_id)
             SCENES.append(scene_to_align)
             REF_CHANNELS.append(round_info_for_round_to_align['ref_channel'])
             REFRENCE_ROUND.append(False)
@@ -147,7 +173,7 @@ class create_registration_matching_dataset():
 
         
         
-        Position_matched_dataset = pd.DataFrame({'rounds': ROUNDS, 'positions': POSITIONS, 'Scene': SCENES, 'Reference Channel': REF_CHANNELS, 'RAW_filepath': RAW_FILEPATH,'REFRENCE_ROUND': REFRENCE_ROUND})
+        Position_matched_dataset = pd.DataFrame({'Round': ROUNDS, 'Position': POSITIONS, 'Scene': SCENES, 'Reference_Channel': REF_CHANNELS, 'Well_id': Well_ids, 'REFRENCE_ROUND': REFRENCE_ROUND, 'RAW_filepath': RAW_FILEPATH})
         
 
         # Position_matched_dataset.drop_duplicates(subset=["rounds"], keep="last", inplace=True)
@@ -161,14 +187,14 @@ class create_registration_matching_dataset():
 
 
     def create_dataset(self):
-
+        """Gets the positions in the refrence round, and for each position, finds the matches in all other rounds"""
         ref_round_info = get_round_info_from_dict(self.refrence_round, self.yaml_config)
-        ref_positions, ref_scenes = get_available_positions(ref_round_info)
+        ref_positions, ref_scenes, ref_well_ids = get_available_positions(ref_round_info)
         print(f"refrence posiiton list is {ref_positions}")
 
-        for ref_pos, ref_scene in zip(ref_positions, ref_scenes):
+        for ref_pos, ref_scene, ref_well_id in zip(ref_positions, ref_scenes, ref_well_ids):
             print(ref_pos)
-            Position_matched_dataset = self.create_dataset_for_position(self.yaml_config, ref_round_info, ref_pos, ref_scene)
+            Position_matched_dataset = self.create_dataset_for_position(self.yaml_config, ref_round_info, ref_pos, ref_scene, ref_well_id)
             self.save_matched_dataset(Position_matched_dataset, ref_pos)
 
 
