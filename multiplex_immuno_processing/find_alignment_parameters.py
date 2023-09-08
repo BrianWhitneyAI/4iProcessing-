@@ -96,14 +96,10 @@ if __name__ == "__main__":
     with open(args.input_yaml) as f:
         yaml_config = yaml.load(f, Loader=SafeLoader)
 
-    import pdb
-    pdb.set_trace()
-    
-    if not args.matched_position_csv:
+
+    if args.matched_position_csv_dir:
         registration_dataset = Position_aligner(args.matched_position_csv_dir, args.input_yaml)
         registration_dataset.create_aligned_dataset()
-
-
 
     else:
         input_matched_position_csv_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
