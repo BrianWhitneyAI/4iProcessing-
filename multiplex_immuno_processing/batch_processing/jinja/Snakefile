@@ -1,0 +1,39 @@
+import os
+
+
+wildcard_constraints = {"filename": ".*"}
+
+rule all:
+    input:
+        expand("{output}/{barcode}/validation_gifs/{filename}.giff")
+
+
+
+rule find_matched_positions_across_rounds:
+    input:
+        {initial_config}
+    output:
+        expand("{output}/{barcode}/matched_datasets/{filename}.csv")
+
+rule find_alignment_parameters:
+    input:
+        expand("{output}/{barcode}/matched_datasets/{filename}.csv")
+    output:
+        expand("{output}/barcode/alignment_parameters/{filename}.csv")
+
+rule apply_registration:
+    input:
+        expand("{output}/barcode/alignment_parameters/{filename}.csv")
+    output:
+        expand("{output}/barcode/aligned_images/{filename}.tiff") # change to an output finnished log per position
+
+rule make_validation_gif:
+    input:
+         expand("{output}/barcode/aligned_images/{filename}.tiff") # change to an output finnished log per position
+    
+    output:
+        expand("{output}/{barcode}/validation_gifs/{filename}.giff")
+
+
+
+
