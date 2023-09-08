@@ -115,7 +115,7 @@ class perform_alignment_per_position():
 
         return cropped_img
 
-    def save_mip(self, image, round, position, channel, timepoint):
+    def save_mip(self, image, round, position, well_id, channel, timepoint):
         # save the mip
         round_num = re.findall(r'\d+', round)
         if round_num == []:
@@ -125,7 +125,7 @@ class perform_alignment_per_position():
         barcode = self.yaml_config["barcode"]
 
 
-        name = f"{barcode}_R{round_num}_P{str(position).zfill(2)}_mip_C{channel}_T{str(timepoint).zfill(2)}.tiff"
+        name = f"{barcode}_R{round_num}_P{str(position).zfill(2)}-{well_id}-T{str(timepoint).zfill(2)}_C{channel}_MIP.tiff"
         tifffile.imwrite(os.path.join(self.save_aligned_images_dir,name), image)
 
 
@@ -150,7 +150,7 @@ class perform_alignment_per_position():
                         crop_dims = self.find_padding_dimensions(aligned_mip)
 
                     final_mip = self.crop_according_to_refrence_crop_round(aligned_mip, crop_dims)
-                    self.save_mip(final_mip, round_of_intrest["rounds"], round_of_intrest["positions"], ch, timepoint)
+                    self.save_mip(final_mip, round_of_intrest["rounds"], round_of_intrest["positions"], round_of_intrest["Well_id"], ch, timepoint)
 
 
 
