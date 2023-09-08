@@ -88,6 +88,7 @@ class Position_aligner():
         self.matched_position_csv["cross_cor_params"] = alignment_parameters_cross_corr
 
         self.save_csv_alignment(self.matched_position_csv)
+        print(f"saved position {self.position}")
 
 
 if __name__ == "__main__":
