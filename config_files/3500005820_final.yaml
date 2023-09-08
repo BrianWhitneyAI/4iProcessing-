@@ -36,5 +36,5 @@ Data:
   ref_channel: WEGFP
   channels: Bright,TaRFP,WEGFP
 barcode: 3500005820
-scope: ZSD
+scope: ZSD0
 output_path: /allen/aics/assay-dev/users/Goutham/4iProcessing-/snakemake_version_testing_output
