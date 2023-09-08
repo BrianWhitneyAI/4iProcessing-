@@ -183,7 +183,7 @@ class create_registration_matching_dataset():
         return Position_matched_dataset
     
     def save_matched_dataset(self, Position_matched_dataset, ref_pos):
-        Position_matched_dataset.to_csv(os.path.join(self.output_matched_csvs_dir, f'Position_{str(ref_pos).zfill(2)}.csv'))
+        Position_matched_dataset.to_csv(os.path.join(self.output_matched_csvs_dir, f'Position_{str(ref_pos).zfill(2)}.csv'), index=False)
 
 
     def create_dataset(self):

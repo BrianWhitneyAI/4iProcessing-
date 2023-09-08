@@ -53,7 +53,7 @@ class Position_aligner():
         return img
 
     def save_csv_alignment(self, dat):
-        dat.to_csv(os.path.join(self.save_aligned_csv_dir, self.position))
+        dat.to_csv(os.path.join(self.save_aligned_csv_dir, self.position), index=False)
 
 
 
