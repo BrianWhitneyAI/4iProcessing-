@@ -70,11 +70,11 @@ class Position_aligner():
         for i in range(np.shape(self.matched_position_csv)[0]):
             round_info = self.matched_position_csv.iloc[i]
 
-            if round_info["rounds"] == refrence_round_info["rounds"]:
+            if round_info["Round"] == refrence_round_info["Round"]:
                 meanoffset = [0, 0, 0]
                 alignment_parameters_cross_corr.append(meanoffset)
                 continue
-            if round_info["rounds"] == "Timelapse":
+            if round_info["Round"] == "Timelapse":
                 to_align_zstack = self.load_zstack_to_align(round_info["RAW_filepath"], 2, round_info["Scene"])
             else:
                 to_align_zstack = self.load_zstack_to_align(round_info["RAW_filepath"], 3, round_info["Scene"])
