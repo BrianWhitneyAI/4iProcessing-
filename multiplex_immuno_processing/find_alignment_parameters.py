@@ -22,6 +22,7 @@ def max_project(seg_img_labeled):
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
+parser.add_argument("--matched_position_csv_dir", type=str, required=False, help="Matched position csv to align a single position (Optional)")
 
 
 
@@ -95,13 +96,23 @@ if __name__ == "__main__":
     with open(args.input_yaml) as f:
         yaml_config = yaml.load(f, Loader=SafeLoader)
 
-    input_matched_position_csv_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
-    assert os.path.exists(input_matched_position_csv_dir), "input matched position dir doesn't exist"
-    filenames = [f for f in os.listdir(input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
-
-    for file in filenames:
-        registration_dataset = Position_aligner(os.path.join(input_matched_position_csv_dir, file), args.input_yaml)
+    import pdb
+    pdb.set_trace()
+    
+    if not args.matched_position_csv:
+        registration_dataset = Position_aligner(args.matched_position_csv_dir, args.input_yaml)
         registration_dataset.create_aligned_dataset()
+
+
+
+    else:
+        input_matched_position_csv_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
+        assert os.path.exists(input_matched_position_csv_dir), "input matched position dir doesn't exist"
+        filenames = [f for f in os.listdir(input_matched_position_csv_dir) if f.endswith(".csv") and not f.startswith(".")]
+
+        for file in filenames:
+            registration_dataset = Position_aligner(os.path.join(input_matched_position_csv_dir, file), args.input_yaml)
+            registration_dataset.create_aligned_dataset()
 
 
 
