@@ -75,7 +75,6 @@ if __name__ == "__main__":
 
     dfconfig = pd.concat(dflist)
     dfconfig.set_index(["barcode", "round"], inplace=True)
-
     mag = "20x"
 
     output_dir = dfconfig["output_path"][0]

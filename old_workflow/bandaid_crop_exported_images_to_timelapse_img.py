@@ -213,11 +213,6 @@ if __name__ == "__main__":
         crop_expression = np.index_exp[roi[0]:roi[1],roi[2]:roi[3]]
         print(crop_expression)
 
-            
-
-
-
-
         dfr = dfall.set_index(["template_position", "key"])
         dfsub = dfr.loc[pd.IndexSlice[[Position], [key]], :]
         parent_file = dfsub["parent_file"][0]

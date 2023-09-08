@@ -144,7 +144,7 @@ if __name__ == "__main__":
     keylist = dfimg.index.values
 
     
-    reference_round_key = "Round 1"
+    reference_round_key = "R1"  #TODO: make this be read from the csv
     refimg = dfimg.loc[reference_round_key, "img"]
     
 

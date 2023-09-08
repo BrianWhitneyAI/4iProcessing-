@@ -135,6 +135,7 @@ if __name__ == "__main__":
             )
         print(alignment_offset)
         print(type(alignment_offset))
+
         final_shape = np.uint16(
             np.asarray(
                 [
@@ -189,6 +190,9 @@ if __name__ == "__main__":
                     combo = shift_to_center_matrix @ align_matrix
 
                     # aligned image
+
+                    import pdb
+                    pdb.set_trace()
                     processed_volume = affine_transform(
                         imgstack,
                         np.linalg.inv(combo),

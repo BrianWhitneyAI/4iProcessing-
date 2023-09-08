@@ -115,7 +115,14 @@ ENV/
 camera_alignment_core/tests/tmp_results
 *.tiff
 
+multiplex_immuno_processing/new_test_outputs
+snakemake_version_testing_output
+
 # xml debug files
 *.xml
+
+
+
+
 
 *delete*

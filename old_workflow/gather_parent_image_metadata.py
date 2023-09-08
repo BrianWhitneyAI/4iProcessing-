@@ -76,8 +76,8 @@ if __name__ == "__main__":
             file_list = []
             original_file_list = []
             list_of_files = dfcbr.path.tolist()
-            import pdb
-            pdb.set_trace()
+            # import pdb
+            # pdb.set_trace()
             for file in list_of_files:
                 original_file_list.append(file)
                 if os.path.exists(file):
@@ -90,7 +90,6 @@ if __name__ == "__main__":
             # get position info from all files in the file list
             dfmeta_round_list = []
             if len(file_list) > 0:
-
                 # each round may have more than one czi file assoicated with it. so iterate through each file
                 for original_file, filename in zip(original_file_list, file_list):
                     print(file, filename)

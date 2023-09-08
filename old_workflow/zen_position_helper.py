@@ -30,6 +30,7 @@ def get_position_info_from_czi(filename):
 
     reader = AICSImage(filename)
     meta0 = reader.metadata
+    
     # convert metadata to lxml
     metastr = ET.tostring(meta0).decode("utf-8")
     meta = etree.fromstring(metastr)

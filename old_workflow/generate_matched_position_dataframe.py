@@ -63,6 +63,98 @@ TODO: decide if we want any contact sheet-style outputs from this code that help
 """
 
 
+def create_rectangle(xyz, imgsize_um):
+    """
+    credit: https://stackoverflow.com/questions/27152904/calculate-overlapped-area-between-two-rectangles
+    """ 
+
+    Rectangle = namedtuple("Rectangle", "xmin ymin xmax ymax")
+    rect = Rectangle(
+        xyz[0] - imgsize_um[1] / 2,
+        xyz[1] - imgsize_um[0] / 2,
+        xyz[0] + imgsize_um[1] / 2,
+        xyz[1] + imgsize_um[0] / 2,
+    )
+    return rect
+
+
+def intersection_area(a, b):  # returns None if rectangles don't intersect
+    """ "
+    requires a ==> Rectangle = namedtuple('Rectangle', 'xmin ymin xmax ymax')
+    credit: https://stackoverflow.com/questions/27152904/calculate-overlapped-area-between-two-rectangles
+    """
+    area_a = (a.xmax - a.xmin) * (a.ymax - a.ymin)
+    area_b = (b.xmax - b.xmin) * (b.ymax - b.ymin)
+    dx = min(a.xmax, b.xmax) - max(a.xmin, b.xmin)
+    dy = min(a.ymax, b.ymax) - max(a.ymin, b.ymin)
+    if (dx >= 0) and (dy >= 0):
+        return dx * dy / np.min((area_a, area_b))
+    else:
+        return 0
+
+
+# first aggregate all files into a dataframe with metadata
+def plot_position_rectangles(dfforplot, fs=12, figsize=(5, 5)):
+    dfkeep = dfforplot.copy()
+    dfkeep.reset_index(inplace=True)
+
+    # now plot the overlap of different files
+    # make a scatter plot of positions
+    # npt = 1  # number of 20x positions to examine
+    colorlist = ["k", "r", "c", "y", "g"]
+    coloriter = cycle(colorlist)
+    color_dict = {
+        x: coloriter[xi] for xi, x in enumerate(dfkeep.parent_file.unique())
+    }
+    print(color_dict)
+    for well, df0 in dfkeep.groupby("Well_id"):
+        plt.figure(figsize=figsize)
+
+        ncols = len(df0["parent_file"].unique()) + 1
+        fig, ax = plt.subplots(
+            nrows=1,
+            ncols=ncols,
+            figsize=(figsize[0] * ncols, figsize[1]),
+            sharex=True,
+            sharey=True,
+        )
+        axlist = ax.reshape(
+            -1,
+        )
+
+        for i, (img_label, df1) in enumerate(df0.groupby("parent_file")):
+            X = df1["X"].to_numpy()
+            Y = df1["Y"].to_numpy()
+            PositionList = df1["Position"].tolist()
+
+            imgsize_um = df1["imgsize_um"].to_numpy()[0]
+            w = imgsize_um[1]
+            h = imgsize_um[0]
+
+            for ii in [i, ncols - 1]:
+                plt.sca(axlist[ii])
+                for xx, y, pos in zip(X, Y, PositionList):
+                    plt.fill_between(
+                        x=(xx - w / 2, xx + w / 2),
+                        y1=(y - h / 2, y - h / 2),
+                        y2=(y + h / 2, y + h / 2),
+                        facecolor=color_dict[img_label],
+                        alpha=0.2,
+                        edgecolor=(0, 0, 0, 0),
+                    )
+                    plt.text(xx, y, pos, fontsize=fs)
+                plt.title(well + "\n" + Path(img_label).stem, fontsize=fs)
+
+                # plt.title(well,fontsize=fs)
+                plt.axis("square")
+                # xlim = plt.xlim()
+                # ylim = plt.ylim()
+                # lims = [np.min([xlim[0],ylim[0]]),
+                # np.max([xlim[1],ylim[1]])]
+                # plt.xlim(lims)
+                # plt.ylim(lims)
+        plt.show()
+
 
 
 
