@@ -67,9 +67,13 @@ class Position_aligner():
 
         print(np.shape(ref_zstack))
         alignment_parameters_cross_corr = []
+        print(f"round info is {self.matched_position_csv}")
         for i in range(np.shape(self.matched_position_csv)[0]):
             round_info = self.matched_position_csv.iloc[i]
-
+            # import pdb
+            # pdb.set_trace()
+            print(f"round info is {round_info}")
+            print(f"round info is {refrence_round_info}")
             if round_info["Round"] == refrence_round_info["Round"]:
                 meanoffset = [0, 0, 0]
                 alignment_parameters_cross_corr.append(meanoffset)

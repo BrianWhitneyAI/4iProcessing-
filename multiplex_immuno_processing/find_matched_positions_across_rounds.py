@@ -148,15 +148,10 @@ class create_registration_matching_dataset():
         print(f"ref pos is {ref_pos}")
 
         for round in all_rounds_list:
-            # import pdb
             print(f"looking at round {round}")
-            # pdb.set_trace()
-
             round_info_for_round_to_align = get_round_info_from_dict(round, data)
 
             round_positions, round_scenes, well_ids_all = get_available_positions(round_info_for_round_to_align)
-
-
             try:
                 position_to_align, scene_to_align, corresponding_well_id = find_matching_position_scene(round_positions, round_scenes, well_ids_all, ref_pos) # This is the corresponding position/scene combination to align to the refrence round
             except:
@@ -171,8 +166,6 @@ class create_registration_matching_dataset():
             REFRENCE_ROUND.append(False)
             RAW_FILEPATH.append(round_info_for_round_to_align['path'])
 
-        
-        
         Position_matched_dataset = pd.DataFrame({'Round': ROUNDS, 'Position': POSITIONS, 'Scene': SCENES, 'Reference_Channel': REF_CHANNELS, 'Well_id': Well_ids, 'REFRENCE_ROUND': REFRENCE_ROUND, 'RAW_filepath': RAW_FILEPATH})
         
 
