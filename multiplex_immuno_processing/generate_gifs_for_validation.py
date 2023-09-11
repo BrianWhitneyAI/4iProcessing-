@@ -35,24 +35,14 @@ def generate_gif_for_evaluation(input_dir, filenames, frame_rate, output_dir, po
     #print("filenames are of size {}".format(len(filenames)))
     print(filenames)
     for i in range(len(filenames)):
-        #print("R"+str(i+1).zfill(2))
-        #TODO: go from round1-round11 in order -- simple regex
-        #filename=[f for f in filenames_for_position if "R"+str(i+1).zfill(2) in f]
-        #assert len(filename)==1, "regex failed"
-        #filename_round = filename[0]
+
         img_np = tifffile.imread(os.path.join(input_dir, filenames[i]))
-
-
         img_rescaled = normalization(img_np)        
-        #img_rescaled = normalization(img_np)
-
-        #img_rescaled = exposure.adjust_log(img_np, 1)
 
         img = Image.fromarray(img_rescaled)
         
         img_resized = img.resize(gif_image_shape)
         img_w_text = ImageDraw.Draw(img_resized)
-        # 1664, 2464
         img_w_text.text((40, 40), os.path.basename(filenames[i]).split("-Scene",1)[0], fill=(255))
         #print(np.shape(img_resized))
         #img_resized.save("sample.png")
@@ -67,36 +57,31 @@ if __name__ == "__main__":
     with open(args.input_yaml) as f:
         yaml_config = yaml.load(f, Loader=SafeLoader)    
 
-    output_aligned_images_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "aligned_images")
+    output_aligned_images_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "round_aligned_images")
 
     output_gif_save_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "validation_gifs")
     if not os.path.exists(output_gif_save_dir):
         os.mkdir(output_gif_save_dir)
 
-    
-    gif_image_shape = (int(1847/4), int(1247/4))
-    
-    filenames = [f for f in os.listdir(output_aligned_images_dir) if "R0" in f and "C2" in f and "T31" in f]
-    # import pdb
-    # pdb.set_trace()
+    gif_image_shape = (int(1847/4), int(1247/4)) # have this be automatically figured out from shape dims of FOV
+
+    max_tp = np.max([int(f.split("T", 1)[1].split("_C", 1)[0]) for f in os.listdir(output_aligned_images_dir) if "R0" in f and "C2" in f])
+
+    filenames = [f for f in os.listdir(output_aligned_images_dir) if "R0" in f and "C2" in f and f"T{max_tp}" in f]
 
     timelapse_ref_channel = 2
     round_ref_channel = 3
 
-    
-
-    for i in range(len(filenames)): # 40 total positions contained-- usually TODO: regex scheming to find the max position 
+    for i in range(len(filenames)):
         filenames_for_position = []
         # filenames_for_position.append(filenames[i])
-
-        round= filenames[i].split("_R", 1)[1].split("_P", 1)[0]
-        #channel = 
-        position = position = filenames[i].split("_P", 1)[1].split("_mip", 1)[0]
+        #round= filenames[i].split("_R", 1)[1].split("_P", 1)[0]
+        position = filenames[i].split("_P", 1)[1].split("-", 1)[0]
         # import pdb
         # pdb.set_trace()
         filenames_in_rounds_for_position = [x for x in os.listdir(output_aligned_images_dir) if f"P{position}" in x and "C3" in x and f"R{0}" not in x]
         filenames_in_rounds_for_position.append(filenames[i])
-        
+
 
         if len(filenames_in_rounds_for_position) !=0:
             generate_gif_for_evaluation(output_aligned_images_dir, filenames_in_rounds_for_position, args.frame_rate, output_gif_save_dir, position, yaml_config["barcode"])
