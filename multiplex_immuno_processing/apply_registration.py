@@ -70,7 +70,7 @@ def get_FOV_shape(filepath):
 class perform_alignment_per_position():
     def __init__(self, alignment_csv_dir, yaml_config, round_to_crop_to):
         df = pd.read_csv(alignment_csv_dir)
-        cond = df["rounds"]==round_to_crop_to
+        cond = df["Round"]==round_to_crop_to
         matching_indices = df[cond].index
         matching_rows = df.loc[matching_indices]
         remaining_rows = df.loc[~cond]
@@ -84,7 +84,7 @@ class perform_alignment_per_position():
         self.round_to_crop_tempelate = round_to_crop_to
         self.position = os.path.basename(alignment_csv_dir)
 
-        self.save_aligned_images_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]),"aligned_images")
+        self.save_aligned_images_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]),"round_aligned_images")
 
         if not os.path.exists(self.save_aligned_images_dir):
             os.mkdir(self.save_aligned_images_dir)
@@ -111,7 +111,7 @@ class perform_alignment_per_position():
 
     def crop_according_to_refrence_crop_round(self, aligned_mip, crop_dims):
 
-        cropped_img = aligned_mip[crop_dims[0]: crop_dims[1], crop_dims[2]: crop_dims[3]]
+        cropped_img = aligned_mip[crop_dims[0]: crop_dims[1]+1, crop_dims[2]: crop_dims[3]+1]
 
         return cropped_img
 
@@ -146,11 +146,12 @@ class perform_alignment_per_position():
                     params_to_align_all = ast.literal_eval(round_of_intrest["cross_cor_params"])
                     params_to_align_yx = [params_to_align_all[1], params_to_align_all[2]]
                     aligned_mip = self.registeration_using_alignment_params(mip_to_align, tempelate_ref, params_to_align_yx)
+
                     if i==0 and ch==0 and timepoint==0:
                         crop_dims = self.find_padding_dimensions(aligned_mip)
 
                     final_mip = self.crop_according_to_refrence_crop_round(aligned_mip, crop_dims)
-                    self.save_mip(final_mip, round_of_intrest["rounds"], round_of_intrest["positions"], round_of_intrest["Well_id"], ch, timepoint)
+                    self.save_mip(final_mip, round_of_intrest["Round"], round_of_intrest["Position"], round_of_intrest["Well_id"], ch, timepoint)
 
 
 
