@@ -60,7 +60,7 @@ python tempelate_batch_run.py --input_yaml ../../config_files/{} --matched_posit
 
 The output of this is a directory called round_aligned_images which contains all the aligned positions for each round
 
-# Gif overlay validation(optional):
+## Gif overlay validation(optional):
 This step creates gifs that show overlays for each position. This can be used for quick validation of the alignments
 ```
 python multiplex_immuno_processing/generate_gifs_for_validation.py --input_yaml {} --frame_rate {}
