@@ -1,0 +1,111 @@
+import os
+import sys
+import pdb
+import argparse
+import yaml
+
+from yaml.loader import SafeLoader
+
+config_path= "../../config_files/3500005820_final.yaml"
+profile_path = "/profile"
+#wildcard_constraints = {"filename": ".*"}
+
+with open(config_path) as f:
+    yaml_config = yaml.load(f, Loader=SafeLoader)
+print(yaml_config)
+
+# output = yaml_config["output_path"]
+# barcode = yaml_config["barcode"]
+
+path_working_dir = os.path.dirname(os.getcwd())
+print(path_working_dir)
+
+rule all:
+    input:
+       expand("{output_path}/{barcode}/alignment_parameters", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"])
+
+
+rule find_matched_positions_across_rounds:
+    input:
+        expand("{config_path}", config_path=config_path)
+    output:
+        expand("{output}/{barcode}/matched_datasets/{wildcards.filename}.csv", output=yaml_config["output_path"], barcode=yaml_config["barcode"])
+    params:
+        shell_command = f"{path_working_dir}/find_matched_positions_across_rounds.py --input_yaml {config_path} "
+    shell:
+        "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
+        "{params.shell_command}"
+
+
+#matched_dataset_filenames = [f for f in os.listdir()]
+matched_dataset_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
+
+matched_dataset_filenames = [f for f in os.listdir(matched_dataset_dir) if f.endswith(".csv")]
+print(matched_dataset_filenames)
+
+# the wildcard for filename should depend on the filenames in the output directory
+path_working_dir = os.path.dirname(os.getcwd())
+print(f"--profile {profile_path} ")
+print(f"{path_working_dir}/find_alignment_parameters.py --input_yaml {config_path}")
+rule find_alignment_parameters:
+    input:
+        expand("{output_path}/{barcode}/matched_datasets/{filename}.csv", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"]), 
+        expand("{config_path}", config_path=config_path)
+
+
+    output:
+        expand("{output_path}/{barcode}/alignment_parameters/{filename}.csv", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"])
+    
+    params:
+        profile_command = f"--profile {profile_path} ",
+        shell_command = f"{path_working_dir}/find_alignment_parameters.py "
+        
+    shell:
+        "{params.profile_command} "
+        "--conda-frontend conda "
+        "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
+        "{params.shell_command} "
+        f"--input_yaml {config_path} "
+        "--matched_position_csv_dir {wildcards.output_path}/{wildcards.barcode}/{wildcards.filename}.csv"
+
+
+
+# # the wildcard for filename should depend on the filenames in the output directory
+# dataset_aligned_params_filenames = [f for f in os.listdir(matched_dataset_aligned_filenames) if f.endswith(".csv")]
+# rule apply_registration:
+#     input:
+#         expand("{output}/{barcode}/matched_datasets/{filename}.csv")
+#     output:
+#         expand("{output}/barcode/alignment_parameters/{filename}.csv")
+#     shell:
+#         "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
+#         "../../python apply_registration.py --input_yaml {config} "
+
+# # This is not gonna be parralelized.... the output file should be a log
+# # the wildcard for filename should depend on the filenames in the output directory 
+
+# rule generate_gifs_for_validation:
+#     input:
+#         expand("{output}/{barcode}/matched_datasets/{filename}.csv")
+#     output:
+#         expand("{output}/barcode/alignment_parameters/{filename}.csv")
+#     shell:
+#         "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
+#         "../../python generate_gifs_for_validation.py --input_yaml {config} "
+
+# rule apply_registration:
+#     input:
+#         expand("{output}/barcode/alignment_parameters/{filename}.csv")
+#     output:
+#         expand("{output}/barcode/aligned_images/{filename}.tiff") # change to an output finnished log per position
+
+# rule make_validation_gif:
+#     input:
+#          expand("{output}/barcode/aligned_images/{filename}.tiff") # change to an output finnished log per position
+    
+#     output:
+#         expand("{output}/{barcode}/validation_gifs/{filename}.giff")
+
+
+
+

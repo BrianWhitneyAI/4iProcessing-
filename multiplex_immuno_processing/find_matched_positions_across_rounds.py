@@ -47,10 +47,6 @@ class czi_metadata_helper():
             xml_file.write(self.metastr)
         
         
-
-
-
-
     def get_position_scene_wellid_paired_list(self):
         scenes = self.metadata.findall(".//Scenes/Scene")
         print(len(scenes))

@@ -1,0 +1,12 @@
+cluster:
+  sbatch
+    --job-name={rule}
+    --partition {params.partition}
+    --mem=50G
+    --output={params.logdir}/logs/{params.series}_S{params.scene}/{rule}/{params.job_label}.out
+jobs: 10
+use-conda: true
+restart-times: 2
+printshellcmds: True
+cores: 1
+latency-wait: 60 

@@ -13,7 +13,6 @@ import re
 
 """
 perform the alignment from the csvs 
-
 """
 
 parser = argparse.ArgumentParser()
