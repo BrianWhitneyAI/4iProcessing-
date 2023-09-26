@@ -15,13 +15,6 @@ import lxml.etree as etree
 import re
 
 
-
-
-
-
-
-
-
 class czi_metadata_helper():
     # TODO: modify with othere get functions that return other useful metadata... currently set up to only return position/scene number but can change that in the future
     def __init__(self, czi_filepath):

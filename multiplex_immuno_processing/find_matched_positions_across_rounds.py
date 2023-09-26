@@ -21,8 +21,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
 parser.add_argument("--refrence_round", type=str, default="R1", required=False, help="refrence round to algin to")
 
-# For each postiion
-# have a dataframe with columns: Round, scene, align_channel, Refrence_round(True/False)
+
+"""
+For each postiion, produces a dataframe with columns: Round, scene, align_channel, Refrence_round(True/False)
+"""
 
 class create_registration_matching_dataset():
     def __init__(self, yaml_file, refrence_round):

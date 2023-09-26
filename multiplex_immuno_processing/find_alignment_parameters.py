@@ -5,7 +5,7 @@ import yaml
 from yaml.loader import SafeLoader
 from aicsimageio import AICSImage
 import numpy as np
-import registration_utils
+from core.registration_utils import find_zyx_offset
 import tifffile
 from core.utils import max_project
 
@@ -80,7 +80,7 @@ class Position_aligner():
                 to_align_zstack = self.load_zstack_to_align(round_info["RAW_filepath"], 3, round_info["Scene"])
 
             
-            (_, _, meanoffset, _,) = registration_utils.find_zyx_offset(
+            (_, _, meanoffset, _,) = find_zyx_offset(
                 ref_zstack.copy(), to_align_zstack.copy(), ploton=False, verbose=False,
             )
             alignment_parameters_cross_corr.append(meanoffset)

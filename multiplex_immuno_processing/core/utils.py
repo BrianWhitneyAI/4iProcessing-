@@ -1,15 +1,17 @@
 import numpy as np
 from aicsimageio import AICSImage
 import re
-from czi_helper import czi_metadata_helper
+from .czi_helper import czi_metadata_helper
 
 
 
 def max_project(seg_img_labeled):
+    "Return the max project of 3D stack"
     xy_seg_maxproj = np.max(seg_img_labeled, axis=0)[np.newaxis, ...][0,:,:]
     return xy_seg_maxproj
 
 def load_zstack_mip(filepath, refrence_channel, scene, timepoint):
+    "Load a zstack from czi filepath for a specified channel, scene  and timepoint and return its max project"
     reader = AICSImage(filepath)
     reader.set_scene(int(scene-1)) # b/c of zero indexing ---- this is not reflected in ZEN GUI
     img = reader.data[timepoint, refrence_channel, :, :, :] # getting T, ch, Z, Y, X
@@ -18,10 +20,9 @@ def load_zstack_mip(filepath, refrence_channel, scene, timepoint):
 
 
 def get_FOV_shape(filepath):
+    "Return FOV shape from czi filepath without loading data into memory"
     reader = AICSImage(filepath)
     return np.shape(reader)
-
-
 
 
 def get_round_info_from_dict(round_of_intrest, dataset):
