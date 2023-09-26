@@ -7,18 +7,14 @@ from aicsimageio import AICSImage
 import numpy as np
 import registration_utils
 import tifffile
+from core.utils import max_project
+
 
 """
 This step reads in the matched position csv and finds the alignment displacement for each round to the refrence round
 Next, it aligns maxprojects of the images and saves out the registered images and updates the matched position csvs
 with the corresponding displacements for each round. This information is needed is saved out so we can optionally align labelfree predictions if needed
 """
-
-
-def max_project(seg_img_labeled):
-    xy_seg_maxproj = np.max(seg_img_labeled, axis=0)[np.newaxis, ...][0,:,:]
-    return xy_seg_maxproj
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
