@@ -5,7 +5,6 @@ import yaml
 from yaml.loader import SafeLoader
 from aicsimageio import AICSImage
 import numpy as np
-import registration_utils
 import tifffile
 from scipy.ndimage import affine_transform
 import ast

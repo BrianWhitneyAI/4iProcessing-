@@ -14,6 +14,7 @@ import yaml
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
 parser.add_argument('--frame_rate', type=int, default=500)
+parser.add_argument("--placeholder", type=str, required=False, help="placeholder for snakemake rule.... generates an output text file")
 
 def normalization(img):
     #rescaled_img = ((img - img.min()) * (1/(img.max() - img.min()) * 255)).astype('uint8')
@@ -86,4 +87,8 @@ if __name__ == "__main__":
         if len(filenames_in_rounds_for_position) !=0:
             generate_gif_for_evaluation(output_aligned_images_dir, filenames_in_rounds_for_position, args.frame_rate, output_gif_save_dir, position, yaml_config["barcode"])
             #print(filenames_for_position)
-        
+
+    if args.placeholder:
+        f = open(args.placeholder, "a")
+        f.write("done")
+        f.close()
