@@ -1,111 +1,93 @@
+# THis runs find alignment parameters and apply registration steps
 import os
 import sys
 import pdb
 import argparse
 import yaml
-
+import shutil
 from yaml.loader import SafeLoader
+from datetime import datetime
 
-config_path= "../../config_files/3500005820_final.yaml"
-profile_path = "/profile"
-#wildcard_constraints = {"filename": ".*"}
-
-with open(config_path) as f:
+with open(config["experiment_config_path"]) as f:
     yaml_config = yaml.load(f, Loader=SafeLoader)
+
+path_working_dir = config["base_working_dir"]
 print(yaml_config)
 
-# output = yaml_config["output_path"]
-# barcode = yaml_config["barcode"]
+yaml_config_path = config["experiment_config_path"]
+matched_dataset_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
+alignment_parameters_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "alignment_parameters")
+round_aligned_images_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "round_aligned_images")
+vis_gif_output_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "validation_gifs")
+snakemake_logdir = os.path.join(path_working_dir, "batch_processing" ,"jinja_output")
+snakemake_logdir_apply_reg_dummy_dir = os.path.join(snakemake_logdir, "apply_reg_dummy_dir")
 
-path_working_dir = os.path.dirname(os.getcwd())
-print(path_working_dir)
+if not os.path.exists(snakemake_logdir_apply_reg_dummy_dir):
+    os.mkdir(snakemake_logdir_apply_reg_dummy_dir)
+
+
+positions_list = [f.split(".csv", 1)[0] for f in os.listdir(matched_dataset_dir) if f.endswith(".csv")]
 
 rule all:
     input:
-       expand("{output_path}/{barcode}/alignment_parameters", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"])
+         expand("{snakemake_log_apply_reg_dummy_dir}/{position}.txt", snakemake_log_apply_reg_dummy_dir=snakemake_logdir_apply_reg_dummy_dir, position=positions_list),
 
-
-rule find_matched_positions_across_rounds:
-    input:
-        expand("{config_path}", config_path=config_path)
-    output:
-        expand("{output}/{barcode}/matched_datasets/{wildcards.filename}.csv", output=yaml_config["output_path"], barcode=yaml_config["barcode"])
-    params:
-        shell_command = f"{path_working_dir}/find_matched_positions_across_rounds.py --input_yaml {config_path} "
-    shell:
-        "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
-        "{params.shell_command}"
-
-
-#matched_dataset_filenames = [f for f in os.listdir()]
-matched_dataset_dir = os.path.join(yaml_config["output_path"], str(yaml_config["barcode"]), "matched_datasets")
-
-matched_dataset_filenames = [f for f in os.listdir(matched_dataset_dir) if f.endswith(".csv")]
-print(matched_dataset_filenames)
-
-# the wildcard for filename should depend on the filenames in the output directory
-path_working_dir = os.path.dirname(os.getcwd())
-print(f"--profile {profile_path} ")
-print(f"{path_working_dir}/find_alignment_parameters.py --input_yaml {config_path}")
 rule find_alignment_parameters:
     input:
-        expand("{output_path}/{barcode}/matched_datasets/{filename}.csv", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"]), 
-        expand("{config_path}", config_path=config_path)
-
-
+        os.path.join(matched_dataset_dir, "{position}.csv")
     output:
-        expand("{output_path}/{barcode}/alignment_parameters/{filename}.csv", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"])
-    
-    params:
-        profile_command = f"--profile {profile_path} ",
-        shell_command = f"{path_working_dir}/find_alignment_parameters.py "
+        os.path.join(alignment_parameters_dir, "{position}.csv")
+        #expand("{output_path}/{barcode}/alignment_parameters/{csv_name}", output_path=yaml_config["output_path"], barcode=yaml_config["barcode"], csv_name = glob_wildcards.csv_name),
         
+    params:
+        shell_command = f"{path_working_dir}/find_alignment_parameters.py --input_yaml {yaml_config_path}",
+        partition = "aics_cpu_general",
+        logdir = snakemake_logdir,
+        jobid = lambda p: p.position, # special snakemake property where I think p is wildcards?
+        job_label = "alignment_parameters_position"
+
     shell:
-        "{params.profile_command} "
-        "--conda-frontend conda "
         "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
-        "{params.shell_command} "
-        f"--input_yaml {config_path} "
-        "--matched_position_csv_dir {wildcards.output_path}/{wildcards.barcode}/{wildcards.filename}.csv"
+        "{params.shell_command} --matched_position_csv_dir {input[0]}"
+
+
+string_output="done"
+
+rule apply_registration:
+    input:
+        os.path.join(alignment_parameters_dir, "{position}.csv")
+    output:
+        os.path.join(snakemake_logdir_apply_reg_dummy_dir, "{position}.txt"),
+
+    params:
+        shell_command = f"{path_working_dir}/apply_registration.py --input_yaml {yaml_config_path}",
+        partition = "aics_cpu_general",
+        logdir = snakemake_logdir,
+        jobid = lambda p: p.position, # special snakemake property where I think p is wildcards?
+        job_label = "apply_registration"
+
+    shell:
+        "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
+        "{params.shell_command} --matched_position_w_align_params_csv {input[0]} --placeholder {output[0]}"
 
 
 
-# # the wildcard for filename should depend on the filenames in the output directory
-# dataset_aligned_params_filenames = [f for f in os.listdir(matched_dataset_aligned_filenames) if f.endswith(".csv")]
-# rule apply_registration:
-#     input:
-#         expand("{output}/{barcode}/matched_datasets/{filename}.csv")
-#     output:
-#         expand("{output}/barcode/alignment_parameters/{filename}.csv")
-#     shell:
-#         "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
-#         "../../python apply_registration.py --input_yaml {config} "
-
-# # This is not gonna be parralelized.... the output file should be a log
-# # the wildcard for filename should depend on the filenames in the output directory 
-
-# rule generate_gifs_for_validation:
-#     input:
-#         expand("{output}/{barcode}/matched_datasets/{filename}.csv")
-#     output:
-#         expand("{output}/barcode/alignment_parameters/{filename}.csv")
-#     shell:
-#         "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
-#         "../../python generate_gifs_for_validation.py --input_yaml {config} "
-
-# rule apply_registration:
-#     input:
-#         expand("{output}/barcode/alignment_parameters/{filename}.csv")
-#     output:
-#         expand("{output}/barcode/aligned_images/{filename}.tiff") # change to an output finnished log per position
-
+# make apply registration part of apply_registration
+# # make this a subflow
 # rule make_validation_gif:
 #     input:
-#          expand("{output}/barcode/aligned_images/{filename}.tiff") # change to an output finnished log per position
-    
+#         os.path.join(snakemake_logdir_apply_reg_dummy_dir, "{position}.txt")
 #     output:
-#         expand("{output}/{barcode}/validation_gifs/{filename}.giff")
+#         os.path.join(snakemake_logdir, "gif_output_log.txt")
+#     params:
+#         shell_command = f"{path_working_dir}/generate_gifs_for_validation.py --input_yaml {yaml_config_path}",
+#         partition = "aics_cpu_general",
+#         logdir = snakemake_logdir,
+#         jobid = "all", # special snakemake property where I think p is wildcards?
+#         job_label = "validation_gif"
 
-
+#     shell:
+#         "/allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python "
+#         "{params.shell_command} --placeholder {output[0]}"
 
 
