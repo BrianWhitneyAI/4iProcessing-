@@ -9,7 +9,7 @@ import ruamel.yaml
 # test
 # run this to make the initial yaml files and then edit those files to make sure nothing is missing.
 # this code only helps make the yaml files...it does not generate a perfect yaml automatically.
-
+#TODO: this needs to be refactored to make it more generalizable  .... not too important since the output gets manually modified anyway
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_dirs", nargs="+", default=[], help="input dirs to parse")
 parser.add_argument(
