@@ -11,6 +11,8 @@ from scipy.ndimage import affine_transform
 import ast
 import re
 from core.gif_generation import generate_gif_for_evaluation
+from core.registration_utils import get_shift_to_center_matrix_2D, get_align_matrix_2D
+from core.utils import load_zstack_mip, get_FOV_shape, max_project
 
 """
 perform the alignment from the csvs 
@@ -25,54 +27,9 @@ parser.add_argument("--round_crop_tempelate", type=str, default="Timelapse")
 parser.add_argument("--placeholder", type=str, required=False, help="placeholder for snakemake rule.... generates an output text file")
 
 
-def max_project(seg_img_labeled):
-    xy_seg_maxproj = np.max(seg_img_labeled, axis=0)[np.newaxis, ...][0,:,:]
-    return xy_seg_maxproj
-
-
-def get_align_matrix(alignment_offset):
-    align_matrix = np.eye(3)
-    for i in range(len(alignment_offset)):
-        align_matrix[i, 2] = alignment_offset[i] * -1
-    align_matrix = np.int16(align_matrix)
-    return align_matrix
-
-
-def get_shift_to_center_matrix(img_shape, output_shape):
-    # output_shape > img_shape should be true for all dimensions
-    # and the difference divided by two needs to be a whole integer value
-
-    shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
-
-
-    shift = shape_diff / 2
-    print(f"shift is {shift}")
-    
-    shift_matrix = np.eye(3)
-    for i in range(len(shift)):
-        print(f"i is {i}")
-        shift_matrix[i, 2] = shift[i]
-    shift_matrix = np.int16(shift_matrix)
-    return shift_matrix
-
-
-def load_zstack_mip(filepath, refrence_channel, scene, timepoint):
-    reader = AICSImage(filepath)
-    reader.set_scene(int(scene-1)) # b/c of zero indexing ---- this is not reflected in ZEN GUI
-    img = reader.data[timepoint, refrence_channel, :, :, :] # getting T, ch, Z, Y, X
-    
-    return max_project(img)
-
-
-def get_FOV_shape(filepath):
-    reader = AICSImage(filepath)
-
-    return np.shape(reader)
-
 
 def find_files_to_use_in_gif(filenames_all):
     "This is currently setup this way b/c of channel switching in the data"
-
     Round_imaging_nuc_images = [f for f in filenames_all if "_C3_" in f and "_R0_" not in f]
     Round0_nuc_images = [f for f in filenames_all if "_C2_" in f and "_R0_" in f]
     if len(Round0_nuc_images)==1:
@@ -117,8 +74,8 @@ class perform_alignment_per_position():
 
     def registeration_using_alignment_params(self, raw_mip, tempelate_ref, alignment_offset):
         """Construct homography matrix and do alignment"""
-        shift_to_center_matrix = get_shift_to_center_matrix(raw_mip.shape, tempelate_ref)
-        align_matrix = get_align_matrix(alignment_offset)
+        shift_to_center_matrix = get_shift_to_center_matrix_2D(raw_mip.shape, tempelate_ref)
+        align_matrix = get_align_matrix_2D(alignment_offset)
         combo = shift_to_center_matrix @ align_matrix # matrix multiplication
         aligned_mip = affine_transform(raw_mip, np.linalg.inv(combo), output_shape=tempelate_ref, order=0)
         return aligned_mip

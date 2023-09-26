@@ -832,6 +832,36 @@ def get_shift_to_center_matrix(img_shape, output_shape):
     shift_matrix = np.int16(shift_matrix)
     return shift_matrix
 
+
+def get_align_matrix_2D(alignment_offset):
+    align_matrix = np.eye(3)
+    for i in range(len(alignment_offset)):
+        align_matrix[i, 2] = alignment_offset[i] * -1
+    align_matrix = np.int16(align_matrix)
+    return align_matrix
+
+
+def get_shift_to_center_matrix_2D(img_shape, output_shape):
+    # output_shape > img_shape should be true for all dimensions
+    # and the difference divided by two needs to be a whole integer value
+
+    shape_diff = np.asarray(output_shape) - np.asarray(img_shape)
+
+
+    shift = shape_diff / 2
+    print(f"shift is {shift}")
+    
+    shift_matrix = np.eye(3)
+    for i in range(len(shift)):
+        print(f"i is {i}")
+        shift_matrix[i, 2] = shift[i]
+    shift_matrix = np.int16(shift_matrix)
+    return shift_matrix
+
+
+
+
+
 def find_zyx_offset(target_img, test_img, ploton=False, verbose=False):
     test_img_rs = test_img.copy()
     target_img_8 = skex.rescale_intensity(
