@@ -124,6 +124,13 @@ camera_alignment_core/tests/tmp_results
 multiplex_immuno_processing/new_test_outputs
 snakemake_version_testing_output
 
+
+multiplex_immuno_processing/batch_processing/.snakemake
+multiplex_immuno_processing/batch_processing/jinja_output
+
+/snakemake_version_testing-output_2
+
+
 # xml debug files
 *.xml
 
