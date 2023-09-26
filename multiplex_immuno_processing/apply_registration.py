@@ -10,15 +10,19 @@ import tifffile
 from scipy.ndimage import affine_transform
 import ast
 import re
+from core.gif_generation import generate_gif_for_evaluation
 
 """
 perform the alignment from the csvs 
 """
 
+# arg and handling for contact sheet gif
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
 parser.add_argument("--matched_position_w_align_params_csv", type=str, required=False, help="Matched position csv to align a single position (Optional)")
 parser.add_argument("--round_crop_tempelate", type=str, default="Timelapse")
+parser.add_argument("--placeholder", type=str, required=False, help="placeholder for snakemake rule.... generates an output text file")
 
 
 def max_project(seg_img_labeled):
@@ -66,8 +70,19 @@ def get_FOV_shape(filepath):
     return np.shape(reader)
 
 
+def find_files_to_use_in_gif(filenames_all):
+    "This is currently setup this way b/c of channel switching in the data"
+
+    Round_imaging_nuc_images = [f for f in filenames_all if "_C3_" in f and "_R0_" not in f]
+    Round0_nuc_images = [f for f in filenames_all if "_C2_" in f and "_R0_" in f]
+    if len(Round0_nuc_images)==1:
+        Round_imaging_nuc_images.append(Round0_nuc_images[0])
+    
+    return Round_imaging_nuc_images
+
+
 class perform_alignment_per_position():
-    def __init__(self, alignment_csv_dir, yaml_config, round_to_crop_to):
+    def __init__(self, alignment_csv_dir, yaml_config, round_to_crop_to, generate_validation_gif=True):
         df = pd.read_csv(alignment_csv_dir)
         cond = df["Round"]==round_to_crop_to
         matching_indices = df[cond].index
@@ -84,10 +99,17 @@ class perform_alignment_per_position():
         self.position = os.path.basename(alignment_csv_dir)
 
         self.save_aligned_images_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]),"round_aligned_images")
+        
 
         if not os.path.exists(self.save_aligned_images_dir):
             os.mkdir(self.save_aligned_images_dir)
         
+        self.generate_validation_gif=generate_validation_gif
+        if self.generate_validation_gif==True: 
+            self.output_gif_save_dir = os.path.join(self.yaml_config["output_path"], str(self.yaml_config["barcode"]), "validation_gifs")
+            if not os.path.exists(self.output_gif_save_dir):
+                os.mkdir(self.output_gif_save_dir)
+
     def get_tempelate_ref(self, y_dim, x_dim):
         tempelate_ref = np.uint16(np.asarray([y_dim+ (y_dim * 0.33), x_dim + (x_dim * 0.33),]))
         return tempelate_ref
@@ -126,15 +148,18 @@ class perform_alignment_per_position():
 
         name = f"{barcode}_R{round_num}_P{str(position).zfill(2)}-{well_id}-T{str(timepoint).zfill(2)}_C{channel}_MIP.tiff"
         tifffile.imwrite(os.path.join(self.save_aligned_images_dir,name), image)
+        return name
 
 
     def perform_alignment(self):
-        _, _,_, y_dim_ref, x_dim_ref = get_FOV_shape(self.position_csv.iloc[0]["RAW_filepath"])
+        _, _,_, y_dim_ref,x_dim_ref = get_FOV_shape(self.position_csv.iloc[0]["RAW_filepath"])
         tempelate_ref = self.get_tempelate_ref(y_dim_ref, x_dim_ref)
         # refrence_round_to_crop = self.matched_position_csv.loc[self.matched_position_csv['Round']==self.round_to_crop_tempelate].iloc[0]
         # shape_tempelate_ref = np.shape(max_project(self.load_zstack_to_align(refrence_round_info["RAW_filepath"], 2, refrence_round_info["Scene"])))
+        filenames_in_rounds_for_position=[]
         for i in range(np.shape(self.position_csv)[0]):
             #for channel in np.shape()
+
             round_of_intrest = self.position_csv.iloc[i]
             t_dim, ch_dim, z_dim, y_dim, x_dim = get_FOV_shape(round_of_intrest["RAW_filepath"])
             #TODO: align all timepoints
@@ -150,15 +175,26 @@ class perform_alignment_per_position():
                         crop_dims = self.find_padding_dimensions(aligned_mip)
 
                     final_mip = self.crop_according_to_refrence_crop_round(aligned_mip, crop_dims)
-                    self.save_mip(final_mip, round_of_intrest["Round"], round_of_intrest["Position"], round_of_intrest["Well_id"], ch, timepoint)
+                    filename = self.save_mip(final_mip, round_of_intrest["Round"], round_of_intrest["Position"], round_of_intrest["Well_id"], ch, timepoint)
+                    
 
+                    if timepoint==t_dim-1: 
+                        filenames_in_rounds_for_position.append(filename)
 
-
+        # generate validation gif-True and "timelapse is in position csv"
+        
+        # and "Timelapse" in self.position_csv["Round"].tolist()
+        filenames_in_rounds_for_position = find_files_to_use_in_gif(filenames_in_rounds_for_position)
+        if self.generate_validation_gif == True and len(filenames_in_rounds_for_position) !=0 and "Timelapse" in self.position_csv["Round"].tolist():
+            # only run contact sheet generation for files that have timelapse round present
+            gif_image_shape = (int(x_dim_ref/4), int(y_dim_ref/4))
+            generate_gif_for_evaluation(self.save_aligned_images_dir, filenames_in_rounds_for_position, self.output_gif_save_dir, round_of_intrest["Position"], yaml_config["barcode"], gif_image_shape)
 
 if __name__ == "__main__":
 
     args=parser.parse_args()
-    
+
+
     with open(args.input_yaml) as f:
         yaml_config = yaml.load(f, Loader=SafeLoader)
 
@@ -174,6 +210,15 @@ if __name__ == "__main__":
             print(os.path.join(alignment_parameters_dir, filename))
             position_aligner = perform_alignment_per_position(os.path.join(alignment_parameters_dir, filename), args.input_yaml, args.round_crop_tempelate)
             position_aligner.perform_alignment()
+
+    print(f"args placeholder is {args.placeholder}")
+
+    if args.placeholder:
+        print("inside")
+        f = open(args.placeholder, "a")
+        f.write("done")
+        f.close()
+
 
 
 
