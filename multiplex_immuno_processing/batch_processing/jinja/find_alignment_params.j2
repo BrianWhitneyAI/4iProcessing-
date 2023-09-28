@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#SBATCH --job-name=find_align_params
+#SBATCH --partition aics_cpu_general
+#SBATCH --ntasks-per-node=1
+#SBATCH --spread-job
+#SBATCH --mem 50G
+#SBATCH --output {{ jinja_output }}/generate_alignment_params_%A_%A.out
+id=$SLURM_ARRAY_TASK_ID
+
+srun /allen/aics/apps/hpc_shared/mod/anaconda3-5.3.0/envs/goutham_registration/bin/python  {{ cwd }}/find_alignment_parameters.py --input_yaml {{ input_yaml }} --matched_position_csv_dir {{ matched_position_csv_dir }} 
+
+
+
+
