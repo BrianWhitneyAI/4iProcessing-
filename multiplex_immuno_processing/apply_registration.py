@@ -17,7 +17,6 @@ from core.utils import load_zstack_mip, get_FOV_shape, max_project
 perform the alignment from the csvs 
 """
 
-# arg and handling for contact sheet gif
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_yaml", type=str, required=True, help="yaml config path")
@@ -108,17 +107,15 @@ class perform_alignment_per_position():
 
 
     def perform_alignment(self):
+        """Alignment for specified position"""
         _, _,_, y_dim_ref,x_dim_ref = get_FOV_shape(self.position_csv.iloc[0]["RAW_filepath"])
         tempelate_ref = self.get_tempelate_ref(y_dim_ref, x_dim_ref)
-        # refrence_round_to_crop = self.matched_position_csv.loc[self.matched_position_csv['Round']==self.round_to_crop_tempelate].iloc[0]
-        # shape_tempelate_ref = np.shape(max_project(self.load_zstack_to_align(refrence_round_info["RAW_filepath"], 2, refrence_round_info["Scene"])))
+
         filenames_in_rounds_for_position=[]
         for i in range(np.shape(self.position_csv)[0]):
-            #for channel in np.shape()
 
             round_of_intrest = self.position_csv.iloc[i]
             t_dim, ch_dim, z_dim, y_dim, x_dim = get_FOV_shape(round_of_intrest["RAW_filepath"])
-            #TODO: align all timepoints
             
             for timepoint in range(t_dim):
                 for ch in range(ch_dim):
@@ -134,12 +131,10 @@ class perform_alignment_per_position():
                     filename = self.save_mip(final_mip, round_of_intrest["Round"], round_of_intrest["Position"], round_of_intrest["Well_id"], ch, timepoint)
                     
 
-                    if timepoint==t_dim-1: 
+                    if timepoint==t_dim-1: # Aligns last timepoint in R0
                         filenames_in_rounds_for_position.append(filename)
 
-        # generate validation gif-True and "timelapse is in position csv"
-        
-        # and "Timelapse" in self.position_csv["Round"].tolist()
+
         filenames_in_rounds_for_position = find_files_to_use_in_gif(filenames_in_rounds_for_position)
         if self.generate_validation_gif == True and len(filenames_in_rounds_for_position) !=0 and "Timelapse" in self.position_csv["Round"].tolist():
             # only run contact sheet generation for files that have timelapse round present

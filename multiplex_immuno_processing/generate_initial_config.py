@@ -6,10 +6,12 @@ import re
 from aicsimageio import AICSImage
 import ruamel.yaml
 
-# test
-# run this to make the initial yaml files and then edit those files to make sure nothing is missing.
-# this code only helps make the yaml files...it does not generate a perfect yaml automatically.
-#TODO: this needs to be refactored to make it more generalizable  .... not too important since the output gets manually modified anyway
+"""
+run this to make the initial yaml files and then edit those files to make sure nothing is missing.
+this code only helps make the yaml files...it does not generate a perfect yaml automatically.
+TODO: this needs to be refactored to make it more generalizable  .... not too important since the output gets manually modified anyway
+"""
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--input_dirs", nargs="+", default=[], help="input dirs to parse")
 parser.add_argument(
@@ -26,18 +28,7 @@ def sort_rounds(rounds):
         except:
             # This is to get the timelapse
             Orginal_numbered_list.append(rounds[i])
-    # print(f"original list is {Orginal_numbered_list}")
-    #sorted_list = sorted(Orginal_numbered_list)
-    # print(f"sorted list is {sorted_list}")
-    #final_sorted_list = []
-    # for num in set(sorted_list):
-    #     # index = Orginal_numbered_list.index(num)
-    #     indexs = [i for i, val in enumerate(Orginal_numbered_list) if val == num]
-    #     # print(f"for num {num}, indexs is {indexs}")
-    #     for k in range(len(indexs)):
-    #         idx = indexs[k]
-    #         # print(idx)
-    #         final_sorted_list.append(rounds[idx])
+
     return Orginal_numbered_list
 
 
