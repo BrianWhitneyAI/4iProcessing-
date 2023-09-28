@@ -4,13 +4,13 @@ This workflow is used to align images across different rounds of imaging on data
 
 This workflow has 4 main steps:
 
-## Create an intial yaml configuration file 
+## Step 1: Create an intial yaml configuration file 
 This yaml specifies what data can be used for round alignment. Examples of yaml configuration files are provided in config_files/
 We also provide a script that can generate an initial config which can then be manually modified. This may or may not work depending on the folder and naming structure of the input data
 
 python multiplex_immuno_processing/generate_initial_config.py --input_dirs {} --output_dirs {}
 
-## Generate matched position dataframes
+## Step 2: Generate matched position dataframes
 This specifies which position/scenes correspond to which position/scenes across different rounds of imaging
 
 ```
@@ -21,7 +21,7 @@ The output of this is a directory called matched_datasets which contains a csv f
 
 <img width="514" alt="Screenshot 2023-09-12 at 3 57 39 PM" src="https://github.com/aics-int/multiplex_immuno_processing/assets/40441855/0192c323-78d3-4276-8200-bc415c594d5f">
 
-## Find alignment parameters
+## Step 3: Find alignment parameters
 This step finds the alignment parameters for each position in the matched position dataframe
 
 ```
@@ -41,7 +41,7 @@ The output of this is a directory called alignment_parameters which contains csv
 <img width="584" alt="Screenshot 2023-09-12 at 3 58 03 PM" src="https://github.com/aics-int/multiplex_immuno_processing/assets/40441855/7dbdb2b1-7ba7-402c-b721-7d2c154df6bc">
 
 
-## Apply alignment
+## Step 4: Apply alignment
 
 This step performs a rigid registration according to the alignment parameters calculated in the previous step
 
