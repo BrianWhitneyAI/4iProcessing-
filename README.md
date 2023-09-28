@@ -1,6 +1,6 @@
 # multiplex_immuno_processing
 
-This workflow is used to align images across different rounds of imaging on data acquired on ZSD microscopes. This workflow can be run in several ways. (1) In a manual sequence where we run a set of python scripts one after another, (2) In a hybrid sequential/parrelilized setup where we can parralize the most time consuming parts of this workflow across different nodes via slurm, (3) In a modular setup where we can perform round alignment for just a specific desired position, (4) Snakemake?
+This workflow is used to align images across different rounds of imaging on data acquired on ZSD microscopes. This workflow can be run in several ways. (1) In a manual sequence where we run a set of python scripts, (2) In a hybrid sequential/parrelilized setup where we can parralize the most time consuming parts of this workflow across different nodes via slurm, (3) In a modular setup where we can perform round alignment for just a specific desired position, (4) Using Snakemake for automation of running most of these steps
 
 This workflow has 4 main steps:
 
@@ -58,13 +58,9 @@ cd multiplex_immuno_processing/batch_processing
 python tempelate_batch_run.py --input_yaml ../../config_files/{} --matched_position_w_align_params_csv_parent_dir {}
 ```
 
-The output of this is a directory called round_aligned_images which contains all the aligned positions for each round
+The output of this is a directory called round_aligned_images which contains all the aligned positions for each round. 
+This step also outputs gif overlays for each position. This can be used for quick validation of the alignments
 
-## Gif overlay validation(optional):
-This step creates gifs that show overlays for each position. This can be used for quick validation of the alignments
-```
-python multiplex_immuno_processing/generate_gifs_for_validation.py --input_yaml {} --frame_rate {}
-```
 ![3500005822_position_05_evaluation](https://github.com/aics-int/multiplex_immuno_processing/assets/40441855/07868274-cb75-42c3-a554-06a335c0c2b6)
 
 
