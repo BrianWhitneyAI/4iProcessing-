@@ -1,6 +1,6 @@
 # multiplex_immuno_processing
 
-This workflow is used to align images across different rounds of imaging on data acquired on ZSD microscopes. This workflow can be run in several ways. (1) In a manual sequence where we run a set of python scripts, (2) In a hybrid sequential/parrelilized setup where we can parralize the most time consuming parts of this workflow across different nodes via slurm, (3) In a modular setup where we can perform round alignment for just a specific desired position, (4) Using Snakemake for automation of running most of these steps
+This workflow is used to align images across different rounds of imaging on data acquired on ZSD microscopes. This workflow can be run in several ways. (1) In a manual sequence where we run a set of python scripts, (2) In a hybrid sequential/parrelilized setup where we can parralize the most time consuming parts of this workflow across different nodes via slurm, (3) In a modular setup where we can perform round alignment for just a specific desired position, (4) Using Snakemake for automation of running most of these steps(See multiplex_immuno_processing/batch_processing/ReadMe.md for instructions)
 
 This workflow has 4 main steps:
 
